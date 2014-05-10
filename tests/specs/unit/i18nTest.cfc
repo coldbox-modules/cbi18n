@@ -6,46 +6,50 @@ www.coldbox.org | www.luismajano.com | www.ortussolutions.com
 
 Author 	    :	Luis Majano
 ----------------------------------------------------------------------->
-<cfcomponent extends="coldbox.system.testing.BasePluginTest" plugin="coldbox.system.plugins.i18n">
+<cfcomponent extends="coldbox.system.testing.BaseTestCase" appMapping="/root">
 <cfscript>
 
 	function setup(){
 		super.setup();
 
 		// Mocks
-		mockRB =  getMockBox().createEmptyMock( "coldbox.system.plugins.ResourceBundle" )
+		mockRB =  getMockBox().createEmptyMock( "i18n.model.ResourceService" )
 			.$("loadBundle");
-		mockController.$("getPlugin", mockRB )
+		mockController = prepareMock( getController() );
+		mockController
 			.$("getSetting").$args("LocaleStorage").$results( "session" )
 			.$("getSetting").$args("DefaultLocale").$results( "en_US" )
 			.$("getSetting").$args("DefaultResourceBundle").$results( "" )
 			.$("settingExists", true)
-			.$("getSetting").$args("RBundles").$results( {} );
+			.$("getSetting").$args("RBundles").$results( {} )
+			.$("getSetting").$args( name="resourceBundles", defaultValue=structNew() ).$results( {} );
 
-		plugin.init( mockController );
-		plugin.init_i18N( rblocale = "en_US", rbFile = "" );
+		i18n = createMock( "i18n.model.i18n" ).init();
+		i18n.$property( "controller", "variables", mockController )
+			.$property( "resourceService", "variables", mockRB );
+		i18n.configure();
 	}
 
 	function testgetSetfwLocale(){
-		assertEquals( "en_US", plugin.getFWLocale() );
-		plugin.setFWLocale( "es_SV" );
-		assertEquals( "es_SV", plugin.getFWLocale() );
+		assertEquals( "en_US", i18n.getFWLocale() );
+		i18n.setFWLocale( "es_SV" );
+		assertEquals( "es_SV", i18n.getFWLocale() );
 	}
 
 	function testisValidLocale(){
-		assertTrue( plugin.isValidLocale( "en_US" ) );
-		assertFalse( plugin.isValidLocale( "ee" ) );
+		assertTrue( i18n.isValidLocale( "en_US" ) );
+		assertFalse( i18n.isValidLocale( "ee" ) );
 	}
 
 	function testLocaleMethods(){
-		assertEquals( "en_US", plugin.getFWLocale() );
-		assertEquals( "English (United States)", plugin.getFWLocaleDisplay() );
-		assertEquals( "united states", plugin.getFWCountry() );
-		assertEquals( "US", plugin.getFWCountryCode() );
-		assertEquals( "USA", plugin.getFWISO3CountryCode() );
-		assertEquals( "English", plugin.getFWLanguage() );
-		assertEquals( "en", plugin.getFWLanguageCode() );
-		assertEquals( "eng", plugin.getFWISO3LanguageCode() );
+		assertEquals( "en_US", i18n.getFWLocale() );
+		assertEquals( "English (United States)", i18n.getFWLocaleDisplay() );
+		assertEquals( "united states", i18n.getFWCountry() );
+		assertEquals( "US", i18n.getFWCountryCode() );
+		assertEquals( "USA", i18n.getFWISO3CountryCode() );
+		assertEquals( "English", i18n.getFWLanguage() );
+		assertEquals( "en", i18n.getFWLanguageCode() );
+		assertEquals( "eng", i18n.getFWISO3LanguageCode() );
 	}
 </cfscript>
 </cfcomponent>

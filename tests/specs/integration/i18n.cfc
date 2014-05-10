@@ -51,6 +51,11 @@ component extends="coldbox.system.testing.BaseTestCase" appMapping="/root"{
 				expect(	event.getValue( "cbox_rendered_content" ) ).toInclude( "Home" );
 			});
 
+			it( "can load from modules", function(){
+				var event = execute( event="test1:test.i18n", renderResults=true );
+				expect(	event.getValue( "cbox_rendered_content" ) ).toInclude( "Welcome to my awesome multi-lingual module" );
+			});
+
 		});
 
 	}
