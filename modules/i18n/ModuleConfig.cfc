@@ -28,10 +28,7 @@ component {
 	* Fired when the module is registered and activated.
 	*/
 	function onLoad(){
-		if( parseParentSettings() ){
-			// startup the i18n engine
-			wirebox.getInstance( "i18n@i18n" ).configure();
-		}
+		parseParentSettings();
 	}
 
 	/**
@@ -39,6 +36,66 @@ component {
 	*/
 	function onUnload(){
 
+	}
+
+	/**
+	* Listen when modules are activated to load their i18n capabilities
+	*/
+	function afterConfigurationLoad( event, interceptData ){
+		var modules 			= controller.getSetting( "modules" );
+		var moduleService 		= controller.getModuleService();
+		var moduleConfigCache 	= moduleService.getModuleConfigCache();
+
+		for( var thisModule in modules ){
+			// get module config object
+			var oConfig = moduleConfigCache[ thisModule ];
+			// Get i18n Settings
+			var i18nSettings = oConfig.getPropertyMixin( "i18n", "variables", structnew() );
+			// Verify it exists and use it, else ignore.
+			if( structCount( i18nSettings ) ){
+				var flagi18n = false;
+				// setup the default settings
+				modules[ thisModule ].i18n = {
+					defaultResourceBundle = "",
+					defaultLocale = "",
+					localeStorage = "",
+					unknownTranslation = "",
+					resourceBundles = {}
+				};
+				// Append incoming structure
+				structAppend( modules[ thisModule ].i18n, i18nSettings, true );
+
+				// process i18n settings
+				if( len( modules[ thisModule ].i18n.defaultResourceBundle ) AND NOT len( controller.getSetting( "defaultResourceBundle" ) ) ){
+					controller.setSetting( "defaultResourceBundle", modules[ thisModule ].i18n.defaultResourceBundle );
+					flagi18n = true;
+				}
+				if( len( modules[ thisModule ].i18n.unknownTranslation ) AND NOT len( controller.getSetting( "unknownTranslation" ) ) ){
+					controller.setSetting( "unknownTranslation", modules[ thisModule ].i18n.unknownTranslation );
+					flagi18n = true;
+				}
+				if( len( modules[ thisModule ].i18n.defaultLocale ) AND NOT len( controller.getSetting( "defaultLocale" ) ) ){
+					controller.setSetting( "defaultLocale", modules[ thisModule ].i18n.defaultLocale );
+					flagi18n = true;
+				}
+				if( len( modules[ thisModule ].i18n.localeStorage ) AND NOT len( controller.getSetting( "localeStorage" ) ) ){
+					controller.setSetting( "localeStorage", modules[ thisModule ].i18n.localeStorage );
+					flagi18n = true;
+				}
+				if( structCount( modules[ thisModule ].i18n.resourceBundles ) ){
+					structAppend( controller.getSetting( "resourceBundles" ), modules[ thisModule ].i18n.resourceBundles, true );
+					flagi18n = true;
+				}
+				if( flagi18n ){
+					controller.setSetting( "using_i18N", true );
+				}
+			}
+		}
+		
+		// startup the i18n engine if using it, else ignore.
+		if( controller.getSetting( "using_i18n" ) ){
+			wirebox.getInstance( "i18n@i18n" ).configure();
+		}
 	}
 
 	/**
