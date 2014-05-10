@@ -1,0 +1,23 @@
+{
+	"name" 		: "ColdBox i18n",
+	"author" 	: "Luis Majano <lmajano@ortussolutions.com",
+	"version"	: "1.0.0",
+	"slug"		: "i18n",
+	"directory"	: "/modules",
+	"type"		: "modules",
+	"engines"	: [
+		{ "type" : "railo", "version" : ">3.1" },
+		{ "type" : "adobe", "version" : ">9.0" },
+		{ "type" : "coldbox", "version" : ">4.0" }
+	],
+	"testbox" 	: {
+		"runner" : {
+			"cf10" 	: "http://cf10cboxdev.jfetmac/codedepot/cbox-i18n/tests/runner.cfm",
+			"cf11" 	: "http://cf11cboxdev.jfetmac/codedepot/cbox-i18n/tests/runner.cfm",
+			"railo" : "http://railocboxdev.jfetmac/codedepot/cbox-i18n/tests/runner.cfm" 
+		}
+	},
+	"devdependencies" : {
+		"testbox" : ">2.0"		
+	}
+}
