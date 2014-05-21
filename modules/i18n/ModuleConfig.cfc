@@ -21,7 +21,7 @@ component {
 
 	function configure(){
 		// Mixin our own methods on handlers, interceptors and views via the ColdBox UDF Library File setting
-		arrayAppend( controller.getSetting( "UDFLibraryFile" ), "#moduleMapping#/model/mixins.cfm" );
+		arrayAppend( controller.getSetting( "UDFLibraryFile" ), "#moduleMapping#/model/Mixins.cfm" );
 	}
 
 	/**
