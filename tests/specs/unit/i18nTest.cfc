@@ -13,7 +13,7 @@ Author 	    :	Luis Majano
 		super.setup();
 
 		// Mocks
-		mockRB =  getMockBox().createEmptyMock( "i18n.model.ResourceService" )
+		mockRB =  getMockBox().createEmptyMock( "i18n.models.ResourceService" )
 			.$("loadBundle");
 		mockController = prepareMock( getController() );
 		mockController
@@ -24,7 +24,7 @@ Author 	    :	Luis Majano
 			.$("getSetting").$args("RBundles").$results( {} )
 			.$("getSetting").$args( name="resourceBundles", defaultValue=structNew() ).$results( {} );
 
-		i18n = createMock( "i18n.model.i18n" ).init();
+		i18n = createMock( "i18n.models.i18n" ).init();
 		i18n.$property( "controller", "variables", mockController )
 			.$property( "resourceService", "variables", mockRB );
 		i18n.configure();

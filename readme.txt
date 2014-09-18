@@ -17,7 +17,8 @@ Holy Ghost which is given unto us. ." Romans 5:5
 WELCOME TO THE COLDBOX I18N & LOCALIZATION MODULE
 ********************************************************************************
 Created & copyright by Luis Majano (Ortus Solutions, Corp)
-This module will enhance your ColdBox aplications with i18n capabilities,
+
+This module will enhance your ColdBox applications with i18n capabilities,
 resource bundles and localization.
 
 ********************************************************************************
@@ -35,9 +36,8 @@ Source
 ********************************************************************************
 SYSTEM REQUIREMENTS
 ********************************************************************************
-- Railo 3.2 and above
-- ColdFusion MX 9 and above
-- ColdBox 4.0 and above
+- Railo 4+
+- ColdFusion 9+
 
 ----
 

@@ -12,13 +12,11 @@ component{
 	this.mappings[ "/tests" ] = getDirectoryFromPath( getCurrentTemplatePath() );
 	rootPath = REReplaceNoCase( this.mappings[ "/tests" ], "tests(\\|/)", "" );
 	this.mappings[ "/root" ]   = rootPath;
-	this.mappings[ "/i18n" ]   = rootPath & "/modules/i18n";
 
 	// any orm definitions go here.
 
 	// request start
 	public boolean function onRequestStart( String targetPage ){
-
 		return true;
 	}
 }
