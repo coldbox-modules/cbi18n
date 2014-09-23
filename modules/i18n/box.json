@@ -16,6 +16,6 @@
 	],
 	"engines"	: [
 		{ "type" : "railo", "version" : ">4.1" },
-		{ "type" : "adobe", "version" : ">9.02" },
+		{ "type" : "adobe", "version" : ">9.02" }
 	]
 }
