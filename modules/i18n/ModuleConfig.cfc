@@ -107,7 +107,7 @@ component {
 	/**
 	* Prepare settings and returns true if using i18n else false.
 	*/
-	private boolean function parseParentSettings(){
+	private function parseParentSettings(){
 		// Read parent application config
 		var oConfig 		= controller.getSetting( "ColdBoxConfig" );
 		var i18n 			= oConfig.getPropertyMixin( "i18N", "variables", structnew() );
