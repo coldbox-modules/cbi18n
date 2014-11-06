@@ -1,6 +1,6 @@
 {
 	"name" 		: "ColdBox i18n",
-	"version"	: "1.0.0.@build.number@",
+	"version"	: "1.0.0+@build.number@",
 	"author" 	: "Luis Majano <lmajano@ortussolutions.com",
 	"slug"		: "i18n",
 	"type"		: "modules",
