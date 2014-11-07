@@ -37,7 +37,7 @@ function getResource(
 	defaultValue,
 	locale,
 	values,
-	bundle,
+	bundle
 ){
 	// check for resource@bundle convention:
 	if( find( "@", arguments.resource ) ){
