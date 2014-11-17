@@ -7,7 +7,7 @@
 component {
 
 	// Module Properties
-	this.title 				= "i18n";
+	this.title 				= "cbi18n";
 	this.author 			= "Luis Majano";
 	this.webURL 			= "http://www.ortussolutions.com";
 	this.description 		= "Gives i18n and localization capabilities to applications";
@@ -17,13 +17,13 @@ component {
 	// If true, looks for layouts in the parent first, if not found, then in module. Else vice-versa
 	this.layoutParentLookup = true;
 	// Module Entry Point
-	this.entryPoint			= "i18n";
+	this.entryPoint			= "cbi18n";
 	// Model Namespace
-	this.modelNamespace		= "i18n";
+	this.modelNamespace		= "cbi18n";
 	// Auto Map Models Directory
 	this.autoMapModels		= true;
 	// CF Mapping
-	this.cfmapping			= "i18n";
+	this.cfmapping			= "cbi18n";
 
 	function configure(){
 		// Mixin our own methods on handlers, interceptors and views via the ColdBox UDF Library File setting
@@ -100,7 +100,7 @@ component {
 
 		// startup the i18n engine if using it, else ignore.
 		if( controller.getSetting( "using_i18n" ) ){
-			wirebox.getInstance( "i18n@i18n" ).configure();
+			wirebox.getInstance( "i18n@cbi18n" ).configure();
 		}
 	}
 
