@@ -5,7 +5,7 @@
 */
 function getFWLocale(){
 	if( NOT structKeyExists( variables,"cbox18n" ) ){
-		variables.cbox18n = getInstance( "i18n@i18n" );
+		variables.cbox18n = getInstance( "i18n@cbi18n" );
 	}
 	return variables.cbox18n.getfwLocale();
 }
@@ -19,7 +19,7 @@ function getFWLocale(){
 */
 function setFWLocale( string locale="", boolean dontloadRBFlag=false ){
 	if( NOT structKeyExists( variables,"cbox18n" ) ){
-		variables.cbox18n = getInstance( "i18n@i18n" );
+		variables.cbox18n = getInstance( "i18n@cbi18n" );
 	}
 	return variables.cbox18n.setfwLocale( argumentCollection=arguments );
 }
@@ -46,7 +46,7 @@ function getResource(
 	}
 	// Verify injection
 	if( NOT structKeyExists( variables, "cboxResourceService" ) ){
-		variables.cboxResourceService = getInstance( "resourceService@i18n" );
+		variables.cboxResourceService = getInstance( "resourceService@cbi18n" );
 	}
 	// Default value conversion
 	if( !isNull( arguments.defaultValue ) ){
