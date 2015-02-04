@@ -40,7 +40,7 @@ i18n = {
     // The storage to use for user's locale: session, client, cookie, request
     localeStorage = "cookie",
     // The value to show when a translation is not found
-    unknownTranslation = "**NOT FOUND**"
+    unknownTranslation = "**NOT FOUND**",
     // Extra resource bundles to load
     resourceBundles = {
         alias = "path"
