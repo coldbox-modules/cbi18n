@@ -1,6 +1,6 @@
 {
 	"name" 		: "ColdBox i18n",
-	"version"	: "1.0.0",
+	"version"	: "1.0.1",
 	"author" 	: "Luis Majano <lmajano@ortussolutions.com",
 	"slug"		: "cbi18n",
 	"type"		: "modules",
@@ -17,5 +17,12 @@
 	"engines"	: [
 		{ "type" : "railo", "version" : ">4.1" },
 		{ "type" : "adobe", "version" : ">9.02" }
-	]
+	],
+	"ignore":[
+        "**/.*",
+        "test",
+        "tests",
+        "apidocs",
+        "*/.md"
+    ]
 }
