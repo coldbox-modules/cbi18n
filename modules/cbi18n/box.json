@@ -1,6 +1,6 @@
 {
-	"name" 		: "ColdBox i18n",
-	"version"	: "1.0.1",
+	"name" 		: "ColdBox i18n Support",
+	"version"	: "1.0.2",
 	"author" 	: "Luis Majano <lmajano@ortussolutions.com",
 	"slug"		: "cbi18n",
 	"type"		: "modules",
@@ -15,6 +15,7 @@
 		"Brad Wood <bdw429s@gmail.com>", "Curt Gratz <gratz@computerknowhow.com>"
 	],
 	"engines"	: [
+		{ "type" : "lucee", "version" : ">4.5" },
 		{ "type" : "railo", "version" : ">4.1" },
 		{ "type" : "adobe", "version" : ">9.02" }
 	],
