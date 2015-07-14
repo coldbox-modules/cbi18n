@@ -35,7 +35,7 @@
 			//Error/Exception Handling
 			exceptionHandler		= "",
 			onInvalidEvent			= "",
-			customErrorTemplate		= "",
+			customErrorTemplate		= "/coldbox/system/includes/BugReport.cfm",
 
 			//Application Aspects
 			handlerCaching 			= false,
@@ -46,9 +46,6 @@
 		// custom settings
 		settings = {
 		};
-
-		// Activate WireBox
-		wirebox = { enabled = true, singletonReload=true };
 
 		// Module Directives
 		modules = {
