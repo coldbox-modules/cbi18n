@@ -1,5 +1,8 @@
 CHANGELOG
 =========
+## 1.1.0
+* Updated build process
+* Updated docs and instructions
 
 ##1.0.2
 * Fixes on `getRBKeys()` and `getRBString()` to load correct file paths.

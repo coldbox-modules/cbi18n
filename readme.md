@@ -1,5 +1,4 @@
-WELCOME TO THE COLDBOX I18N & LOCALIZATION MODULE
-=================================================
+# WELCOME TO THE COLDBOX I18N & LOCALIZATION MODULE
 This module will enhance your ColdBox applications with i18n capabilities,
 resource bundles and localization.
 
@@ -7,17 +6,16 @@ resource bundles and localization.
 Apache License, Version 2.0.
 
 ##IMPORTANT LINKS
-- Documentation: http://wiki.coldbox.org/wiki/I18n.cfm
+- Documentation: https://github.com/ColdBox/cbox-i18n/wiki
 - Source: https://github.com/ColdBox/cbox-i18n
-- ForgeBox: http://www.coldbox.org/forgebox/i18n
+- ForgeBox: http://forgebox.io/view/i18n
 
 ##SYSTEM REQUIREMENTS
 - Lucee 4.5+
-- Railo 4+
+- Railo 4+ (Deprecated)
 - ColdFusion 9+
 
-INSTRUCTIONS
-============
+## INSTRUCTIONS
 
 Just drop into your **modules** folder or use the box-cli to install
 
@@ -88,7 +86,7 @@ function getResource(
 function $r()
 ```
 
-You can read more about this module here: http://wiki.coldbox.org/wiki/I18n.cfm
+You can read more about this module here: https://github.com/ColdBox/cbox-i18n/wiki
 
 ********************************************************************************
 Copyright Since 2005 ColdBox Framework by Luis Majano and Ortus Solutions, Corp

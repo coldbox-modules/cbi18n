@@ -1,7 +1,7 @@
 /**
 *********************************************************************************
 * Copyright Since 2005 ColdBox Framework by Luis Majano and Ortus Solutions, Corp
-* www.coldbox.org | www.luismajano.com | www.ortussolutions.com
+* www.ortussolutions.com
 ********************************************************************************
 */
 component {
@@ -11,7 +11,7 @@ component {
 	this.author 			= "Luis Majano";
 	this.webURL 			= "http://www.ortussolutions.com";
 	this.description 		= "Gives i18n and localization capabilities to applications";
-	this.version			= "1.0.2+@build.number@";
+	this.version			= "1.1.0+@build.number@";
 	// If true, looks for views in the parent first, if not found, then in the module. Else vice-versa
 	this.viewParentLookup 	= true;
 	// If true, looks for layouts in the parent first, if not found, then in module. Else vice-versa
@@ -25,6 +25,9 @@ component {
 	// CF Mapping
 	this.cfmapping			= "cbi18n";
 
+	/**
+	* Configure Module
+	*/
 	function configure(){
 		// Mixin our own methods on handlers, interceptors and views via the ColdBox UDF Library File setting
 		arrayAppend( controller.getSetting( "ApplicationHelper" ), "#moduleMapping#/models/Mixins.cfm" );
@@ -41,9 +44,9 @@ component {
 	* Fired when the module is unregistered and unloaded
 	*/
 	function onUnload(){
-		var appHelperArray = controller.getSetting( "ApplicationHelper" );
-		var mixinToRemove = "#moduleMapping#/models/Mixins.cfm";
-		var mixinIndex = arrayFindNoCase( appHelperArray, mixinToRemove );
+		var appHelperArray 	= controller.getSetting( "ApplicationHelper" );
+		var mixinToRemove 	= "#moduleMapping#/models/Mixins.cfm";
+		var mixinIndex 		= arrayFindNoCase( appHelperArray, mixinToRemove );
 		
 		// If the mixin is in the array
 		if( mixinIndex ) {
