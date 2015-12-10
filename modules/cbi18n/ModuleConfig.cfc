@@ -37,7 +37,8 @@ component {
 	* Fired when the module is registered and activated.
 	*/
 	function onLoad(){
-		parseParentSettings();
+		var using_i18n = parseParentSettings();
+		if(using_i18n) wirebox.getInstance( "i18n@cbi18n" ).configure();
 	}
 
 	/**
