@@ -79,6 +79,7 @@ component {
 					defaultLocale = "",
 					localeStorage = "",
 					unknownTranslation = "",
+					logUnknownTranslation = false,
 					resourceBundles = {}
 				};
 				// Append incoming structure
@@ -131,6 +132,7 @@ component {
 		configStruct[ "defaultLocale" ] 			= "";
 		configStruct[ "localeStorage" ] 			= "";
 		configStruct[ "unknownTranslation" ] 		= "";
+		configStruct[ "logUnknownTranslation" ] 	= false;
 		configStruct[ "using_i18N" ] 				= false;
 		configStruct[ "resourceBundles" ]			= structNew();
 		configStruct[ "RBundles" ]					= structNew();
@@ -166,6 +168,11 @@ component {
 			// Check for UnknownTranslation
 			if ( structKeyExists( i18n, "unknownTranslation" ) AND len( i18n.unknownTranslation ) ){
 				configStruct[ "unknownTranslation" ] = i18n.unknownTranslation;
+			}
+
+			// Check for UnknownTranslation
+			if ( structKeyExists( i18n, "logUnknownTranslation" ) AND i18n.logUnknownTranslation ){
+				configStruct[ "logUnknownTranslation" ] = i18n.logUnknownTranslation;
 			}
 
 			// Check for ResourceBundles
