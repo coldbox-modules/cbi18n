@@ -1,7 +1,7 @@
 {
     "name":"CBi18n Builder",
     "version":"1.0.0",
-    "slug" : "cbi18n-shell",
+    "slug":"cbi18n-shell",
     "private":false,
     "defaultPort":0,
     "dependencies":{
