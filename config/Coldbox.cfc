@@ -61,7 +61,8 @@
 			},
 			defaultLocale = "en_US",
 			localeStorage = "cookie",
-			unknownTranslation = "**NOT FOUND**"
+			unknownTranslation = "**NOT FOUND**",
+			logUnknownTranslation = true
 		};
 
 
@@ -76,7 +77,7 @@
 				}
 			},
 			// Root Logger
-			root = { levelmax="DEBUG", appenders="*" },
+			root = { levelmax="ERROR", appenders="*" },
 			// Implicit Level Categories
 			info = [ "coldbox.system" ]
 		};

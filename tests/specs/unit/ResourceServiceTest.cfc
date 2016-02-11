@@ -20,6 +20,7 @@ Author 	    :	Luis Majano
 			.$("getSetting").$args("DefaultLocale").$results( "en_US" )
 			.$("getSetting").$args("DefaultResourceBundle").$results( "" )
 			.$("getSetting").$args("UnknownTranslation").$results( "**TEST**" )
+			.$("getSetting").$args("logUnknownTranslation").$results("true")
 			.$("settingExists", true)
 			.$("getAppRootPath", expandPath("/root") );
 
