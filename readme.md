@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/ColdBox/cbox-i18n.svg?branch=master)](https://travis-ci.org/ColdBox/cbox-i18n)
+
 # WELCOME TO THE COLDBOX I18N & LOCALIZATION MODULE
 This module will enhance your ColdBox applications with i18n capabilities,
 resource bundles and localization.
