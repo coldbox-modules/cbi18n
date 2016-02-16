@@ -3,7 +3,6 @@
     "version":"1.0.0",
     "slug" : "cbi18n-shell",
     "private":false,
-    "defaultPort":0,
     "dependencies":{
         "coldbox":"4.1.0+00002"
     },
@@ -13,5 +12,12 @@
     "installPaths":{
         "coldbox":"coldbox",
         "testbox":"testbox"
-    }
+    },
+     "testbox" : {
+        "runner" : [
+            {
+                "default":"http://localhost:49616/tests/runner.cfm"
+            }
+        ]
+    },
 }

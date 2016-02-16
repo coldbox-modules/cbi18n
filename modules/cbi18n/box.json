@@ -1,6 +1,6 @@
 {
 	"name" 		: "ColdBox i18n Support",
-	"version"	: "1.1.0",
+	"version"	: "1.2.0",
 	"author" 	: "Luis Majano <lmajano@ortussolutions.com",
 	"slug"		: "cbi18n",
 	"type"		: "modules",
