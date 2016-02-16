@@ -2,6 +2,7 @@ CHANGELOG
 =========
 ## 1.2.0
 * New configuration setting for logging when no translation is found `logUnknownTranslation`
+* Adding Travis CI support
 
 ## 1.1.0
 * Updated build process

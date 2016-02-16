@@ -1,4 +1,7 @@
 language: java
+branches:
+  only:
+    - development
 sudo: required
 dist: trusty
 before_install:
