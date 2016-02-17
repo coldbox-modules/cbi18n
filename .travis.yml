@@ -18,4 +18,4 @@ install:
 before_script:
 - curl http://localhost:49616/
 script: |
-  testResults="echo $(box testbox run)"; echo "$testResults"; if grep "\[Failures: [1-9][0-9]\?\]\|<t[^>]*>\|<b[^>]*>" <<< $testResults;  then exit 1; fi
+  testResults="echo $(box testbox run)"; echo "$testResults"; if grep -i "\[(Failures|Errors): [1-9][0-9]\?\]\|<t[^>]*>\|<b[^>]*>" <<< $testResults;  then exit 1; fi

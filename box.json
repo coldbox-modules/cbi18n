@@ -1,7 +1,7 @@
 {
     "name":"CBi18n Builder",
     "version":"1.0.0",
-    "slug" : "cbi18n-shell",
+    "slug":"cbi18n-shell",
     "private":false,
     "dependencies":{
         "coldbox":"4.1.0+00002"
@@ -13,11 +13,7 @@
         "coldbox":"coldbox",
         "testbox":"testbox"
     },
-     "testbox" : {
-        "runner" : [
-            {
-                "default":"http://localhost:49616/tests/runner.cfm"
-            }
-        ]
-    },
+    "testbox":{
+        "runner":"http://localhost:49616/tests/runner.cfm"
+    }
 }
