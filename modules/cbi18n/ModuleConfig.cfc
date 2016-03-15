@@ -11,7 +11,7 @@ component {
 	this.author 			= "Luis Majano";
 	this.webURL 			= "http://www.ortussolutions.com";
 	this.description 		= "Gives i18n and localization capabilities to applications";
-	this.version			= "1.1.0+@build.number@";
+	this.version			= "@build.version@+@build.number@";
 	// If true, looks for views in the parent first, if not found, then in the module. Else vice-versa
 	this.viewParentLookup 	= true;
 	// If true, looks for layouts in the parent first, if not found, then in module. Else vice-versa
@@ -79,6 +79,7 @@ component {
 					defaultLocale = "",
 					localeStorage = "",
 					unknownTranslation = "",
+					logUnknownTranslation = false,
 					resourceBundles = {}
 				};
 				// Append incoming structure
@@ -131,6 +132,7 @@ component {
 		configStruct[ "defaultLocale" ] 			= "";
 		configStruct[ "localeStorage" ] 			= "";
 		configStruct[ "unknownTranslation" ] 		= "";
+		configStruct[ "logUnknownTranslation" ] 	= false;
 		configStruct[ "using_i18N" ] 				= false;
 		configStruct[ "resourceBundles" ]			= structNew();
 		configStruct[ "RBundles" ]					= structNew();
@@ -166,6 +168,11 @@ component {
 			// Check for UnknownTranslation
 			if ( structKeyExists( i18n, "unknownTranslation" ) AND len( i18n.unknownTranslation ) ){
 				configStruct[ "unknownTranslation" ] = i18n.unknownTranslation;
+			}
+
+			// Check for UnknownTranslation
+			if ( structKeyExists( i18n, "logUnknownTranslation" ) AND i18n.logUnknownTranslation ){
+				configStruct[ "logUnknownTranslation" ] = i18n.logUnknownTranslation;
 			}
 
 			// Check for ResourceBundles
