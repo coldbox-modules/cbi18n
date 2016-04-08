@@ -80,7 +80,8 @@ component {
 					localeStorage = "",
 					unknownTranslation = "",
 					logUnknownTranslation = false,
-					resourceBundles = {}
+					resourceBundles = {},
+					customResourceService = ""
 				};
 				// Append incoming structure
 				structAppend( modules[ thisModule ].i18n, i18nSettings, true );
@@ -102,10 +103,21 @@ component {
 					controller.setSetting( "localeStorage", modules[ thisModule ].i18n.localeStorage );
 					flagi18n = true;
 				}
+				
+				if( len( modules[ thisModule ].i18n.customResourceService ) AND NOT len( controller.getSetting( "customResourceService" ) ) ){
+					binder.map( "ResourceService@cbi18n", true ).to( "shared.model.extensions.plugins.ResourceService" );
+					flagi18n = true;
+				}
+
 				if( structCount( modules[ thisModule ].i18n.resourceBundles ) ){
 					structAppend( controller.getSetting( "resourceBundles" ), modules[ thisModule ].i18n.resourceBundles, true );
 					flagi18n = true;
 				}
+
+				if( len( controller.getSetting( "customResourceService" ) ) ){
+					binder.map( "resourceService@cbi18n", true ).to( getSetting( "customResourceService" ) );
+				}
+				
 				if( flagi18n ){
 					controller.setSetting( "using_i18N", true );
 				}
