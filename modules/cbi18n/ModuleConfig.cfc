@@ -38,6 +38,10 @@ component {
 	*/
 	function onLoad(){
 		parseParentSettings();
+
+		if( len( controller.getSetting( "customResourceService" ) ) ){
+			binder.map( "resourceService@cbi18n", true ).to( controller.getSetting( "customResourceService" ) );
+		}
 	}
 
 	/**
@@ -70,6 +74,7 @@ component {
 			var oConfig = moduleConfigCache[ thisModule ];
 			// Get i18n Settings
 			var i18nSettings = oConfig.getPropertyMixin( "i18n", "variables", structnew() );
+
 			// Verify it exists and use it, else ignore.
 			if( structCount( i18nSettings ) ){
 				var flagi18n = false;
@@ -85,6 +90,7 @@ component {
 				};
 				// Append incoming structure
 				structAppend( modules[ thisModule ].i18n, i18nSettings, true );
+
 
 				// process i18n settings
 				if( len( modules[ thisModule ].i18n.defaultResourceBundle ) AND NOT len( controller.getSetting( "defaultResourceBundle" ) ) ){
@@ -103,19 +109,10 @@ component {
 					controller.setSetting( "localeStorage", modules[ thisModule ].i18n.localeStorage );
 					flagi18n = true;
 				}
-				
-				if( len( modules[ thisModule ].i18n.customResourceService ) AND NOT len( controller.getSetting( "customResourceService" ) ) ){
-					binder.map( "ResourceService@cbi18n", true ).to( "shared.model.extensions.plugins.ResourceService" );
-					flagi18n = true;
-				}
 
 				if( structCount( modules[ thisModule ].i18n.resourceBundles ) ){
 					structAppend( controller.getSetting( "resourceBundles" ), modules[ thisModule ].i18n.resourceBundles, true );
 					flagi18n = true;
-				}
-
-				if( len( controller.getSetting( "customResourceService" ) ) ){
-					binder.map( "resourceService@cbi18n", true ).to( getSetting( "customResourceService" ) );
 				}
 				
 				if( flagi18n ){
@@ -148,6 +145,7 @@ component {
 		configStruct[ "using_i18N" ] 				= false;
 		configStruct[ "resourceBundles" ]			= structNew();
 		configStruct[ "RBundles" ]					= structNew();
+		configStruct[ "customResourceService" ]		= "";
 
 		// Check if empty
 		if ( NOT structIsEmpty( i18n ) ){
@@ -190,6 +188,11 @@ component {
 			// Check for ResourceBundles
 			if ( structKeyExists( i18n, "resourceBundles" ) AND isStruct( i18n.resourceBundles ) ){
 				configStruct[ "resourceBundles" ] = i18n.resourceBundles;
+			}
+
+			//Check for custom ResourceService
+			if( structKeyExists( i18n, "customResourceService" ) AND len( i18n.customResourceService ) ){
+				configStruct[ "customResourceService" ] = i18n.customResourceService;	
 			}
 
 			// set i18n being used
