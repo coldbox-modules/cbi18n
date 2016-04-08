@@ -62,7 +62,8 @@
 			defaultLocale = "en_US",
 			localeStorage = "cookie",
 			unknownTranslation = "**NOT FOUND**",
-			logUnknownTranslation = true
+			logUnknownTranslation = true,
+			customResourceService = "models.CustomResourceService"
 		};
 
 
