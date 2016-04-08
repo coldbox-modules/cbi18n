@@ -74,12 +74,12 @@
 			var row1 = queryAddRow( resourceQuery );
 			querySetCell( resourceQuery, "locale", "en_US", row1 );
 			querySetCell( resourceQuery, "name", "welcome", row1 );
-			querySetCell( resourceQuery, "value", "Welcome to my awesome multi-lingual module from a custom Resource Service", row1 );
+			querySetCell( resourceQuery, "value", "Welcome to my awesome multi-lingual app using a custom Resource Service", row1 );
 
 			var row2 = queryAddRow( resourceQuery );
 			querySetCell( resourceQuery, "locale", "en_SV", row2 );
 			querySetCell( resourceQuery, "name", "welcome", row2 );
-			querySetCell( resourceQuery, "value", "Bienvenidos a mi increíble módulo multi-lingual de un servicio personalizado de recursos", row2 );
+			querySetCell( resourceQuery, "value", "Bienvenido a mi aplicación en varios idiomas impresionante uso de un Servicio de Recursos de encargo", row2 );
 		
 			return resourceQuery;
 		</cfscript>
