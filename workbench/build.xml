@@ -143,9 +143,21 @@
 			<not><equals arg1="${environment}" arg2="auto" /></not>
 			<then>
 				<property name="test.target" value="run" />
+				<!-- Run our Lucee 5 Tests -->
+				<property name="test.target" value="runL5" />
 			</then>
 			<else>
 				<property name="test.target" value="run-junit" />
+				<!-- Run our Lucee 5 Tests if docker is available -->
+				<if>
+					<property environment="env" /> 
+					  <available file="docker-compose"  
+					             filepath="${env.PATH}"  
+					             property="commandname.present"/>
+					<then>
+						<property name="test.targetL5" value="runLucee5" />
+					</then>
+				</if>
 			</else>
 		</if>
     	<!-- Run for Core -->

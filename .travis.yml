@@ -6,17 +6,25 @@ branches:
   only:
   - development
 sudo: required
+services:
+  - docker
 dist: trusty
 before_install:
 - sudo apt-key adv --keyserver keys.gnupg.net --recv 6DA70622
 - sudo echo "deb http://downloads.ortussolutions.com/debs/noarch /" | sudo tee -a
   /etc/apt/sources.list.d/commandbox.list
+- docker-machine start default
 install:
+# Core testing install
 - sudo apt-get update && sudo apt-get --assume-yes install commandbox
 - box install
 - box server start
+# Docker CFML Server Tests
+- docker-compose build
+- docker-compose up lucee5
 before_script:
 # Startup the app
 - curl http://localhost:49616/
+- curl http://192.168.99.100:8085/
 script:
   - ant -f workbench/build.xml
