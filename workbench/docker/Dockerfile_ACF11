@@ -12,10 +12,12 @@ RUN wget -nv $ACF_LIBS_URL -O /opt/ACF11.zip && \
 	cd /opt && \
 	unzip ACF11.zip && \
 	rm -rf /opt/ACF11.zip
+
 # Copy the default directories to our new webroot
 # RUN cp -r $CF_HOME/cfusion/wwwroot/CFIDE $WEBROOT/ && \
 #	cp -r $CF_HOME/cfusion/wwwroot/WEB-INF $WEBROOT/
 
 EXPOSE 8500
 
+CMD ["set","-e"]
 CMD ["coldfusion", "start"]

@@ -59,7 +59,7 @@
 	</target>
 	
 	<!-- Build Project -->
-	<target name="build" depends="init,run-tests" description="Build the project">
+	<target name="build" depends="init,run-tests,run-docker-tests" description="Build the project">
 		<!-- Copy build ID -->
 		<concat destfile="${dir.build}/${build.label}">Built on ${start.TODAY}</concat>
 		
@@ -143,25 +143,27 @@
 			<not><equals arg1="${environment}" arg2="auto" /></not>
 			<then>
 				<property name="test.target" value="run" />
-				<!-- Run our Lucee 5 Tests -->
-				<property name="test.target" value="runL5" />
 			</then>
 			<else>
 				<property name="test.target" value="run-junit" />
-				<!-- Run our Lucee 5 Tests if docker is available -->
-				<if>
-					<property environment="env" /> 
-					  <available file="docker-compose"  
-					             filepath="${env.PATH}"  
-					             property="commandname.present"/>
-					<then>
-						<property name="test.targetL5" value="runLucee5" />
-					</then>
-				</if>
 			</else>
 		</if>
     	<!-- Run for Core -->
     	<subant target="${test.target}">
+          	<fileset dir="tests" includes="test.xml"/>
+    		<property name="environment" value="${environment}" />
+        </subant>
+    </target>
+
+     <!-- Test for Docker Availability -->
+    <property environment="env" /> 
+	<available file="docker-compose" filepath="${env.PATH}" property="docker.present"/>
+
+	<!-- Docker Tests for Different Engines -->
+    <target name="run-docker-tests" description="Run Docker Container Tests" depends="init" if="docker.present">
+		<!-- Lucee 5 Tests -->
+		<property name="test.targetL5" value="runLucee5" />
+		<subant target="${test.targetL5}">
           	<fileset dir="tests" includes="test.xml"/>
     		<property name="environment" value="${environment}" />
         </subant>

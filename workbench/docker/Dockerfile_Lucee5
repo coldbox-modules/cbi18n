@@ -5,7 +5,6 @@ RUN mkdir -p "$CATALINA_HOME"
 WORKDIR $CATALINA_HOME
 
 ENV LUCEE_JARS_URL https://oss.sonatype.org/content/repositories/releases/org/lucee/lucee/5.0.0.235-RC/lucee-5.0.0.235-RC.jar
-ENV LUCEE_JAVA_OPTS "-Xms256m -Xmx512m"
 
 # Download core JAR, and delete it in one step to avoid committing the installer in a FS layer
 RUN wget -nv $LUCEE_JARS_URL -O /root/lucee.jar && \
@@ -28,4 +27,6 @@ COPY Lucee5/lucee-server.xml /opt/lucee/server/lucee-server/context/lucee-server
 COPY Lucee5/lucee-web.xml.cfm /opt/lucee/web/lucee-web.xml.cfm
 
 EXPOSE 8088
-CMD ["catalina.sh", "start"]
+
+CMD ["mkdir","/var/www/tests/results/lucee5"]
+CMD ["catalina.sh", "run"]

@@ -16,9 +16,9 @@ acf11:
   build: ./workbench/docker
   # DC build file for this server
   dockerfile: Dockerfile_ACF11
-  # bind public port to 8011
+  # bind public port to 8081
   ports:
-    - "8011:8500"
+    - "8081:8500"
   # mount our project root at /var/www ( the default for this server config )
   volumes:
     - .:/var/www
