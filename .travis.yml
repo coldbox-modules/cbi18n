@@ -30,7 +30,7 @@ install:
   - box server start
   # Docker CFML Server Tests
   - docker-compose build
-  - docker-compose up lucee5
+  - docker-compose up -d
 
 before_script:
   # Startup the app
