@@ -4,7 +4,7 @@ ENV PATH $CATALINA_HOME/bin:$PATH
 RUN mkdir -p "$CATALINA_HOME"
 WORKDIR $CATALINA_HOME
 
-ENV LUCEE_JARS_URL https://oss.sonatype.org/content/repositories/releases/org/lucee/lucee/5.0.0.235-RC/lucee-5.0.0.235-RC.jar
+ENV LUCEE_JARS_URL http://snapshot.lucee.org/rest/update/provider/loader/5.0.0.244-SNAPSHOT
 
 # Download core JAR, and delete it in one step to avoid committing the installer in a FS layer
 RUN wget -nv $LUCEE_JARS_URL -O /root/lucee.jar && \
