@@ -161,9 +161,17 @@
 
 	<!-- Docker Tests for Different Engines -->
     <target name="run-docker-tests" description="Run Docker Container Tests" depends="init" if="docker.present">
+
 		<!-- Lucee 5 Tests -->
 		<property name="test.targetL5" value="runLucee5" />
 		<subant target="${test.targetL5}">
+          	<fileset dir="tests" includes="test.xml"/>
+    		<property name="environment" value="${environment}" />
+        </subant>
+
+        <!-- ACF11 -->
+        <property name="test.targetACF11" value="runACF11" />
+		<subant target="${test.targetACF11}">
           	<fileset dir="tests" includes="test.xml"/>
     		<property name="environment" value="${environment}" />
         </subant>

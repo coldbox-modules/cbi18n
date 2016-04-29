@@ -10,3 +10,15 @@ lucee5:
   # mount our project root at /var/www ( the default for this server config )
   volumes:
     - .:/var/www
+# ACF11 Container Config:
+acf11:  
+  # The location of our core docker directory
+  build: ./workbench/docker
+  # DC build file for this server
+  dockerfile: Dockerfile_ACF11
+  # bind public port to 8081
+  ports:
+    - "8081:8500"
+  # mount our project root at /var/www ( the default for this server config )
+  volumes:
+    - .:/var/www
