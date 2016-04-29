@@ -67,6 +67,11 @@ component extends="coldbox.system.testing.BaseTestCase" appMapping="/root"{
 				expect(	event.getValue( "cbox_rendered_content" ) ).toInclude( "Welcome to my awesome multi-lingual module" );
 			});
 
+			it( "can implement a custom resource service", function(){
+				var event = execute( event="main.testi18nCustomResourceService", renderResults=true );
+				expect(	event.getValue( "cbox_rendered_content" ) ).toInclude( "Welcome to my awesome multi-lingual app using a custom Resource Service" );
+			});
+
 		});
 
 	}

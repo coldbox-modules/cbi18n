@@ -1,0 +1,24 @@
+# Lucee 5 Container Config:
+lucee5:  
+  # The location of our core docker directory
+  build: ./workbench/docker
+  # DC build file for this server
+  dockerfile: Dockerfile_Lucee5
+  # bind public port to 8085
+  ports:
+    - "8085:8888"
+  # mount our project root at /var/www ( the default for this server config )
+  volumes:
+    - .:/var/www
+# ACF11 Container Config:
+acf11:  
+  # The location of our core docker directory
+  build: ./workbench/docker
+  # DC build file for this server
+  dockerfile: Dockerfile_ACF11
+  # bind public port to 8081
+  ports:
+    - "8081:8500"
+  # mount our project root at /var/www ( the default for this server config )
+  volumes:
+    - .:/var/www

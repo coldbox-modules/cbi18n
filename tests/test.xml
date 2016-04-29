@@ -102,7 +102,7 @@ PLEASE NOTE THAT YOU MUST ALTER THE RUNNER'S URL ACCORDING TO YOUR ENVIRONMENT.
 			 - Labels
 		-->
 		<get dest="${report.dir}/results.txt" 
-			 src="${url.runner}&amp;directory=${test.directory}&amp;recurse=${test.recurse}&amp;reporter=${test.reporter}&amp;labels=${test.labels}&amp;reportPath=${report.dir}&amp;propertiesSummary=true&amp;directoryExcludes=${test.directoryExcludes}&amp;cfid=123&amp;cftoken=123" 
+			 src="${url.runners.default}&amp;directory=${test.directory}&amp;recurse=${test.recurse}&amp;reporter=${test.reporter}&amp;labels=${test.labels}&amp;reportPath=${report.dir}&amp;propertiesSummary=true&amp;directoryExcludes=${test.directoryExcludes}&amp;cfid=123&amp;cftoken=123" 
 			 verbose="true"/>
 		
 		<!-- Bundles Runner
@@ -114,7 +114,7 @@ PLEASE NOTE THAT YOU MUST ALTER THE RUNNER'S URL ACCORDING TO YOUR ENVIRONMENT.
 			 - Labels
 
 		<get dest="${report.dir}/results.html" 
-			 src="${url.runner}&amp;bundles=${test.bundles}&amp;reporter=${test.reporter}&amp;labels=${test.labels}&amp;propertiesSummary=true" 
+			 src="${url.runners.default}&amp;bundles=${test.bundles}&amp;reporter=${test.reporter}&amp;labels=${test.labels}&amp;propertiesSummary=true" 
 			 verbose="true"/>
 		 -->
 		
@@ -125,6 +125,53 @@ PLEASE NOTE THAT YOU MUST ALTER THE RUNNER'S URL ACCORDING TO YOUR ENVIRONMENT.
         <!-- Echo actual results -->
         <loadresource property="testresults">
 	       <file file="${report.dir}/results.txt"/>
+	    </loadresource>
+	    <echo message="${testresults}"/>
+        <!-- Fail build if they failed -->
+        <fail if="test.failed"/>
+	</target>
+
+	<target name="runLucee5" depends="init" description="Run our tests on Lucee 5 (Docker Required)">  
+		<property name="report.dirL5" value="${report.dir}/lucee5" />
+		<property name="report.pathL5" value="/tests/results/lucee5" />
+		
+		<mkdir dir="${report.dirL5}" />
+
+		<get dest="${report.dirL5}/results.txt" 
+			 src="${url.runners.lucee5}&amp;directory=${test.directory}&amp;recurse=${test.recurse}&amp;reporter=${test.reporter}&amp;labels=${test.labels}&amp;reportPath=${report.pathL5}&amp;propertiesSummary=true&amp;directoryExcludes=${test.directoryExcludes}&amp;cfid=123&amp;cftoken=123" 
+			 verbose="true"/>
+
+        <!-- Read Result Properties -->
+        <property file="${report.dirL5}/TEST.properties"/>
+        <!-- Echo them out -->
+        <echoproperties regex="^(test|total).*"/>
+        <!-- Echo actual results -->
+        <loadresource property="testresults">
+	       <file file="${report.dirL5}/results.txt"/>
+	    </loadresource>
+	    <echo message="${testresults}"/>
+        <!-- Fail build if they failed -->
+        <fail if="test.failed"/>
+	</target>
+
+	
+	<target name="runACF11" depends="init" description="Run our tests on ACF11 (Docker Required)">  
+		<property name="report.dirACF11" value="${report.dir}/acf11" />
+		<property name="report.pathACF11" value="/tests/results" />
+		
+		<mkdir dir="${report.dirACF11}" />
+		<!-- Note: Omitting reportPath for ACF until PR#33 for Testbox is merged -->
+		<get dest="${report.dirACF11}/results.txt" 
+			 src="${url.runners.acf11}&amp;directory=${test.directory}&amp;recurse=${test.recurse}&amp;reporter=${test.reporter}&amp;labels=${test.labels}&amp;propertiesSummary=true&amp;directoryExcludes=${test.directoryExcludes}&amp;cfid=123&amp;cftoken=123" 
+			 verbose="true"/>
+
+        <!-- Read Result Properties -->
+        <property file="${report.dirACF11}/TEST.properties"/>
+        <!-- Echo them out -->
+        <echoproperties regex="^(test|total).*"/>
+        <!-- Echo actual results -->
+        <loadresource property="testresults">
+	       <file file="${report.dirACF11}/results.txt"/>
 	    </loadresource>
 	    <echo message="${testresults}"/>
         <!-- Fail build if they failed -->
@@ -145,7 +192,7 @@ PLEASE NOTE THAT YOU MUST ALTER THE RUNNER'S URL ACCORDING TO YOUR ENVIRONMENT.
 			 - ReportPath : The path where reports will be stored, by default it is the ${report.dir} directory.
 		-->
 		<get dest="${report.dir}/results.xml" 
-					 src="${url.runner}&amp;directory=${test.directory}&amp;recurse=${test.recurse}&amp;reporter=ANTJunit&amp;labels=${test.labels}&amp;reportPath=${report.dir}&amp;propertiesSummary=true&amp;directoryExcludes=${test.directoryExcludes}&amp;cfid=123&amp;cftoken=123" 
+					 src="${url.runners.default}&amp;directory=${test.directory}&amp;recurse=${test.recurse}&amp;reporter=ANTJunit&amp;labels=${test.labels}&amp;reportPath=${report.dir}&amp;propertiesSummary=true&amp;directoryExcludes=${test.directoryExcludes}&amp;cfid=123&amp;cftoken=123" 
 					 verbose="true"/>
 		
 		<!-- Bundles Runner
@@ -157,7 +204,7 @@ PLEASE NOTE THAT YOU MUST ALTER THE RUNNER'S URL ACCORDING TO YOUR ENVIRONMENT.
 			 - Labels
 
 		<get dest="${report.dir}/results.html" 
-			 src="${url.runner}&amp;bundles=${test.bundles}&amp;reporter=${test.reporter}&amp;labels=${test.labels}&amp;propertiesSummary=true" 
+			 src="${url.runners.default}&amp;bundles=${test.bundles}&amp;reporter=${test.reporter}&amp;labels=${test.labels}&amp;propertiesSummary=true" 
 			 verbose="true"/>
 		 -->
 		

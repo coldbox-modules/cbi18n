@@ -59,7 +59,7 @@
 	</target>
 	
 	<!-- Build Project -->
-	<target name="build" depends="init,run-tests" description="Build the project">
+	<target name="build" depends="init,run-tests,run-docker-tests" description="Build the project">
 		<!-- Copy build ID -->
 		<concat destfile="${dir.build}/${build.label}">Built on ${start.TODAY}</concat>
 		
@@ -68,7 +68,7 @@
         	<fileset dir="modules/${module.name}" />
         </copy>
         <!-- Copy readme -->
-        <copy todir="${dir.build}" encoding="UTF-8" file="readme.md" overwrite="true" />
+        <copy todir="${dir.build}" encoding="UTF-8" file="README.md" overwrite="true" />
         
         <!-- Replace Version + Build Numbers -->
 		<replaceregexp match='@build.version@' replace="${project.version}" flags="ig" byline="true" encoding="UTF-8">
@@ -150,6 +150,28 @@
 		</if>
     	<!-- Run for Core -->
     	<subant target="${test.target}">
+          	<fileset dir="tests" includes="test.xml"/>
+    		<property name="environment" value="${environment}" />
+        </subant>
+    </target>
+
+     <!-- Test for Docker Availability -->
+    <property environment="env" /> 
+	<available file="docker-compose" filepath="${env.PATH}" property="docker.present"/>
+
+	<!-- Docker Tests for Different Engines -->
+    <target name="run-docker-tests" description="Run Docker Container Tests" depends="init" if="docker.present">
+
+		<!-- Lucee 5 Tests -->
+		<property name="test.targetL5" value="runLucee5" />
+		<subant target="${test.targetL5}">
+          	<fileset dir="tests" includes="test.xml"/>
+    		<property name="environment" value="${environment}" />
+        </subant>
+
+        <!-- ACF11 -->
+        <property name="test.targetACF11" value="runACF11" />
+		<subant target="${test.targetACF11}">
           	<fileset dir="tests" includes="test.xml"/>
     		<property name="environment" value="${environment}" />
         </subant>
