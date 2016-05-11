@@ -1,5 +1,5 @@
 <cfcomponent hint="reads resource bundles from database"
-			 extends="modules.cbi18n.models.ResourceService"
+			 extends="cbi18n.models.ResourceService"
 			 output="false"
 			 cache="true"
 			 cachetimeout="0"
