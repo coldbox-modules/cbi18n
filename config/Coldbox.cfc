@@ -63,7 +63,7 @@
 			localeStorage = "cookie",
 			unknownTranslation = "**NOT FOUND**",
 			logUnknownTranslation = true,
-			customResourceService = "models.CustomResourceService"
+			customResourceService = "#len( appMapping ) ? appMapping & "." : ''#models.CustomResourceService"
 		};
 
 
