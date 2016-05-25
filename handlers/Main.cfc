@@ -19,4 +19,8 @@ component{
 		return getResource( "home@support" );
 	}
 
+	any function testi18nCustomResourceService( event, rc, prc ){
+		return getResource( "welcome@crs" );
+	}
+
 }

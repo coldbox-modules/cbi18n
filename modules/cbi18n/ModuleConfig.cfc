@@ -1,7 +1,7 @@
 /**
 *********************************************************************************
 * Copyright Since 2005 ColdBox Framework by Luis Majano and Ortus Solutions, Corp
-* www.coldbox.org | www.luismajano.com | www.ortussolutions.com
+* www.ortussolutions.com
 ********************************************************************************
 */
 component {
@@ -11,7 +11,7 @@ component {
 	this.author 			= "Luis Majano";
 	this.webURL 			= "http://www.ortussolutions.com";
 	this.description 		= "Gives i18n and localization capabilities to applications";
-	this.version			= "1.0.0+@build.number@";
+	this.version			= "@build.version@+@build.number@";
 	// If true, looks for views in the parent first, if not found, then in the module. Else vice-versa
 	this.viewParentLookup 	= true;
 	// If true, looks for layouts in the parent first, if not found, then in module. Else vice-versa
@@ -25,6 +25,9 @@ component {
 	// CF Mapping
 	this.cfmapping			= "cbi18n";
 
+	/**
+	* Configure Module
+	*/
 	function configure(){
 		// Mixin our own methods on handlers, interceptors and views via the ColdBox UDF Library File setting
 		arrayAppend( controller.getSetting( "ApplicationHelper" ), "#moduleMapping#/models/Mixins.cfm" );
@@ -35,15 +38,19 @@ component {
 	*/
 	function onLoad(){
 		parseParentSettings();
+
+		if( len( controller.getSetting( "customResourceService" ) ) ){
+			binder.map( "resourceService@cbi18n", true ).to( controller.getSetting( "customResourceService" ) );
+		}
 	}
 
 	/**
 	* Fired when the module is unregistered and unloaded
 	*/
 	function onUnload(){
-		var appHelperArray = controller.getSetting( "ApplicationHelper" );
-		var mixinToRemove = "#moduleMapping#/models/Mixins.cfm";
-		var mixinIndex = arrayFindNoCase( appHelperArray, mixinToRemove );
+		var appHelperArray 	= controller.getSetting( "ApplicationHelper" );
+		var mixinToRemove 	= "#moduleMapping#/models/Mixins.cfm";
+		var mixinIndex 		= arrayFindNoCase( appHelperArray, mixinToRemove );
 		
 		// If the mixin is in the array
 		if( mixinIndex ) {
@@ -67,6 +74,7 @@ component {
 			var oConfig = moduleConfigCache[ thisModule ];
 			// Get i18n Settings
 			var i18nSettings = oConfig.getPropertyMixin( "i18n", "variables", structnew() );
+
 			// Verify it exists and use it, else ignore.
 			if( structCount( i18nSettings ) ){
 				var flagi18n = false;
@@ -76,10 +84,13 @@ component {
 					defaultLocale = "",
 					localeStorage = "",
 					unknownTranslation = "",
-					resourceBundles = {}
+					logUnknownTranslation = false,
+					resourceBundles = {},
+					customResourceService = ""
 				};
 				// Append incoming structure
 				structAppend( modules[ thisModule ].i18n, i18nSettings, true );
+
 
 				// process i18n settings
 				if( len( modules[ thisModule ].i18n.defaultResourceBundle ) AND NOT len( controller.getSetting( "defaultResourceBundle" ) ) ){
@@ -98,10 +109,12 @@ component {
 					controller.setSetting( "localeStorage", modules[ thisModule ].i18n.localeStorage );
 					flagi18n = true;
 				}
+
 				if( structCount( modules[ thisModule ].i18n.resourceBundles ) ){
 					structAppend( controller.getSetting( "resourceBundles" ), modules[ thisModule ].i18n.resourceBundles, true );
 					flagi18n = true;
 				}
+				
 				if( flagi18n ){
 					controller.setSetting( "using_i18N", true );
 				}
@@ -128,9 +141,11 @@ component {
 		configStruct[ "defaultLocale" ] 			= "";
 		configStruct[ "localeStorage" ] 			= "";
 		configStruct[ "unknownTranslation" ] 		= "";
+		configStruct[ "logUnknownTranslation" ] 	= false;
 		configStruct[ "using_i18N" ] 				= false;
 		configStruct[ "resourceBundles" ]			= structNew();
 		configStruct[ "RBundles" ]					= structNew();
+		configStruct[ "customResourceService" ]		= "";
 
 		// Check if empty
 		if ( NOT structIsEmpty( i18n ) ){
@@ -165,9 +180,19 @@ component {
 				configStruct[ "unknownTranslation" ] = i18n.unknownTranslation;
 			}
 
+			// Check for UnknownTranslation
+			if ( structKeyExists( i18n, "logUnknownTranslation" ) AND i18n.logUnknownTranslation ){
+				configStruct[ "logUnknownTranslation" ] = i18n.logUnknownTranslation;
+			}
+
 			// Check for ResourceBundles
 			if ( structKeyExists( i18n, "resourceBundles" ) AND isStruct( i18n.resourceBundles ) ){
 				configStruct[ "resourceBundles" ] = i18n.resourceBundles;
+			}
+
+			//Check for custom ResourceService
+			if( structKeyExists( i18n, "customResourceService" ) AND len( i18n.customResourceService ) ){
+				configStruct[ "customResourceService" ] = i18n.customResourceService;	
 			}
 
 			// set i18n being used

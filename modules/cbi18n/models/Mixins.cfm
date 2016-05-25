@@ -1,5 +1,4 @@
 <cfscript>
-
 /**
 * Get the user's currently set locale or default locale according to settings
 */

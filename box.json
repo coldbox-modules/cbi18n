@@ -1,0 +1,19 @@
+{
+    "name":"CBi18n Builder",
+    "version":"1.0.0",
+    "slug":"cbi18n-shell",
+    "private":false,
+    "dependencies":{
+        "coldbox":"4.2.0+00002"
+    },
+    "devDependencies":{
+        "testbox":"2.3.0+00044"
+    },
+    "installPaths":{
+        "coldbox":"coldbox",
+        "testbox":"testbox"
+    },
+    "testbox":{
+        "runner":"http://localhost:49616/tests/runner.cfm"
+    }
+}

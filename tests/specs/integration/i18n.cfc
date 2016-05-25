@@ -39,6 +39,17 @@ component extends="coldbox.system.testing.BaseTestCase" appMapping="/root"{
 				setup();
 			});
 
+			it( "can load resources with different options", function(){
+				var event 	= execute( event="main.index", renderResults=true );
+				var results = event.getValue( "cbox_rendered_content" );
+				// Verify all cases on the content
+				expect(	results )
+					.toInclude( "Home" )
+					.toInclude( "BogusNotFound" )
+					.toInclude( "Casa")
+					.toInclude( "Help Me from Support" );
+			});
+
 			it( "can load resource in the parent", function(){
 				//var event = execute( event="test1:test.i18n", renderResults=true );
 				//expect(	event.getValue( "cbox_rendered_content" ) ).toInclude( "Welcome to my awesome multi-lingual module" );
@@ -54,6 +65,11 @@ component extends="coldbox.system.testing.BaseTestCase" appMapping="/root"{
 			it( "can load from modules", function(){
 				var event = execute( event="test1:test.i18n", renderResults=true );
 				expect(	event.getValue( "cbox_rendered_content" ) ).toInclude( "Welcome to my awesome multi-lingual module" );
+			});
+
+			it( "can implement a custom resource service", function(){
+				var event = execute( event="main.testi18nCustomResourceService", renderResults=true );
+				expect(	event.getValue( "cbox_rendered_content" ) ).toInclude( "Welcome to my awesome multi-lingual app using a custom Resource Service" );
 			});
 
 		});

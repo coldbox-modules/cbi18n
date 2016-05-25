@@ -35,7 +35,7 @@
 			//Error/Exception Handling
 			exceptionHandler		= "",
 			onInvalidEvent			= "",
-			customErrorTemplate		= "",
+			customErrorTemplate		= "/coldbox/system/includes/BugReport.cfm",
 
 			//Application Aspects
 			handlerCaching 			= false,
@@ -46,9 +46,6 @@
 		// custom settings
 		settings = {
 		};
-
-		// Activate WireBox
-		wirebox = { enabled = true, singletonReload=true };
 
 		// Module Directives
 		modules = {
@@ -64,7 +61,9 @@
 			},
 			defaultLocale = "en_US",
 			localeStorage = "cookie",
-			unknownTranslation = "**NOT FOUND**"
+			unknownTranslation = "**NOT FOUND**",
+			logUnknownTranslation = true,
+			customResourceService = "#len( appMapping ) ? appMapping & "." : ''#models.CustomResourceService"
 		};
 
 
@@ -79,7 +78,7 @@
 				}
 			},
 			// Root Logger
-			root = { levelmax="DEBUG", appenders="*" },
+			root = { levelmax="ERROR", appenders="*" },
 			// Implicit Level Categories
 			info = [ "coldbox.system" ]
 		};

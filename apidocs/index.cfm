@@ -1,14 +1,13 @@
 <cfparam name="url.version" default="0">
-<cfparam name="url.path" 	default="#expandPath( "./ColdBox-i18n-APIDocs" )#">
+<cfparam name="url.path" 	default="#expandPath( "./cbi18n-APIDocs" )#">
 <cfscript>
-	docName = "ColdBox-i18n-APIDocs";
-	base = expandPath( "/cbi18n" );
-
-	colddoc 	= new ColdDoc();
-	strategy 	= new colddoc.strategy.api.HTMLAPIStrategy( url.path, "CBi18n v#url.version#" );
-	colddoc.setStrategy( strategy );
-
-	colddoc.generate( inputSource=base, outputDir=url.path, inputMapping="cbi18n" );
+	docName = "cbi18n-APIDocs";
+	base 	= expandPath( "/cbi18n" );
+	docbox 	= new docbox.DocBox( properties = {
+		projectTitle 	= "cbi18n v#url.version#",
+		outputDir 		= url.path
+	} );
+	docbox.generate( source=base, mapping="cbi18n" );
 </cfscript>
 
 <!---
