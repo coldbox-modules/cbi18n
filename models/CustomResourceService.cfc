@@ -42,7 +42,7 @@
 			} else {
 				//create a file input stream with file location
 				fis = createObject( "java", "java.io.FileInputStream" ).init( rbFullPath );
-				fir = createObject( "java", "java.io.InputStreamReader" ).init( fis, "UTF-8" )
+				fir = createObject( "java", "java.io.InputStreamReader" ).init( fis, "UTF-8" );
 				//Init RB with file Stream
 				rb = createObject( "java", "java.util.PropertyResourceBundle").init( fir );
 				try{
