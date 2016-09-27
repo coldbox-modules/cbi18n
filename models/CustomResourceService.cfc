@@ -32,11 +32,11 @@
 				qResource.setDBType( "query" );
 				qResource.setAttributes(resourceQuery=resourceQuery);
 				qResource.addParam( name="locale", value=arguments.rbLocale, cfsqltype="cf_sql_varchar" );
-				var sql = "SELECT name,value FROM resourceQuery WHERE locale = :locale";
+				var sql = "SELECT name,val FROM resourceQuery WHERE locale = :locale";
 				var qResourceBundle = qResource.execute( sql=sql ).getResult();
 
 				for( var row in qResourceBundle ){
-					resourceBundle[row.name] = row.value;
+					resourceBundle[row.name] = row.val;
 				}
 
 			} else {
@@ -72,16 +72,16 @@
 
 	<cffunction name="getCustomResourceQuery" access="private" output="false" returntype="query" hint="I return a custom resource bundle query to emulate an interation with a DB">
 		<cfscript>
-			var resourceQuery = queryNew( "locale,name,value" );
+			var resourceQuery = queryNew( "locale,name,val" );
 			var row1 = queryAddRow( resourceQuery );
 			querySetCell( resourceQuery, "locale", "en_US", row1 );
 			querySetCell( resourceQuery, "name", "welcome", row1 );
-			querySetCell( resourceQuery, "value", "Welcome to my awesome multi-lingual app using a custom Resource Service", row1 );
+			querySetCell( resourceQuery, "val", "Welcome to my awesome multi-lingual app using a custom Resource Service", row1 );
 
 			var row2 = queryAddRow( resourceQuery );
 			querySetCell( resourceQuery, "locale", "en_SV", row2 );
 			querySetCell( resourceQuery, "name", "welcome", row2 );
-			querySetCell( resourceQuery, "value", "Bienvenido a mi aplicación en varios idiomas impresionante uso de un Servicio de Recursos de encargo", row2 );
+			querySetCell( resourceQuery, "val", "Bienvenido a mi aplicación en varios idiomas impresionante uso de un Servicio de Recursos de encargo", row2 );
 		
 			return resourceQuery;
 		</cfscript>
