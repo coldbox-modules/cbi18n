@@ -17,6 +17,7 @@
 			var rbFilePath = arguments.rbFile & iif( len( arguments.rbLocale ), de("_"), de("") ) & arguments.rbLocale & ".properties";
 			var rbFullPath = rbFilePath;
 			var fis = "";
+			var fir = "";
 			var rb = "";
 
 			// Try to locate the path using the coldbox plugin utility
@@ -41,8 +42,9 @@
 			} else {
 				//create a file input stream with file location
 				fis = createObject( "java", "java.io.FileInputStream" ).init( rbFullPath );
+				fir = createObject( "java", "java.io.InputStreamReader" ).init( fis, "UTF-8" )
 				//Init RB with file Stream
-				rb = createObject( "java", "java.util.PropertyResourceBundle").init( fis );
+				rb = createObject( "java", "java.util.PropertyResourceBundle").init( fir );
 				try{
 					//Get Keys
 					keys = rb.getKeys();
