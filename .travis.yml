@@ -18,10 +18,10 @@ install:
   # Install Commandbox
   - sudo apt-get update && sudo apt-get --assume-yes install commandbox
   # Test that the box binary is available and ready for our tests
-  - box version -commandbox_home=~/.Commandbox
+  - box -commandbox_home=$TRAVIS_BUILD_DIR version
 
 script:
-  - ant -f workbench/build.xml
+  - ant -Dtravis.home=$TRAVIS_BUILD_DIR -f workbench/build.xml
   
 notifications:
   slack:

@@ -5,6 +5,7 @@
 	<property name="module.name" 		value="cbi18n" />
 	<property name="project.version" 	value="1.3.0"/>
 	<property name="groupID" 			value="ortussolutions" />
+	<property name="arg.home" 			value="" />
 	
 	<!-- Build Labels -->
 	<tstamp prefix="start"/>
@@ -45,6 +46,14 @@
 			     	default="1" />
 		</propertyfile>
 		<property file="workbench/build.number"/>
+
+		<!-- Determine whether our server arguments should pass an explicit Commandbox home -->
+    	<if>
+			<isset property="travis.home"/>
+			<then>
+				<property name="arg.home" value="-commandbox_home=${travis.home} " />
+			</then>
+		</if>
 		
 		<!-- Build Label -->
 		<property name="build.label" value="${project.name}-${project.version}.${build.number}-${start.DSTAMP}${start.TSTAMP}"/>
@@ -114,11 +123,11 @@
  		<mkdir dir="${dir.api}"/>
  		<!-- Install dependencies for docs -->
 		<exec executable="box" dir="${dir.apidocs}">
-			<arg line="install --force" />
+			<arg line="${arg.home}install --force" />
 		</exec>
 		<!-- Startup the apidocs server, wait for a few seconds for server to start -->
 		<exec executable="box" dir="${dir.apidocs}">
-			<arg line="server start openbrowser=false --force port=${apidocs.port}" />
+			<arg line="${arg.home}server start openbrowser=false --force port=${apidocs.port}" />
 		</exec>
 		<sleep seconds="5"/>
 		<!-- Get the apidocs now -->
@@ -128,7 +137,7 @@
 			 retries="5"/>
 		<!-- stop server -->
 		<exec executable="box" dir="${dir.apidocs}">
-			<arg line="server stop" />
+			<arg line="${arg.home}server stop" />
 		</exec>
 		<delete file="${dir.build}/docbox.html" />
 		<!-- Zip API Docs -->
@@ -137,23 +146,22 @@
 	
 	<!-- Run Tests For Platform -->
     <target name="run-tests" description="Run TestBox Tests" depends="init">
+
     	<!-- Start our default Commandbox server ( L4.5 ) -->
 		<exec executable="box" dir="${basedir}">
-			<arg line="server start -commandbox_home=~/.Commandbox" />
+			<arg line="${arg.home}server start" />
 		</exec>
 
     	<echo>Running Tests for ${project.name}</echo>
     	
-    	<!-- Determine Test target: Are we jenkins or local or travis -->
+    	<!-- Determine Test target: Are we running junit or our standard test suite -->
         <if>
 			<not><equals arg1="${environment}" arg2="auto" /></not>
 			<then>
 				<property name="test.target" value="run" />
-				<property name="isTravis" value="true" />
 			</then>
 			<else>
 				<property name="test.target" value="run-junit" />
-				<property name="isTravis" value="false" />
 			</else>
 		</if>
 
@@ -165,13 +173,14 @@
 
         <!-- Stop the default server -->
         <exec executable="box" dir="${basedir}">
-			<arg line="server stop -commandbox_home=~/.Commandbox" />
+			<arg line="${arg.home}server stop" />
 		</exec>
+
     </target>
 
 
 	<!-- Docker Tests for Different Engines -->
-    <target name="run-alt-engine-tests" description="Run Docker Container Tests" if="isTravis">
+    <target name="run-alt-engine-tests" description="Run Docker Container Tests">
  		<foreach param="engine" list="lucee5,acf10,acf11,acf2016" target="run-alt-engine-test" />
     </target>
 
@@ -194,20 +203,20 @@
 	<target name="getDependencies" description="Get all the necessary dependencies for the build process using: box.repo.url">
 		<!-- Install dependencies for project -->
 		<exec executable="box" dir="${basedir}">
-			<arg line="install" />
+			<arg line="${arg.home}install" />
 		</exec>
 	</target>
 
 
 	<target name="startServer" description="Starts a single server">
 		<exec executable="box" dir="${basedir}">
-			<arg line="server start name=${serverName} -commandbox_home=~/.Commandbox" />
+			<arg line="${arg.home}server start name=${serverName}" />
 		</exec>
 	</target>
 
 	<target name="stopServer" description="Stops a single server">
 		<exec executable="box" dir="${basedir}">
-			<arg line="server stop name=${serverName} -commandbox_home=~/.Commandbox" />
+			<arg line="${arg.home}server stop name=${serverName}" />
 		</exec>
 	</target>
 
