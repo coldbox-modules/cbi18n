@@ -59,7 +59,7 @@
 	</target>
 	
 	<!-- Build Project -->
-	<target name="build" depends="init,run-tests,run-alt-engine-tests" description="Build the project">
+	<target name="build" depends="init,run-tests" description="Build the project">
 		<!-- Copy build ID -->
 		<concat destfile="${dir.build}/${build.label}">Built on ${start.TODAY}</concat>
 		
