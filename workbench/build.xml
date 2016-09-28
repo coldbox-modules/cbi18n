@@ -123,11 +123,11 @@
  		<mkdir dir="${dir.api}"/>
  		<!-- Install dependencies for docs -->
 		<exec executable="box" dir="${dir.apidocs}">
-			<arg line="${arg.home}install --force" />
+			<arg line="install --force" />
 		</exec>
 		<!-- Startup the apidocs server, wait for a few seconds for server to start -->
 		<exec executable="box" dir="${dir.apidocs}">
-			<arg line="${arg.home}server start openbrowser=false --force port=${apidocs.port}" />
+			<arg line="server start openbrowser=false --force port=${apidocs.port}" />
 		</exec>
 		<sleep seconds="5"/>
 		<!-- Get the apidocs now -->
@@ -137,7 +137,7 @@
 			 retries="5"/>
 		<!-- stop server -->
 		<exec executable="box" dir="${dir.apidocs}">
-			<arg line="${arg.home}server stop" />
+			<arg line="server stop" />
 		</exec>
 		<delete file="${dir.build}/docbox.html" />
 		<!-- Zip API Docs -->
@@ -149,7 +149,7 @@
 
     	<!-- Start our default Commandbox server ( L4.5 ) -->
 		<exec executable="box" dir="${basedir}">
-			<arg line="${arg.home}server start" />
+			<arg line="server start" />
 		</exec>
 
     	<echo>Running Tests for ${project.name}</echo>
@@ -173,7 +173,7 @@
 
         <!-- Stop the default server -->
         <exec executable="box" dir="${basedir}">
-			<arg line="${arg.home}server stop" />
+			<arg line="server stop" />
 		</exec>
 
     </target>
@@ -204,20 +204,20 @@
 	<target name="getDependencies" description="Get all the necessary dependencies for the build process using: box.repo.url">
 		<!-- Install dependencies for project -->
 		<exec executable="box" dir="${basedir}">
-			<arg line="${arg.home}install" />
+			<arg line="install" />
 		</exec>
 	</target>
 
 
 	<target name="startServer" description="Starts a single server">
 		<exec executable="box" dir="${basedir}">
-			<arg line="${arg.home}server start name=${serverName}" />
+			<arg line="server start name=${serverName}" />
 		</exec>
 	</target>
 
 	<target name="stopServer" description="Stops a single server">
 		<exec executable="box" dir="${basedir}">
-			<arg line="${arg.home}server stop name=${serverName}" />
+			<arg line="server stop name=${serverName}" />
 		</exec>
 	</target>
 
