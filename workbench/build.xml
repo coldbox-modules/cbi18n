@@ -37,6 +37,14 @@
 		<echo>Loading base properties</echo>
 		<loadproperties srcFile="workbench/build.properties"/>
 
+		<!-- Determine whether our server arguments should pass an explicit Commandbox home -->
+    	<if>
+			<isset property="travis.home"/>
+			<then>
+				<property name="arg.home" value="-commandbox_home=${travis.home} " />
+			</then>
+		</if>
+
 		<!-- Build Number -->
 		<propertyfile file="workbench/build.number" comment="Build Number for ANT. Edit not!">
 			<entry key="build.number" 
@@ -46,14 +54,6 @@
 			     	default="1" />
 		</propertyfile>
 		<property file="workbench/build.number"/>
-
-		<!-- Determine whether our server arguments should pass an explicit Commandbox home -->
-    	<if>
-			<isset property="travis.home"/>
-			<then>
-				<property name="arg.home" value="-commandbox_home=${travis.home} " />
-			</then>
-		</if>
 		
 		<!-- Build Label -->
 		<property name="build.label" value="${project.name}-${project.version}.${build.number}-${start.DSTAMP}${start.TSTAMP}"/>
@@ -181,7 +181,8 @@
 
 	<!-- Docker Tests for Different Engines -->
     <target name="run-alt-engine-tests" description="Run Docker Container Tests">
- 		<foreach param="engine" list="lucee5,acf10,acf11,acf2016" target="run-alt-engine-test" />
+ 		<!-- Taking server lucee5 out of the mix to see if other servers start successfully -->
+ 		<foreach param="engine" list="acf10,acf11,acf2016" target="run-alt-engine-test" />
     </target>
 
     <target name="run-alt-engine-test" description="In-loop runner for engine tests">
