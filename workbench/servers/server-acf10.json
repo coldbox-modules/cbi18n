@@ -8,6 +8,10 @@
     "web":{
         "http":{
             "port":"49610"
-        }
+        },
+        "webroot":"/Users/jonclausen/Sites/ortus/BoxModules/cbox-i18n/"
+    },
+    "JVM":{
+        "heapSize":"1024"
     }
 }

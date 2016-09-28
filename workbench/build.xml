@@ -59,7 +59,7 @@
 	</target>
 	
 	<!-- Build Project -->
-	<!-- NOTE:  Add run-alt-engine-tests back to `depents` attribute once we debug the Travis install issues -->
+	<!-- NOTE:  Add run-alt-engine-tests back to `depends` attribute once COMMANDBOX-448 fix is in the current release -->
 	<target name="build" depends="init,run-tests" description="Build the project">
 		<!-- Copy build ID -->
 		<concat destfile="${dir.build}/${build.label}">Built on ${start.TODAY}</concat>
@@ -179,6 +179,9 @@
     <target name="run-alt-engine-test" description="In-loop runner for engine tests">
     	
     	<property name="serverName" value="${engine}"/>
+
+    	<echo>========= Running CFEngine Tests for: ${engine} ==============</echo>
+
     	<antcall target="startServer" inheritRefs="true" />
 
 		<subant target="runEngine">
@@ -189,6 +192,8 @@
 
  		<antcall target="stopServer" inheritRefs="true" />
 
+        <echo>========= CFEngine Tests for ${engine} completed. ==============</echo>
+    	
     </target>
     
     <!-- Get Dependencies -->
@@ -202,13 +207,13 @@
 
 	<target name="startServer" description="Starts a single server">
 		<exec executable="box" dir="${basedir}">
-			<arg line="server start name=${serverName}" />
+			<arg line="server start name=${serverName} directory=${basedir} serverConfigFile=${basedir}/workbench/servers/server-${serverName}.json" />
 		</exec>
 	</target>
 
 	<target name="stopServer" description="Stops a single server">
 		<exec executable="box" dir="${basedir}">
-			<arg line="server stop name=${serverName}" />
+			<arg line="server stop name=${serverName} directory=${basedir} serverConfigFile=${basedir}/workbench/servers/server-${serverName}.json" />
 		</exec>
 	</target>
 
