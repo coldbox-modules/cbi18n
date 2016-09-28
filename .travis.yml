@@ -6,12 +6,7 @@ branches:
 
 sudo: required
 
-services:
-  - docker
 dist: trusty
-
-env:
-  COMPOSE_VERSION: 1.5.2
 
 before_install:
   # CommandBox Keys
@@ -20,11 +15,10 @@ before_install:
     /etc/apt/sources.list.d/commandbox.list
 
 install:
-  # Core testing install
-  - sudo apt-get update && sudo apt-get --assume-yes install commandbox
   # Fix the Commandbox home path to avoid path issues with server installations
-  - touch /usr/local/bin/commandbox.properties
   - sudo echo "commandbox_home=~/.Commandbox" > /usr/local/bin/commandbox.properties
+  # Install Commandbox
+  - sudo apt-get update && sudo apt-get --assume-yes install commandbox
   # Test that the box binary is available and ready for our tests
   - box version
 
