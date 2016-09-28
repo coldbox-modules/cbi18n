@@ -139,7 +139,7 @@
     <target name="run-tests" description="Run TestBox Tests" depends="init">
     	<!-- Start our default Commandbox server ( L4.5 ) -->
 		<exec executable="box" dir="${basedir}">
-			<arg line="server start" />
+			<arg line="server start -commandbox_home=~/.Commandbox" />
 		</exec>
 
     	<echo>Running Tests for ${project.name}</echo>
@@ -165,7 +165,7 @@
 
         <!-- Stop the default server -->
         <exec executable="box" dir="${basedir}">
-			<arg line="server stop" />
+			<arg line="server stop -commandbox_home=~/.Commandbox" />
 		</exec>
     </target>
 
@@ -201,13 +201,13 @@
 
 	<target name="startServer" description="Starts a single server">
 		<exec executable="box" dir="${basedir}">
-			<arg line="server start name=${serverName}" />
+			<arg line="server start name=${serverName} -commandbox_home=~/.Commandbox" />
 		</exec>
 	</target>
 
 	<target name="stopServer" description="Stops a single server">
 		<exec executable="box" dir="${basedir}">
-			<arg line="server stop name=${serverName}" />
+			<arg line="server stop name=${serverName} -commandbox_home=~/.Commandbox" />
 		</exec>
 	</target>
 
