@@ -59,7 +59,7 @@
 	</target>
 	
 	<!-- Build Project -->
-	<target name="build" depends="init,run-tests,run-docker-tests" description="Build the project">
+	<target name="build" depends="init,run-tests,run-alt-engine-tests" description="Build the project">
 		<!-- Copy build ID -->
 		<concat destfile="${dir.build}/${build.label}">Built on ${start.TODAY}</concat>
 		
@@ -137,44 +137,57 @@
 	
 	<!-- Run Tests For Platform -->
     <target name="run-tests" description="Run TestBox Tests" depends="init">
+    	<!-- Start our default Commandbox server ( L4.5 ) -->
+		<exec executable="box" dir="${basedir}">
+			<arg line="server start" />
+		</exec>
+
     	<echo>Running Tests for ${project.name}</echo>
+    	
     	<!-- Determine Test target: Are we jenkins or local or travis -->
         <if>
 			<not><equals arg1="${environment}" arg2="auto" /></not>
 			<then>
 				<property name="test.target" value="run" />
+				<property name="isTravis" value="true" />
 			</then>
 			<else>
 				<property name="test.target" value="run-junit" />
+				<property name="isTravis" value="false" />
 			</else>
 		</if>
-    	<!-- Run for Core -->
+
+    	<!-- Run the tests against the default server -->
     	<subant target="${test.target}">
           	<fileset dir="tests" includes="test.xml"/>
     		<property name="environment" value="${environment}" />
         </subant>
+
+        <!-- Stop the default server -->
+        <exec executable="box" dir="${basedir}">
+			<arg line="server stop" />
+		</exec>
     </target>
 
-     <!-- Test for Docker Availability -->
-    <property environment="env" /> 
-	<available file="docker-compose" filepath="${env.PATH}" property="docker.present"/>
 
 	<!-- Docker Tests for Different Engines -->
-    <target name="run-docker-tests" description="Run Docker Container Tests" depends="init" if="docker.present">
+    <target name="run-alt-engine-tests" description="Run Docker Container Tests" if="isTravis">
+ 		<foreach param="engine" list="lucee5,acf10,acf11,acf2016" target="run-alt-engine-test" />
+    </target>
 
-		<!-- Lucee 5 Tests -->
-		<property name="test.targetL5" value="runLucee5" />
-		<subant target="${test.targetL5}">
+    <target name="run-alt-engine-test" description="In-loop runner for engine tests">
+    	
+    	<property name="serverName" value="${engine}"/>
+    	<antcall target="startServer" inheritRefs="true" />
+
+		<subant target="runEngine">
           	<fileset dir="tests" includes="test.xml"/>
+    		<property name="engine" value="${engine}" />
     		<property name="environment" value="${environment}" />
         </subant>
 
-        <!-- ACF11 -->
-        <property name="test.targetACF11" value="runACF11" />
-		<subant target="${test.targetACF11}">
-          	<fileset dir="tests" includes="test.xml"/>
-    		<property name="environment" value="${environment}" />
-        </subant>
+ 		<antcall target="stopServer" inheritRefs="true" />
+
     </target>
     
     <!-- Get Dependencies -->
@@ -182,6 +195,19 @@
 		<!-- Install dependencies for project -->
 		<exec executable="box" dir="${basedir}">
 			<arg line="install" />
+		</exec>
+	</target>
+
+
+	<target name="startServer" description="Starts a single server">
+		<exec executable="box" dir="${basedir}">
+			<arg line="server start name=${serverName}" />
+		</exec>
+	</target>
+
+	<target name="stopServer" description="Stops a single server">
+		<exec executable="box" dir="${basedir}">
+			<arg line="server stop name=${serverName}" />
 		</exec>
 	</target>
 

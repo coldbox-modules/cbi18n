@@ -131,47 +131,37 @@ PLEASE NOTE THAT YOU MUST ALTER THE RUNNER'S URL ACCORDING TO YOUR ENVIRONMENT.
         <fail if="test.failed"/>
 	</target>
 
-	<target name="runLucee5" depends="init" description="Run our tests on Lucee 5 (Docker Required)">  
-		<property name="report.dirL5" value="${report.dir}/lucee5" />
-		<property name="report.pathL5" value="/tests/results/lucee5" />
-		
-		<mkdir dir="${report.dirL5}" />
+	<target name="runEngine" depends="init" description="Generic run method for alternate CFML engines">  
+		<property name="reportDir" value="${report.dir}/${engine}" />
 
-		<get dest="${report.dirL5}/results.txt" 
-			 src="${url.runners.lucee5}&amp;directory=${test.directory}&amp;recurse=${test.recurse}&amp;reporter=${test.reporter}&amp;labels=${test.labels}&amp;reportPath=${report.pathL5}&amp;propertiesSummary=true&amp;directoryExcludes=${test.directoryExcludes}&amp;cfid=123&amp;cftoken=123" 
+		<mkdir dir="${reportDir}" />
+		<!-- Touch our TEST.properties file so ACF can find it -->
+		<chmod file="${reportDir}/**" perm="775" type="both" />
+
+		<macrodef name="propertycopy">
+		  <attribute name="name"/>
+		  <attribute name="from"/>
+		  <sequential>
+		    <property name="@{name}" value="${@{from}}"/>
+		  </sequential>
+		</macrodef>
+
+		<property name="runnerPath" value="url.runners.${engine}"/>
+		<propertycopy name="urlRunner" from="${runnerPath}"/>
+		
+		<mkdir dir="${reportDir}" />
+
+		<get dest="${reportDir}/results.txt" 
+			 src="${urlRunner}&amp;directory=${test.directory}&amp;recurse=${test.recurse}&amp;reporter=${test.reporter}&amp;labels=${test.labels}&amp;reportPath=${reportDir}&amp;propertiesSummary=true&amp;directoryExcludes=${test.directoryExcludes}&amp;cfid=123&amp;cftoken=123" 
 			 verbose="true"/>
 
         <!-- Read Result Properties -->
-        <property file="${report.dirL5}/TEST.properties"/>
+        <property file="${reportDir}/TEST.properties"/>
         <!-- Echo them out -->
         <echoproperties regex="^(test|total).*"/>
         <!-- Echo actual results -->
         <loadresource property="testresults">
-	       <file file="${report.dirL5}/results.txt"/>
-	    </loadresource>
-	    <echo message="${testresults}"/>
-        <!-- Fail build if they failed -->
-        <fail if="test.failed"/>
-	</target>
-
-	
-	<target name="runACF11" depends="init" description="Run our tests on ACF11 (Docker Required)">  
-		<property name="report.dirACF11" value="${report.dir}/acf11" />
-		<property name="report.pathACF11" value="/tests/results" />
-		
-		<mkdir dir="${report.dirACF11}" />
-		<!-- Note: Omitting reportPath for ACF until PR#33 for Testbox is merged -->
-		<get dest="${report.dirACF11}/results.txt" 
-			 src="${url.runners.acf11}&amp;directory=${test.directory}&amp;recurse=${test.recurse}&amp;reporter=${test.reporter}&amp;labels=${test.labels}&amp;propertiesSummary=true&amp;directoryExcludes=${test.directoryExcludes}&amp;cfid=123&amp;cftoken=123" 
-			 verbose="true"/>
-
-        <!-- Read Result Properties -->
-        <property file="${report.dirACF11}/TEST.properties"/>
-        <!-- Echo them out -->
-        <echoproperties regex="^(test|total).*"/>
-        <!-- Echo actual results -->
-        <loadresource property="testresults">
-	       <file file="${report.dirACF11}/results.txt"/>
+	       <file file="${reportDir}/results.txt"/>
 	    </loadresource>
 	    <echo message="${testresults}"/>
         <!-- Fail build if they failed -->
