@@ -22,10 +22,8 @@ before_install:
 install:
   # Core testing install
   - sudo apt-get update && sudo apt-get --assume-yes install commandbox
-  - which box
-  # Fix the home path to avoid path issues with installations
-  - sudo echo 'commandbox_home=~/.Commandbox' > /usr/bin/commandbox.properties
-  - sudo echo 'commandbox_home=~/.Commandbox' > /usr/sbin/commandbox.properties
+  # Fix the Commandbox home path to avoid path issues with server installations
+  - sudo echo 'commandbox_home=~/.Commandbox' > /usr/local/bin/commandbox.properties
   # Test that the box binary is available and ready for our tests
   - box version
 
