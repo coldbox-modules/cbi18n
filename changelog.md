@@ -1,7 +1,7 @@
 CHANGELOG
 =========
-
 ## 1.3.0
+* Fixes issues with non-ISO characters in properties files
 
 ## 1.2.0
 * New configuration setting for logging when no translation is found `logUnknownTranslation`

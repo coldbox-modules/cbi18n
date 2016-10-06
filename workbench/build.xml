@@ -5,7 +5,11 @@
 	<property name="module.name" 		value="cbi18n" />
 	<property name="project.version" 	value="1.3.0"/>
 	<property name="groupID" 			value="ortussolutions" />
-	
+
+	<condition property="isTravis" else="false">
+      <isset property="isTravis"/>
+    </condition>
+
 	<!-- Build Labels -->
 	<tstamp prefix="start"/>
 	<path id="cp">
@@ -37,14 +41,20 @@
 		<loadproperties srcFile="workbench/build.properties"/>
 
 		<!-- Build Number -->
-		<propertyfile file="workbench/build.number" comment="Build Number for ANT. Edit not!">
-			<entry key="build.number" 
-					type="int" 
-			     	operation="+"
-					pattern="00000"
-			     	default="1" />
-		</propertyfile>
-		<property file="workbench/build.number"/>
+		<if>
+			<not><isset property="build.number" /></not>
+			<then>
+				<propertyfile file="workbench/build.number" comment="Build Number for ANT. Edit not!">
+					<entry key="build.number" 
+							type="int" 
+					     	operation="+"
+							pattern="00000"
+					     	default="1" />
+				</propertyfile>
+
+				<property file="workbench/build.number"/>
+			</then>
+		</if>
 		
 		<!-- Build Label -->
 		<property name="build.label" value="${project.name}-${project.version}.${build.number}-${start.DSTAMP}${start.TSTAMP}"/>
@@ -69,7 +79,8 @@
         	<fileset dir="modules/${module.name}" />
         </copy>
         <!-- Copy readme -->
-        <copy todir="${dir.build}" encoding="UTF-8" file="README.md" overwrite="true" />
+        <copy todir="${dir.build}" encoding="UTF-8" file="readme.md" overwrite="true" />
+        <copy todir="${dir.build}" encoding="UTF-8" file="changelog.md" overwrite="true" />
         
         <!-- Replace Version + Build Numbers -->
 		<replaceregexp match='@build.version@' replace="${project.version}" flags="ig" byline="true" encoding="UTF-8">
@@ -105,8 +116,13 @@
 				  latest="${project.version}"
 				  classifiers="apidocs"/>
 				  
-		<!-- Cleanup -->
-		<delete dir="${dir.build}" />
+		<!-- Cleanup -->	
+		<if>
+			<equals arg1="$isTravis" arg2="false" />
+			<then>
+				<delete dir="${dir.build}" />
+			</then>
+		</if>
 	</target>
 
 	<!-- Build API Docs -->
@@ -173,7 +189,7 @@
 
 	<!-- Docker Tests for Different Engines -->
     <target name="run-alt-engine-tests" description="Run Docker Container Tests" if="isTravis">
- 		<foreach param="engine" list="lucee5,acf10,acf11,acf2016" target="run-alt-engine-test" />
+ 		<foreach param="engine" list="lucee5,acf11,acf2016" target="run-alt-engine-test" />
     </target>
 
     <target name="run-alt-engine-test" description="In-loop runner for engine tests">
