@@ -1,6 +1,7 @@
 CHANGELOG
 =========
 ## 1.3.0
+* Implements the ability to add a custom Resource Service for distributed i18n
 * Fixes issues with non-ISO characters in properties files
 
 ## 1.2.0
