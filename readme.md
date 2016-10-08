@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/ColdBox/cbox-i18n.svg?branch=master)](https://travis-ci.org/ColdBox/cbox-i18n)
+[![Build Status](https://travis-ci.org/ColdBox/cbox-i18n.svg?branch=development)](https://travis-ci.org/ColdBox/cbox-i18n)
 
 # WELCOME TO THE COLDBOX I18N & LOCALIZATION MODULE
 This module will enhance your ColdBox applications with i18n capabilities,
@@ -41,11 +41,13 @@ i18n = {
     localeStorage = "cookie",
     // The value to show when a translation is not found
     unknownTranslation = "**NOT FOUND**",
-    logUnknownTranslation = true | false
+    logUnknownTranslation = true | false,
     // Extra resource bundles to load
     resourceBundles = {
         alias = "path"
-    }
+    },
+    //Specify a Custom Resource Service, which should implement the methods or extend the base i18n ResourceService ( e.g. - using a database to store i18n )
+    customResourceService = ""
 };
 ```
 
