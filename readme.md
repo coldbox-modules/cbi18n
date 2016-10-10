@@ -26,7 +26,7 @@ Just drop into your **modules** folder or use the box-cli to install
 This module registers the following models in WireBox:
 
 - `i18n@cbi18n` : Helper with all kinds of methods for localization
-- `resourceService@cbi18n` : Service to interact with language resource bundles
+- `resourceService@cbi18n` : Service to interact with language resource bundles - You may override this service by providing a `customResourceService` key in your configuration.  [More information on custom resource services](https://github.com/coldbox-modules/cbox-i18n/wiki/Custom-Resource-Services).
 
 ## Settings
 You can add a `i18n` structure of settings to your `ColdBox.cfc` or to any other module configuration file: `ModuleConfig.cfc` to configure the module:
