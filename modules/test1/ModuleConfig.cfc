@@ -1,4 +1,4 @@
-﻿<cfcomponent output="false" hint="My App Configuration">
+<cfcomponent output="false" hint="My App Configuration">
 <cfscript>
 	// Module Properties
 	this.title 				= "My Test Module";
