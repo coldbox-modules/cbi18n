@@ -4,10 +4,10 @@
     "slug":"cbi18n-shell",
     "private":false,
     "dependencies":{
-        "coldbox":"4.2.0+00002"
+        "coldbox":"^4.3.0"
     },
     "devDependencies":{
-        "testbox":"2.3.0+00044"
+        "testbox":"^2.3.0+00044"
     },
     "installPaths":{
         "coldbox":"coldbox",

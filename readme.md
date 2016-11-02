@@ -10,7 +10,8 @@ Apache License, Version 2.0.
 ##IMPORTANT LINKS
 - Documentation: https://github.com/ColdBox/cbox-i18n/wiki
 - Source: https://github.com/ColdBox/cbox-i18n
-- ForgeBox: http://forgebox.io/view/i18n
+- ForgeBox: https://forgebox.io/view/i18n
+- [Changelog](changelog.md)
 
 ##SYSTEM REQUIREMENTS
 - Lucee 4.5+
