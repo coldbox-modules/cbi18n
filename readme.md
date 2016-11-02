@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/ColdBox/cbox-i18n.svg?branch=development)](https://travis-ci.org/ColdBox/cbox-i18n)
+[![Build Status](https://travis-ci.org/coldbox-modules/cbox-i18n.svg?branch=development)](https://travis-ci.org/coldbox-modules/cbox-i18n)
 
 # WELCOME TO THE COLDBOX I18N & LOCALIZATION MODULE
 This module will enhance your ColdBox applications with i18n capabilities,
@@ -10,7 +10,8 @@ Apache License, Version 2.0.
 ##IMPORTANT LINKS
 - Documentation: https://github.com/ColdBox/cbox-i18n/wiki
 - Source: https://github.com/ColdBox/cbox-i18n
-- ForgeBox: http://forgebox.io/view/i18n
+- ForgeBox: https://forgebox.io/view/i18n
+- [Changelog](changelog.md)
 
 ##SYSTEM REQUIREMENTS
 - Lucee 4.5+
