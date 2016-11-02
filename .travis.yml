@@ -20,7 +20,7 @@ install:
   - sudo apt-get update && sudo apt-get --assume-yes install commandbox
   # Test that the box binary is available and ready for our tests
   - box version
-  - box config set endpoints.forgebox.APIToken=$FORGEBOX_API_TOKEN
+  - box config set endpoints.forgebox.APIToken=$FORGEBOX_API_TOKEN > /dev/null
   # Setup for our tests
   - mkdir tests/results
   - sudo chmod -R 775 tests/results
