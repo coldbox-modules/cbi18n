@@ -11,7 +11,7 @@
         "http":{
             "port":"49616"
         },
-        "webroot":"/Users/jonclausen/Sites/ortus/BoxModules/cbox-i18n/"
+        "webroot":"/Users/jonclausen/Sites/ortus/BoxModules/cbox-module-template/"
     },
     "JVM":{
         "heapSize":"1024"
