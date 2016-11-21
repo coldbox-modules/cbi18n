@@ -51,6 +51,7 @@ deploy:
   on:
     branch: 
       - master
+    condition: "$ENGINE = lucee@4.5"
   skip_cleanup: true
   provider: s3
   #AWS Credentials need to be set in Travis
