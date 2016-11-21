@@ -1,5 +1,13 @@
 language: java
 
+env:
+  matrix:
+    - ENGINE=lucee@4.5
+    - ENGINE=lucee@5
+    - ENGINE=adobe@10
+    - ENGINE=adobe@11
+    - ENGINE=adobe@2016
+
 branches:
   only:
   - development
@@ -17,16 +25,22 @@ before_install:
 
 install:
   # Install Commandbox
-  - sudo apt-get update && sudo apt-get --assume-yes install commandbox
+  - sudo apt-get update && sudo apt-get --assume-yes install haveged commandbox
   # Test that the box binary is available and ready for our tests
   - box version
+  # If using auto-publish, you will need to provide your API token with this line:
   - box config set endpoints.forgebox.APIToken=$FORGEBOX_API_TOKEN > /dev/null
   # Setup for our tests
   - mkdir tests/results
   - sudo chmod -R 775 tests/results
 
 script:
-  - sudo ant -DisTravis=true -Dbuild.number=$TRAVIS_BUILD_NUMBER -f workbench/build.xml
+  - sudo ant -DisTravis=true -Dcfengine=$ENGINE -Dbuild.number=$TRAVIS_BUILD_NUMBER -f workbench/build.xml
+
+after_failure:
+  # Spit out our Commandbox log in case we need to debug
+  - box server log name=$ENGINE
+  - cat `box system-log`
   
 before_deploy:
   - mkdir s3deploy
@@ -37,6 +51,7 @@ deploy:
   on:
     branch: 
       - master
+    condition: "$ENGINE = lucee@4.5"
   skip_cleanup: true
   provider: s3
   #AWS Credentials need to be set in Travis
