@@ -8,8 +8,8 @@ resource bundles and localization.
 Apache License, Version 2.0.
 
 ##IMPORTANT LINKS
-- Documentation: https://github.com/ColdBox/cbox-i18n/wiki
-- Source: https://github.com/ColdBox/cbox-i18n
+- Documentation: https://github.com/coldbox-modules/cbox-i18n/wiki
+- Source: https://github.com/coldbox-modules/cbox-i18n
 - ForgeBox: https://forgebox.io/view/i18n
 - [Changelog](changelog.md)
 
@@ -92,7 +92,7 @@ function getResource(
 function $r()
 ```
 
-You can read more about this module here: https://github.com/ColdBox/cbox-i18n/wiki
+You can read more about this module here: https://github.com/coldbox-modules/cbox-i18n/wiki
 
 ********************************************************************************
 Copyright Since 2005 ColdBox Framework by Luis Majano and Ortus Solutions, Corp
