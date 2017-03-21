@@ -38,11 +38,6 @@ function getResource(
 	values,
 	bundle
 ){
-	// check for resource@bundle convention:
-	if( find( "@", arguments.resource ) ){
-		arguments.bundle 	= listLast( arguments.resource, "@" );
-		arguments.resource 	= listFirst( arguments.resource, "@" );
-	}
 	// Verify injection
 	if( NOT structKeyExists( variables, "cboxResourceService" ) ){
 		variables.cboxResourceService = getInstance( "resourceService@cbi18n" );

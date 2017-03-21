@@ -121,6 +121,12 @@ Inspired by Paul Hastings
 			var thisLocale 		= arguments.locale;
 			var rbFile 			= "";
 
+			// check for resource@bundle convention:
+			if( find( "@", arguments.resource ) ){
+				arguments.bundle 	= listLast( arguments.resource, "@" );
+				arguments.resource 	= listFirst( arguments.resource, "@" );
+			}
+
 			try{
 
 				// Check if the locale has a language bundle loaded in memory

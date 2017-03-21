@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+## 1.3.2
+* Unified workbench
+* Encapsulation of module bundle resources
+
 ## 1.3.1
 * Varscoping fixes
 * Travis updates
