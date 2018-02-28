@@ -359,7 +359,7 @@ Inspired by Paul Hastings
 	    	// Struct substitutions by key
 	    	else if( isStruct( arguments.substituteValues ) ){
 	    		for( thisKey in arguments.substituteValues ){
-	    			tmpStr = replace( tmpStr, "{#lcase( thisKey )#}", arguments.substituteValues[ lcase( thisKey ) ], "ALL" );
+	    			tmpStr = replaceNoCase( tmpStr, "{#lcase( thisKey )#}", arguments.substituteValues[ lcase( thisKey ) ], "ALL" );
 	    		}
 	    		return tmpStr;
 	    	}
