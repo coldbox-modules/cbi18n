@@ -4,19 +4,18 @@
 This module will enhance your ColdBox applications with i18n capabilities,
 resource bundles and localization.
 
-##LICENSE
+## LICENSE
 Apache License, Version 2.0.
 
-##IMPORTANT LINKS
+## IMPORTANT LINKS
 - Documentation: https://github.com/coldbox-modules/cbox-i18n/wiki
 - Source: https://github.com/coldbox-modules/cbox-i18n
 - ForgeBox: https://forgebox.io/view/i18n
 - [Changelog](changelog.md)
 
-##SYSTEM REQUIREMENTS
+## SYSTEM REQUIREMENTS
 - Lucee 4.5+
-- Railo 4+ (Deprecated)
-- ColdFusion 9+
+- ColdFusion 11+
 
 ## INSTRUCTIONS
 
@@ -98,7 +97,7 @@ You can read more about this module here: https://github.com/coldbox-modules/cbo
 Copyright Since 2005 ColdBox Framework by Luis Majano and Ortus Solutions, Corp
 www.coldbox.org | www.luismajano.com | www.ortussolutions.com
 ********************************************************************************
-####HONOR GOES TO GOD ABOVE ALL
+#### HONOR GOES TO GOD ABOVE ALL
 Because of His grace, this project exists. If you don't like this, then don't read it, its not for you.
 
 >"Therefore being justified by faith, we have peace with God through our Lord Jesus Christ:
@@ -108,5 +107,5 @@ And patience, experience; and experience, hope:
 And hope maketh not ashamed; because the love of God is shed abroad in our hearts by the 
 Holy Ghost which is given unto us. ." Romans 5:5
 
-###THE DAILY BREAD
+### THE DAILY BREAD
  > "I am the way, and the truth, and the life; no one comes to the Father, but by me (JESUS)" Jn 14:1-12
