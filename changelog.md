@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+## 1.4.0
+* Few docuementation fixes
+* Fix implementation of `getTZoffset()` thanks to Seb Duggan
+* CCM-47 Case sensitivity resolved for resource service thanks to @wpdebruin
+* Updated TestBox version
+
 ## 1.3.2
 * Unified workbench
 * Encapsulation of module bundle resources

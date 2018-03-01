@@ -686,13 +686,13 @@ www.ortussolutions.com
 	<!--- ************************************************************* --->
 
 	<!--- ************************************************************* --->
-	<cffunction name="getTZOffset" output="false" access="public" hint="returns offset in hours">
+	<cffunction name="getTZOffset" output="false" access="public" hint="returns the offset in hours for the given datetime in the specified timezone">
 		<!--- ************************************************************* --->
-		<cfargument name="thisOffset" required="yes" type="numeric">
+		<cfargument name="thisDate" required="yes" type="date">
 		<cfargument name="thisTZ" required="no" default="#instance.timeZone.getDefault().getID()#">
 		<!--- ************************************************************* --->
 	       <cfset var tZ=instance.timeZone.getTimeZone(arguments.thisTZ)>
-	       <cfreturn tZ.getOffset(arguments.thisOffset)/3600000> <!--- return hours --->
+	       <cfreturn tZ.getOffset(arguments.thisDate)/3600000> <!--- return hours --->
 	</cffunction>
 	<!--- ************************************************************* --->
 
