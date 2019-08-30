@@ -23,8 +23,6 @@ component{
 	// UPDATE THE NAME OF THE MODULE IN TESTING BELOW
 	request.MODULE_NAME = "cbi18n";
 
-	this.mappings[ "/cbi18n" ] = rootPath & "modules/cbi18n";
-
 	// The module root path
 	moduleRootPath = REReplaceNoCase( this.mappings[ "/root" ], "#request.module_name#(\\|/)test-harness(\\|/)", "" );
 	this.mappings[ "/moduleroot" ] = moduleRootPath;

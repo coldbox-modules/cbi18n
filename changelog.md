@@ -3,7 +3,7 @@
 ## 1.5.0
 
 * `Improvement` : Updated to new template style
-* `Improvement` : ColdBox 5 updates, especially on helper loading
+* `Improvement` : ColdBox 5 updates
 * `Improvement` : Moved i18n listener to afterAspectsLoad to avoid module loading collisions
 * `Bug` : Invalid `instance` scope usage in models
 

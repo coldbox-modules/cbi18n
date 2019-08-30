@@ -22,17 +22,13 @@ component {
 	this.autoMapModels		= true;
 	// CF Mapping
 	this.cfmapping			= "cbi18n";
-	// App Helper
-	this.applicationHelper = [ "/cbi18n/helpers/mixins.cfm" ];
 
 	/**
 	 * Configure Module
 	 */
 	function configure(){
 		// cb4 style
-		if( isNull( variables.coldboxVersion ) ){
-			arrayAppend( controller.getSetting( "ApplicationHelper" ), "#moduleMapping#/helpers/Mixins.cfm" );
-		}
+		arrayAppend( controller.getSetting( "ApplicationHelper" ), "#moduleMapping#/helpers/Mixins.cfm" );
 	}
 
 	/**
@@ -52,19 +48,16 @@ component {
 	* Fired when the module is unregistered and unloaded
 	*/
 	function onUnload(){
-		// cb4 style
-		if( isNull( variables.coldboxVersion ) ){
-			var appHelperArray 	= controller.getSetting( "ApplicationHelper" );
-			var mixinToRemove 	= "#moduleMapping#/models/Mixins.cfm";
-			var mixinIndex 		= arrayFindNoCase( appHelperArray, mixinToRemove );
+		var appHelperArray 	= controller.getSetting( "ApplicationHelper" );
+		var mixinToRemove 	= "#moduleMapping#/models/Mixins.cfm";
+		var mixinIndex 		= arrayFindNoCase( appHelperArray, mixinToRemove );
 
-			// If the mixin is in the array
-			if( mixinIndex ) {
-				// Remove it
-				arrayDeleteAt( appHelperArray, mixinIndex );
-				// Arrays passed by value in Adobe CF
-				controller.setSetting( "ApplicationHelper", appHelperArray );
-			}
+		// If the mixin is in the array
+		if( mixinIndex ) {
+			// Remove it
+			arrayDeleteAt( appHelperArray, mixinIndex );
+			// Arrays passed by value in Adobe CF
+			controller.setSetting( "ApplicationHelper", appHelperArray );
 		}
 	}
 
