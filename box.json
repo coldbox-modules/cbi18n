@@ -1,23 +1,29 @@
 {
-	"name" 		: "ColdBox i18n Support",
-	"author" 	: "Ortus Solutions <info@ortussolutions.com>",
-	"version"	: "1.5.0",
-	"location"  : "http://downloads.ortussolutions.com/ortussolutions/coldbox-modules/cbi18n/@build.version@/cbi18n-@build.version@.zip",
-	"slug"		: "cbi18n",
-	"type"		: "modules",
-    "keywords"  : "i18n,internationalization,localization,language support",
-	"homepage"	: "https://github.com/coldbox-modules/cbi18n",
-	"documentation"		: "https://github.com/coldbox-modules/cbi18n/wiki",
-	"repository"		: { "type" : "git", "url" : "https://github.com/coldbox-modules/cbi18n" },
-	"shortDescription"	: "This module will enhance your ColdBox applications with i18n capabilities, resource bundles and localization.",
-	"license"			: [
-		{ "type" : "Apache2", "url" : "http://www.apache.org/licenses/LICENSE-2.0.html" }
-	],
-	"contributors"		: [
-		"Brad Wood <bdw429s@gmail.com>",
-		"Curt Gratz <gratz@computerknowhow.com>",
-		"Jon Clausen <jon_clausen@silowebworks.com>"
-	],
+    "name":"ColdBox i18n Support",
+    "author":"Ortus Solutions <info@ortussolutions.com>",
+    "version":"1.6.0",
+    "location":"http://downloads.ortussolutions.com/ortussolutions/coldbox-modules/cbi18n/@build.version@/cbi18n-@build.version@.zip",
+    "slug":"cbi18n",
+    "type":"modules",
+    "keywords":"i18n,internationalization,localization,language support",
+    "homepage":"https://github.com/coldbox-modules/cbi18n",
+    "documentation":"https://github.com/coldbox-modules/cbi18n/wiki",
+    "repository":{
+        "type":"git",
+        "url":"https://github.com/coldbox-modules/cbi18n"
+    },
+    "shortDescription":"This module will enhance your ColdBox applications with i18n capabilities, resource bundles and localization.",
+    "license":[
+        {
+            "type":"Apache2",
+            "url":"http://www.apache.org/licenses/LICENSE-2.0.html"
+        }
+    ],
+    "contributors":[
+        "Brad Wood <bdw429s@gmail.com>",
+        "Curt Gratz <gratz@computerknowhow.com>",
+        "Jon Clausen <jon_clausen@silowebworks.com>"
+    ],
     "ignore":[
         "**/.*",
         "tests/*",
