@@ -63,7 +63,7 @@ component extends="coldbox.system.testing.BaseTestCase" appMapping="/root"{
 			});
 
 			it( "can load from modules", function(){
-				var event = execute( event="test1:test.i18n", renderResults=true );
+				var event = execute( route="test1/test/i18n", renderResults=true );
 				expect(	event.getValue( "cbox_rendered_content" ) ).toInclude( "Welcome to my awesome multi-lingual module" );
 			});
 

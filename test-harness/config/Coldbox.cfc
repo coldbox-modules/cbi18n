@@ -40,14 +40,6 @@
 			development = "localhost,127\.0\.0\.1"
 		};
 
-		// Module Directives
-		modules = {
-			// An array of modules names to load, empty means all of them
-			include = [],
-			// An array of modules names to NOT load, empty means none
-			exclude = []
-		};
-
 		//Register interceptors as an array, we need order
 		interceptors = [
 		];
