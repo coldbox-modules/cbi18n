@@ -23,7 +23,7 @@ component {
 	// CF Mapping
 	this.cfmapping			= "cbi18n";
 	// App Helper
-	this.applicationHelper = [ "helpers/mixins.cfm" ];
+	this.applicationHelper = [ "/cbi18n/helpers/mixins.cfm" ];
 
 	/**
 	 * Configure Module
