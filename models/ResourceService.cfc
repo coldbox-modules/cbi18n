@@ -35,7 +35,7 @@ Inspired by Paul Hastings
 			instance.unknownTranslation 	= arguments.controller.getSetting( "UnknownTranslation" );
 			instance.resourceBundles 		= arguments.controller.getSetting( "ResourceBundles" );
 			instance.logUnknownTranslation	= arguments.controller.getSetting( "logUnknownTranslation" );
-
+			instance.smartBundleSelection = arguments.controller.getSetting( "smartBundleSelection" );
 			return this;
 		</cfscript>
 	</cffunction>
@@ -205,7 +205,24 @@ Inspired by Paul Hastings
 
 			// Try to locate the path using the coldbox plugin utility
 			rbFullPath = variables.controller.locateFilePath( rbFilePath );
-
+			// if smartBundleSelection then try less specific locales and finally the default locale
+			if ( instance.smartBundleSelection ) {
+				var myRbFile = arguments.rbFile;
+				var smartBundleFiles = ["#arguments.rbFile#_#instance.defaultLocale#.properties"]; // default locale
+				smartBundleFiles.append("#myRbFile#.properties"); // base resource
+				//include lang, country and extra (platform or anything)
+				listToArray( rbLocale, "_" ).each( function(item){
+					myRbFile &= "_#item#";
+					smartBundleFiles.append("#myRbFile#.properties");
+				})
+				//check for bundle file until we have a valid path, start with most specific one
+				for (var item in smartBundleFiles.reverse() ){
+					//if correct path we can load this rbFullPath
+					rbFullPath = variables.controller.locateFilePath( item )
+					if ( len( rbFullPath ) ) break;
+				}
+			} 
+//
 			// Validate Location
 			if( NOT len( rbFullPath ) ){
 				throw("The resource bundle file: #rbFilePath# does not exist. Please check your path", "FullPath: #rbFullPath#", "ResourceBundle.InvalidBundlePath");
