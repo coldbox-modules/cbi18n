@@ -21,6 +21,7 @@ Author 	    :	Luis Majano
 			.$("getSetting").$args("DefaultResourceBundle").$results( "" )
 			.$("getSetting").$args("UnknownTranslation").$results( "**TEST**" )
 			.$("getSetting").$args("logUnknownTranslation").$results("true")
+			.$("getSetting").$args("smartBundleSelection").$results("false")
 			.$("settingExists", true)
 			.$("getAppRootPath", expandPath("/root") );
 
