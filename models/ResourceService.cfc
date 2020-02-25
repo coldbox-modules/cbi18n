@@ -211,7 +211,8 @@ Inspired by Paul Hastings
 				var smartBundleFiles = ["#arguments.rbFile#_#instance.defaultLocale#.properties"]; // default locale
 				smartBundleFiles.append("#myRbFile#.properties"); // base resource
 				//include lang, country and extra (platform or anything)
-				listToArray( rbLocale, "_" ).each( function(item){
+				var localeArrayParts = listToArray( rbLocale, "_" );
+				localeArrayParts.each( function(item){
 					myRbFile &= "_#item#";
 					smartBundleFiles.append("#myRbFile#.properties");
 				});
@@ -221,7 +222,7 @@ Inspired by Paul Hastings
 					rbFullPath = variables.controller.locateFilePath( item )
 					if ( len( rbFullPath ) ) break;
 				}
-			} 
+			}
 //
 			// Validate Location
 			if( NOT len( rbFullPath ) ){
