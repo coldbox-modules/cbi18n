@@ -214,7 +214,7 @@ Inspired by Paul Hastings
 				listToArray( rbLocale, "_" ).each( function(item){
 					myRbFile &= "_#item#";
 					smartBundleFiles.append("#myRbFile#.properties");
-				})
+				});
 				//check for bundle file until we have a valid path, start with most specific one
 				for (var item in smartBundleFiles.reverse() ){
 					//if correct path we can load this rbFullPath
