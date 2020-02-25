@@ -219,7 +219,7 @@ Inspired by Paul Hastings
 				//check for bundle file until we have a valid path, start with most specific one
 				for (var item in smartBundleFiles.reverse() ){
 					//if correct path we can load this rbFullPath
-					rbFullPath = variables.controller.locateFilePath( item )
+					rbFullPath = variables.controller.locateFilePath( item );
 					if ( len( rbFullPath ) ) break;
 				}
 			}
