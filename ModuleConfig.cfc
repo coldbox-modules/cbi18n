@@ -147,7 +147,7 @@ component {
 		configStruct[ "resourceBundles" ]			= {};
 		configStruct[ "RBundles" ]					= {};
 		configStruct[ "customResourceService" ]		= "";
-		configStruct[ "smartBundleSelection" ]		= false;
+		configStruct[ "smartBundleSelection" ]		= true;
 
 		// Check if empty
 		if ( NOT structIsEmpty( i18n ) ){
