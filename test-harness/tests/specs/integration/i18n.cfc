@@ -47,7 +47,9 @@ component extends="coldbox.system.testing.BaseTestCase" appMapping="/root"{
 					.toInclude( "Home" )
 					.toInclude( "BogusNotFound" )
 					.toInclude( "Casa")
-					.toInclude( "Help Me from Support" );
+					.toInclude( "Help Me from Support" )
+					.toInclude( "Thuis" )
+					.toInclude( "This is my introduction message." );
 			});
 
 			it( "can load resource in the parent", function(){
@@ -62,15 +64,25 @@ component extends="coldbox.system.testing.BaseTestCase" appMapping="/root"{
 				expect(	event.getValue( "cbox_rendered_content" ) ).toInclude( "Home" );
 			});
 
+			it( "can load resource in the parent from a language bundle without country", function(){
+				var event = execute( event="main.testi18nPartialBundle", renderResults=true );
+				expect(	event.getValue( "cbox_rendered_content" ) ).toInclude( "Hallo Wereld" );
+			});
+
+			it( "can load resource in the parent from a default resource when missing in actual bundle", function(){
+				var event = execute( event="main.testi18nMissingResourceInBundle", renderResults=true );
+				expect(	event.getValue( "cbox_rendered_content" ) ).toInclude( "Welcome to ColdBox" );
+			});
+
 			it( "can load from modules", function(){
 				var event = execute( route="test1/test/i18n", renderResults=true );
 				expect(	event.getValue( "cbox_rendered_content" ) ).toInclude( "Welcome to my awesome multi-lingual module" );
 			});
 
-			it( "can implement a custom resource service", function(){
-				var event = execute( event="main.testi18nCustomResourceService", renderResults=true );
-				expect(	event.getValue( "cbox_rendered_content" ) ).toInclude( "Welcome to my awesome multi-lingual app using a custom Resource Service" );
-			});
+//			it( "can implement a custom resource service", function(){
+//				var event = execute( event="main.testi18nCustomResourceService", renderResults=true );
+//				expect(	event.getValue( "cbox_rendered_content" ) ).toInclude( "Welcome to my awesome multi-lingual app using a custom Resource Service" );
+//			});
 
 		});
 

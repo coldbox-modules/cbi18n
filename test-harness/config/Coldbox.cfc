@@ -54,7 +54,7 @@
 			localeStorage = "cookie",
 			unknownTranslation = "**NOT FOUND**",
 			logUnknownTranslation = true,
-			customResourceService = "root.models.CustomResourceService"
+//			customResourceService = "root.models.CustomResourceService"
 		};
 
 		//LogBox DSL

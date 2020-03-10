@@ -35,7 +35,6 @@ Inspired by Paul Hastings
 			instance.unknownTranslation 	= arguments.controller.getSetting( "UnknownTranslation" );
 			instance.resourceBundles 		= arguments.controller.getSetting( "ResourceBundles" );
 			instance.logUnknownTranslation	= arguments.controller.getSetting( "logUnknownTranslation" );
-			instance.smartBundleSelection = arguments.controller.getSetting( "smartBundleSelection" );
 			return this;
 		</cfscript>
 	</cffunction>
@@ -86,9 +85,9 @@ Inspired by Paul Hastings
 
 		<!--- Verify bundle register name exists --->
 		<cfif NOT structKeyExists( instance.aBundles, arguments.rbAlias )>
-			<cflock name="rbregister.#hash( arguments.rbFile & arguments.rbAlias )#" type="exclusive" timeout="10" throwontimeout="true">
+				<cflock name="rbregister.#hash( arguments.rbFile & arguments.rbAlias )#" type="exclusive" timeout="10" throwontimeout="true">
 				<cfif NOT structKeyExists( instance.aBundles, arguments.rbAlias )>
-					<cfset instance.aBundles[ arguments.rbAlias ] = structnew()>
+								<cfset instance.aBundles[ arguments.rbAlias ] = structnew()>
 				</cfif>
 			</cflock>
 		</cfif>
@@ -193,66 +192,42 @@ Inspired by Paul Hastings
 		<cfargument name="rbFile"   required="true"   type="any" hint="This must be the path + filename UP to but NOT including the locale. We auto-add the local and .properties to the end.">
 		<cfargument name="rbLocale" required="false"  type="any" default="en_US" hint="The locale of the resource bundle">
 		<cfscript>
-			var resourceBundle =structNew();
-			var thisKEY = "";
-			var thisMSG = "";
-			var keys = "";
-			var rbFilePath = arguments.rbFile & iif( len( arguments.rbLocale ), de("_"), de("") ) & arguments.rbLocale & ".properties";
-			var rbFullPath = rbFilePath;
-			var fis = "";
-			var fir = "";
-			var rb = "";
+			//			var rbFilePath = arguments.rbFile & iif( len( arguments.rbLocale ), de("_"), de("") ) & arguments.rbLocale & ".properties";
+			//			var rbFullPath = rbFilePath;
+			
+			// try to load hierarchical resource rbfile_LANG_COUNTRY_VARIANT, start with default resource, followed by 
+			// rbFile.properties, rbFile_LANG.properties, rbFile_LANG_COUNTRY.properties, rbFile_LANG_COUNTRY_VARIANT.properties (assuming LANG, COUNTRY and VARIANT are present)
+			// All items in resourceBundle will be overwritten by more specific ones.			
+			
+			// Create all file options from locale
+			var myRbFile = arguments.rbFile;
+			var smartBundleFiles =  ["#myRbFile#_#instance.defaultLocale#.properties"]; // default locale
+			smartBundleFiles.append("#myRbFile#.properties"); // base resource
+			//include lang, country and variant (if present)
+			var localeArrayParts = listToArray( rbLocale, "_" );
+			localeArrayParts.each( function(localePart){
+				myRbFile &= "_#localePart#";
+				smartBundleFiles.append("#myRbFile#.properties");
+			});
 
-			// Try to locate the path using the coldbox plugin utility
-			rbFullPath = variables.controller.locateFilePath( rbFilePath );
-			// if smartBundleSelection then try less specific locales and finally the default locale
-			if ( instance.smartBundleSelection ) {
-				var myRbFile = arguments.rbFile;
-				var smartBundleFiles = ["#arguments.rbFile#_#instance.defaultLocale#.properties"]; // default locale
-				smartBundleFiles.append("#myRbFile#.properties"); // base resource
-				//include lang, country and extra (platform or anything)
-				var localeArrayParts = listToArray( rbLocale, "_" );
-				localeArrayParts.each( function(item){
-					myRbFile &= "_#item#";
-					smartBundleFiles.append("#myRbFile#.properties");
-				});
-				//check for bundle file until we have a valid path, start with most specific one
-				for (var item in smartBundleFiles.reverse() ){
-					//if correct path we can load this rbFullPath
-					rbFullPath = variables.controller.locateFilePath( item );
-					if ( len( rbFullPath ) ) break;
-				}
-			}
-//
-			// Validate Location
-			if( NOT len( rbFullPath ) ){
+			// load all resource files for all default,lang, country and variants and overwrite parent keys when present
+			// this way you will always have defaults, AND specific resource values for countries and variants without duplicating everything.
+			var resourceBundle = structNew();
+			var IsValidBundleLoaded = false;
+			smartBundleFiles.each(function(resourceFile){
+				var ResourceBundleFullPath = variables.controller.locateFilePath( resourceFile );
+				if ( ResourceBundleFullPath.len() ) {
+					resourceBundle.append( _loadSubBundle( ResourceBundleFullPath ), true ); //append and overwrite
+					IsValidBundleLoaded = true; // at least one bundle loaded so no errors
+				};
+			})
+
+			// Validate resource is loaded or error.
+			if( !IsValidBundleLoaded ){
+				var rbFilePath = "#arguments.rbFile#_#arguments.rbLocale#.properties";
+				var rbFullPath = variables.controller.locateFilePath( rbFilePath );
 				throw("The resource bundle file: #rbFilePath# does not exist. Please check your path", "FullPath: #rbFullPath#", "ResourceBundle.InvalidBundlePath");
 			}
-
-			//create a file input stream with file location
-			fis = createObject( "java", "java.io.FileInputStream" ).init( rbFullPath );
-			fir = createObject( "java", "java.io.InputStreamReader" ).init( fis, "UTF-8" );
-			//Init RB with file Stream
-			rb = createObject( "java", "java.util.PropertyResourceBundle").init( fir );
-			try{
-				//Get Keys
-				keys = rb.getKeys();
-
-				//Loop through property keys and store the values into bundle
-				while( keys.hasMoreElements() ){
-					thisKEY = keys.nextElement();
-					resourceBundle[ thisKEY ] = rb.handleGetObject( thisKEY );
-				}
-
-			}
-			catch(Any e){
-				fis.close();
-				$rethrow( e );
-			}
-
-			// Close the input stream
-			fis.close();
-
 			return resourceBundle;
 		</cfscript>
 	</cffunction>
@@ -453,5 +428,37 @@ Inspired by Paul Hastings
 	</cffunction>
 
 <!------------------------------------------- PRIVATE ------------------------------------------->
+	<cffunction name="_loadSubBundle" access="private" output="no" returnType="struct" hint="loads part of a composed bundle">
+		<cfargument name="resourceBundleFullPath" required="true" type="string" hint="full path to a partial resourceFile">
+		<cfscript>
+			var resourceBundle = structNew();
+			var thisKey = "";
+			//create a file input stream with file location
+			var fis = createObject( "java", "java.io.FileInputStream" ).init( resourceBundleFullPath );
+			var fir = createObject( "java", "java.io.InputStreamReader" ).init( fis, "UTF-8" );
+			//Init RB with file Stream
+			var rb = createObject( "java", "java.util.PropertyResourceBundle").init( fir );
+			try{
+				//Get Keys
+				var keys = rb.getKeys();
+
+				//Loop through property keys and store the values into bundle
+				while( keys.hasMoreElements() ){
+					thisKEY = keys.nextElement();
+					resourceBundle[ thisKEY ] = rb.handleGetObject( thisKEY );
+				}
+
+			}
+			catch(Any e){
+				fis.close();
+				$rethrow( e );
+			}
+
+			// Close the input stream
+			fis.close();
+
+			return resourceBundle;
+		</cfscript>
+	</cffunction>
 
 </cfcomponent>

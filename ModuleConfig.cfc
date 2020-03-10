@@ -147,7 +147,6 @@ component {
 		configStruct[ "resourceBundles" ]			= {};
 		configStruct[ "RBundles" ]					= {};
 		configStruct[ "customResourceService" ]		= "";
-		configStruct[ "smartBundleSelection" ]		= true;
 
 		// Check if empty
 		if ( NOT structIsEmpty( i18n ) ){
@@ -197,10 +196,6 @@ component {
 			//Check for custom ResourceService
 			if( structKeyExists( i18n, "customResourceService" ) AND len( i18n.customResourceService ) ){
 				configStruct[ "customResourceService" ] = i18n.customResourceService;
-			}
-			//Check for smartBundleSelection
-			if( structKeyExists( i18n, "smartBundleSelection" ) AND i18n.smartBundleSelection ){
-				configStruct[ "smartBundleSelection" ] = i18n.smartBundleSelection;
 			}
 
 			// set i18n being used
