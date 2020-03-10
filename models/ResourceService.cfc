@@ -220,7 +220,7 @@ Inspired by Paul Hastings
 					resourceBundle.append( _loadSubBundle( ResourceBundleFullPath ), true ); //append and overwrite
 					IsValidBundleLoaded = true; // at least one bundle loaded so no errors
 				};
-			})
+			});
 
 			// Validate resource is loaded or error.
 			if( !IsValidBundleLoaded ){
