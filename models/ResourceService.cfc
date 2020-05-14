@@ -133,11 +133,11 @@ component singleton accessors="true" {
 	 * @values An array, struct or simple string of value replacements to use on the resource string
 	 * @bundle The bundle alias to use to get the resource from when using multiple resource bundles. By default the bundle name used is 'default'
 	 */
-	any function getResource(
+	function getResource(
 		required resource,
-		default, 		
-		locale = variables.i18n.getfwLocale(),
-		values, 		
+		//default, 
+		locale = variables.i18n.getfwLocale(), 
+		values, 
 		bundle = "default"
 	) {
 		var thisBundle = {};
@@ -284,8 +284,8 @@ component singleton accessors="true" {
 	any function getRBString(
 		required rbFile,
 		required rbKey,
-		rbLocale = "en_US", 
-		default
+		rbLocale = "en_US"
+		//,default
 	) {
 		// default locale?
 		if ( !len( arguments.rbLocale ) ) {

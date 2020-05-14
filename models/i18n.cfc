@@ -507,7 +507,7 @@ component singleton accessors="true" {
 				if ( isOK ) {
 					break;
 				}
-			} )
+			} );
 		} );
 		return parsedDate.getTime();
 	}
@@ -554,7 +554,7 @@ component singleton accessors="true" {
 	 * Determines the first DOW.
 	 */
 	string function weekStarts() {
-		return variables.aCalendar.getFirstDayOfWeek()
+		return variables.aCalendar.getFirstDayOfWeek();
 	}
 
 	/**
@@ -769,7 +769,7 @@ component singleton accessors="true" {
 	 */
 	function getServerTZ() {
 		var serverTZ = variables.timeZone.getDefault();
-		return serverTZ.getDisplayName( true, variables.timeZone.LONG )
+		return serverTZ.getDisplayName( true, variables.timeZone.LONG );
 	}
 
 	/**
@@ -1036,10 +1036,10 @@ component singleton accessors="true" {
 		switch ( arguments.dspType ) {
 			case "long":
 				return tZ.getDisplayName( javacast( "boolean", false ), javacast( "int", 1 ) );
-				// break;
+				//break;
 			case "short":
-				return tZ.getDisplayName( javacast( "boolean", false ), javacast( "int", 0 ) )
-				// break;
+				return tZ.getDisplayName( javacast( "boolean", false ), javacast( "int", 0 ) );
+				//break;
 			default:
 				return tZ.getDisplayName();
 		}
