@@ -45,7 +45,7 @@ component singleton accessors="true" {
 		variables.resourceBundles       = arguments.controller.getSetting( "ResourceBundles" );
 		variables.logUnknownTranslation = arguments.controller.getSetting( "logUnknownTranslation" );
 
-		return this
+		return this;
 	}
 
 	/**

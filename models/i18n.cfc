@@ -64,7 +64,7 @@ component singleton accessors="true" {
 					rbLocale = variables.defaultLocale,
 					rbAlias  = lCase( bundleKey )
 				);
-			} )
+			} );
 		}
 	}
 
