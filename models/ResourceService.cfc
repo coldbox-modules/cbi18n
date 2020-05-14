@@ -75,7 +75,7 @@ component singleton accessors="true" {
 	 * @rbAlias The unique alias name used to store this resource bundle in memory. The default name is the name of the rbFile passed if not passed.
 	 */
 	any function loadBundle(
-		string rBFile,
+		required string rBFile,
 		string rbLocale = "en_US",
 		boolean force   = false,
 		string rbAlias  = "default"
@@ -135,9 +135,9 @@ component singleton accessors="true" {
 	 */
 	any function getResource(
 		required resource,
-		default,
+		default, 		//no default here, will be checked later
 		locale = variables.i18n.getfwLocale(),
-		values,
+		values, 		//no default here, will be checked later
 		bundle = "default"
 	) {
 		var thisBundle = {};
@@ -284,7 +284,7 @@ component singleton accessors="true" {
 	any function getRBString(
 		required rbFile,
 		required rbKey,
-		rbLocale = "en_US",
+		rbLocale = "en_US", 
 		default
 	) {
 		// default locale?
@@ -348,7 +348,7 @@ component singleton accessors="true" {
 	 * @returns array of keys from a specific resource bundle
 	 * @throws ResourceBundle.InvalidBundlePath if bundlePath is not found
 	 */
-	array function getRBKeys( required rbFile, rbLocale ) {
+	array function getRBKeys( required rbFile, rbLocale= "" ) {
 		var keys = arrayNew( 1 );
 
 		// default locale?
