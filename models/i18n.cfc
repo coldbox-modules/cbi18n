@@ -73,7 +73,7 @@ component singleton accessors="true" {
 	 *
 	 * @returns struct of loaded languages keys
 	 */
-	function structgetRBundles() {
+	struct function getRBundles() {
 		return variables.resourceService.getBundles();
 	}
 
@@ -164,6 +164,14 @@ component singleton accessors="true" {
 	string function getFWCountry() {
 		return buildLocale( getfwLocale() ).getDisplayCountry();
 	}
+
+	/**
+	 * returns 2-letter ISO country name for the chosen application locale. Eg: us
+	 * 
+	 */
+	string function getFWCountryCode(){
+		return buildLocale(getfwLocale()).getCountry();
+	} 
 
 	/**
 	 * returns 3-letter ISO country name for the chosen application locale. Eg: USA
@@ -1036,7 +1044,11 @@ component singleton accessors="true" {
 				return tZ.getDisplayName();
 		}
 	}
+	/************************************************************************************/
+	/****************************** PRIVATE METHODS *************************************/
+	/************************************************************************************/
 
+	
 	/**
 	 * creates valid core java locale from java style locale ID
 	 *
@@ -1045,7 +1057,7 @@ component singleton accessors="true" {
 	 * @returns valid Java locale
 	 * @throws i18n.InvalidLocaleException if locale is not valid
 	 */
-	function buildLocale( string thisLocale = "en_US" ) {
+	private function buildLocale( string thisLocale = "en_US" ) {
 		var l       = listFirst( arguments.thisLocale, "_" );
 		var c       = "";
         var v       = "";
