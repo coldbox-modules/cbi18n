@@ -233,7 +233,7 @@ component singleton accessors="true" {
 				}
 				theseLocales = theseLocales.listAppend( thisName );
 			};
-		} )
+		} );
 		return theseLocales;
 	}
 

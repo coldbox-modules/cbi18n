@@ -135,9 +135,9 @@ component singleton accessors="true" {
 	 */
 	any function getResource(
 		required resource,
-		default, 		//no default here, will be checked later
+		default, 		
 		locale = variables.i18n.getfwLocale(),
-		values, 		//no default here, will be checked later
+		values, 		
 		bundle = "default"
 	) {
 		var thisBundle = {};
