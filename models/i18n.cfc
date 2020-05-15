@@ -1036,10 +1036,10 @@ component singleton accessors="true" {
 		switch ( arguments.dspType ) {
 			case "long":
 				return tZ.getDisplayName( javacast( "boolean", false ), javacast( "int", 1 ) );
-				//break;
+				// break;
 			case "short":
 				return tZ.getDisplayName( javacast( "boolean", false ), javacast( "int", 0 ) );
-				//break;
+				// break;
 			default:
 				return tZ.getDisplayName();
 		}

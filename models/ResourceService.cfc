@@ -135,9 +135,9 @@ component singleton accessors="true" {
 	 */
 	function getResource(
 		required resource,
-		//default, 
-		locale = variables.i18n.getfwLocale(), 
-		values, 
+		// default,
+		locale = variables.i18n.getfwLocale(),
+		values,
 		bundle = "default"
 	) {
 		var thisBundle = {};
@@ -285,7 +285,7 @@ component singleton accessors="true" {
 		required rbFile,
 		required rbKey,
 		rbLocale = "en_US"
-		//,default
+		// ,default
 	) {
 		// default locale?
 		if ( !len( arguments.rbLocale ) ) {
@@ -348,7 +348,7 @@ component singleton accessors="true" {
 	 * @returns array of keys from a specific resource bundle
 	 * @throws ResourceBundle.InvalidBundlePath if bundlePath is not found
 	 */
-	array function getRBKeys( required rbFile, rbLocale= "" ) {
+	array function getRBKeys( required rbFile, rbLocale = "" ) {
 		var keys = arrayNew( 1 );
 
 		// default locale?
