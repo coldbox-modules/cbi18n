@@ -128,14 +128,14 @@ component singleton accessors="true" {
 	 * Get a resource from a specific loaded bundle and locale
 	 *
 	 * @resource The resource (key) to retrieve from the main loaded bundle.
-	 * @default A default value to send back if the resource (key) not found
+	 * @defaultValue A default value to send back if the resource (key) not found
 	 * @locale Pass in which locale to take the resource from. By default it uses the user's current set locale
 	 * @values An array, struct or simple string of value replacements to use on the resource string
 	 * @bundle The bundle alias to use to get the resource from when using multiple resource bundles. By default the bundle name used is 'default'
 	 */
 	function getResource(
 		required resource,
-		// default,
+		defaultValue,
 		locale = variables.i18n.getfwLocale(),
 		values,
 		bundle = "default"
@@ -191,7 +191,12 @@ component singleton accessors="true" {
 				log.error( variables.unknownTranslation & " key: #arguments.resource#" );
 			}
 
-			// Check default and return if sent
+			// argument defaultValue was 'default'. both NOT required in function definition so we can check both
+			// first check the new 'defaultValue' param
+			if ( structKeyExists( arguments, "defaultValue" ) ) {
+				return arguments.defaultValue;
+			}
+			// if still using the old argument, return this. You will never arrive here when using 'defaultValue'
 			if ( structKeyExists( arguments, "default" ) ) {
 				return arguments.default;
 			}
@@ -276,7 +281,7 @@ component singleton accessors="true" {
 	 * @rbFile This must be the path + filename UP to but NOT including the locale. We auto-add the local and .properties to the end.
 	 * @rbKey The key to retrieve
 	 * @rbLocale The locale of the bundle. Default is en_US
-	 * @default A default value to send back if resource not found
+	 * @defaultValue A default value to send back if resource not found
 	 *
 	 * @throws ResourceBundle.InvalidBundlePath if bundlePath is not found
 	 * @throws ResourceBundle.RBKeyNotFoundException if rbKey is not found
@@ -284,8 +289,8 @@ component singleton accessors="true" {
 	any function getRBString(
 		required rbFile,
 		required rbKey,
-		rbLocale = "en_US"
-		// ,default
+		rbLocale = "en_US",
+		defaultValue
 	) {
 		// default locale?
 		if ( !len( arguments.rbLocale ) ) {
@@ -327,6 +332,12 @@ component singleton accessors="true" {
 			return rbString;
 		}
 		// Check default?
+		// argument defaultValue was 'default'. both NOT required in function definition so we can check both
+		// first check the new 'defaultValue' param
+		if ( structKeyExists( arguments, "defaultValue" ) ) {
+			return arguments.defaultValue;
+		}
+		// if still using the old value, return this. You will never arrive here when using 'defaultValue'
 		if ( structKeyExists( arguments, "default" ) ) {
 			return arguments.default;
 		}
