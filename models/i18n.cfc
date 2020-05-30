@@ -57,15 +57,13 @@ component singleton accessors="true" {
 
 		// are we loading multiple resource bundles? If so, load up their default locale
 		var resourceBundles = variables.controller.getSetting( name = "resourceBundles", defaultValue = {} );
-		if ( resourceBundles.count() ) {
-			resourceBundles.each( function( bundleKey, thisBundle ) {
-				variables.resourceService.loadBundle(
-					rbFile   = thisBundle,
-					rbLocale = variables.defaultLocale,
-					rbAlias  = lCase( bundleKey )
-				);
-			} );
-		}
+		resourceBundles.each( function( bundleKey, thisBundle ) {
+			variables.resourceService.loadBundle(
+				rbFile   = thisBundle,
+				rbLocale = variables.defaultLocale,
+				rbAlias  = lCase( bundleKey )
+			);
+		} );
 	}
 
 	/**
@@ -309,7 +307,7 @@ component singleton accessors="true" {
 	 * @thisTimeFormat FULL=0, LONG=1, MEDIUM=2, SHORT=3
 	 * @tz timezone
 	 */
-	string function i18nDateTimeFormat(
+	string function DateTimeFormat(
 		required numeric thisOffset,
 		numeric thisDateFormat = 1,
 		numeric thisTimeFormat = 1,
@@ -333,7 +331,7 @@ component singleton accessors="true" {
 	 * @thisDateFormat FULL=0, LONG=1, MEDIUM=2, SHORT=3
 	 * @tz timezone
 	 */
-	string function i18nDateFormat(
+	string function DateFormat(
 		required numeric thisOffset,
 		numeric thisDateFormat = 1,
 		tz                     = variables.timeZone.getDefault().getID()
@@ -355,7 +353,7 @@ component singleton accessors="true" {
 	 * @thisTimeFormat FULL=0, LONG=1, MEDIUM=2, SHORT=3
 	 * @tz timezone
 	 */
-	string function i18nTimeFormat(
+	string function TimeFormat(
 		required numeric thisOffset,
 		numeric thisTimeFormat = 1,
 		tz                     = variables.timeZone.getDefault().getID()
@@ -450,7 +448,7 @@ component singleton accessors="true" {
 	 *
 	 * @thisDate
 	 */
-	numeric function i18nDateParse( required string thisDate ) {
+	numeric function DateParse( required string thisDate ) {
 		var isOk           = false;
 		var parsedDate     = "";
 		var tDateFormatter = "";
@@ -480,7 +478,7 @@ component singleton accessors="true" {
 	 *
 	 * @thisDate
 	 */
-	numeric function i18nDateTimeParse( required string thisDate ) {
+	numeric function DateTimeParse( required string thisDate ) {
 		var isOk           = false;
 		var dStyle         = 0;
 		var tStyle         = 0;
@@ -798,14 +796,14 @@ component singleton accessors="true" {
 	}
 
 	/**
-	 * i18nDateAdd
+	 * DateAdd
 	 *
 	 * @thisOffset
 	 * @thisDatePart
 	 * @dateUnits
 	 * @thisTZ
 	 */
-	numeric function i18nDateAdd(
+	numeric function DateAdd(
 		required numeric thisOffset,
 		required string thisDatePart,
 		required numeric dateUnits,
@@ -854,14 +852,14 @@ component singleton accessors="true" {
 	}
 
 	/**
-	 * i18nDateDiff
+	 * DateDiff
 	 *
 	 * @thisOffset
 	 * @thatOffset
 	 * @thisDatePart
 	 * @thisTZ
 	 */
-	numeric function i18nDateDiff(
+	numeric function DateDiff(
 		required numeric thisOffset,
 		required numeric thatOffset,
 		required string thisDatePart,

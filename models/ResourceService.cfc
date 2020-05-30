@@ -36,7 +36,6 @@ component singleton accessors="true" {
 			arguments.controller.setSetting( "RBundles", {} );
 		}
 		// store bundles
-		variables.aBundles              = arguments.controller.getSetting( "RBundles" );
 		// setup local instance references
 		variables.aBundles              = arguments.controller.getSetting( "RBundles" );
 		variables.defaultLocale         = arguments.controller.getSetting( "DefaultLocale" );
@@ -113,8 +112,8 @@ component singleton accessors="true" {
 						rbLocale = arguments.rbLocale
 					);
 					// logging
-					if ( log.canDebug() ) {
-						log.debug(
+					if ( log.canInfo() ) {
+						log.info(
 							"Loaded bundle: #arguments.rbFile#:#arguments.rbAlias# for locale: #arguments.rbLocale#, forced: #arguments.force#"
 						);
 					}
@@ -236,23 +235,13 @@ component singleton accessors="true" {
 			de( "_" ),
 			de( "" )
 		) & arguments.rbLocale & ".properties";
-		var rbFullPath = rbFilePath;
 
-		// Try to locate the path using the coldbox plugin utility
-		rbFullPath = variables.controller.locateFilePath( rbFilePath );
+		var rbFilePath = ( len(arguments.rbLocale)) ? "#arguments.rBFile#_#arguments.rbLocale#.properties" :  "#arguments.rBFile#.properties";
 
-		// Validate Location
-		if ( !len( rbFullPath ) ) {
-			throw(
-				"The resource bundle file: #rbFilePath# does not exist. Please check your path",
-				"FullPath: #rbFullPath#",
-				"ResourceBundle.InvalidBundlePath"
-			);
-		}
-
-		// create a file input stream with file location
-		var fis = createObject( "java", "java.io.FileInputStream" ).init( rbFullPath );
+		// read file
+		var fis = getResourceFileInputStream( rbFilePath );
 		var fir = createObject( "java", "java.io.InputStreamReader" ).init( fis, "UTF-8" );
+
 		// Init RB with file Stream
 		var rb  = createObject( "java", "java.util.PropertyResourceBundle" ).init( fir );
 		try {
@@ -264,13 +253,9 @@ component singleton accessors="true" {
 				thisKEY                   = keys.nextElement();
 				resourceBundle[ thisKEY ] = rb.handleGetObject( thisKEY );
 			}
-		} catch ( Any e ) {
+		} finally {
 			fis.close();
-			$rethrow( e );
 		}
-
-		// Close the input stream
-		fis.close();
 
 		return resourceBundle;
 	}
@@ -297,35 +282,16 @@ component singleton accessors="true" {
 			arguments.rbLocale = variables.defaultLocale;
 		}
 
-		// prepare the file
-		var rbFilePath = arguments.rbFile & "_#arguments.rbLocale#.properties";
-
-		// Try to locate the path using the coldbox plugin utility
-		var rbFullPath = variables.controller.locateFilePath( rbFilePath );
-
-		// Validate Location
-		if ( !len( rbFullPath ) ) {
-			throw(
-				"The resource bundle file: #rbFilePath# does not exist. Please check your path",
-				"FullPath: #rbFullPath#",
-				"ResourceBundle.InvalidBundlePath"
-			);
-		}
-
 		// read file
-		var fis = createObject( "java", "java.io.FileInputStream" ).init( rbFullPath );
+		var fis = getResourceFileInputStream( "#arguments.rbFile#_#arguments.rbLocale#.properties" );
 		var rb  = createObject( "java", "java.util.PropertyResourceBundle" ).init( fis );
 
 		try {
 			// Retrieve string
 			var rbString = rb.handleGetObject( arguments.rbKey );
-		} catch ( Any e ) {
+		} finally {
 			fis.close();
-			$rethrow( e );
 		}
-
-		// Close file
-		fis.close();
 
 		// Check if found?
 		if ( isDefined( "rbString" ) ) {
@@ -367,23 +333,8 @@ component singleton accessors="true" {
 			arguments.rbLocale = variables.defaultLocale;
 		}
 
-		// prepare the file
-		var rbFilePath = arguments.rbFile & "_#arguments.rbLocale#.properties";
-
-		// Try to locate the path using the coldbox plugin utility
-		var rbFullPath = variables.controller.locateFilePath( rbFilePath );
-
-		// Validate Location
-		if ( !len( rbFullPath ) ) {
-			throw(
-				"The resource bundle file: #rbFilePath# does not exist. Please check your path",
-				"FullPath: #rbFullPath#",
-				"ResourceBundle.InvalidBundlePath"
-			);
-		}
-
 		// read file
-		var fis = createObject( "java", "java.io.FileInputStream" ).init( rbFullPath );
+		var fis = getResourceFileInputStream( "#arguments.rbFile#_#arguments.rbLocale#.properties" );
 		var rb  = createObject( "java", "java.util.PropertyResourceBundle" ).init( fis );
 
 		try {
@@ -393,13 +344,9 @@ component singleton accessors="true" {
 			while ( rbKeys.hasMoreElements() ) {
 				arrayAppend( keys, rbKeys.nextElement() );
 			}
-		} catch ( Any e ) {
+		} finally {
 			fis.close();
-			$rethrow( e );
 		}
-
-		// Close it up
-		fis.close();
 
 		return keys;
 	}
@@ -512,6 +459,36 @@ component singleton accessors="true" {
 			return false;
 		}
 		return true;
+	}
+
+	/************************************************************************************/
+	/****************************** PRIVATE METHODS *************************************/
+	/************************************************************************************/
+
+	/**
+	 * get Java FileInputStream for resource bundle
+	 * 
+	 * @rbFilePath path + filename for resource, including locale + .properties
+	 * 
+	 * @return java.io.FileInputStream
+	 * @throws ResourceBundle.InvalidBundlePath
+	 */
+	private function getResourceFileInputStream( required string rbFilePath) {
+		// Try to locate the path using the coldbox plugin utility
+		var rbFullPath = variables.controller.locateFilePath( rbFilePath );
+
+		// Validate Location
+		if ( !len( rbFullPath ) ) {
+			throw(
+				"The resource bundle file: #rbFilePath# does not exist. Please check your path",
+				"FullPath: #rbFullPath#",
+				"ResourceBundle.InvalidBundlePath"
+			);
+		}
+
+		// read file and return
+		return createObject( "java", "java.io.FileInputStream" ).init( rbFullPath );
+
 	}
 
 }
