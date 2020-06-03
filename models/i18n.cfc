@@ -307,7 +307,7 @@ component singleton accessors="true" {
 	 * @thisTimeFormat FULL=0, LONG=1, MEDIUM=2, SHORT=3
 	 * @tz timezone
 	 */
-	string function DateTimeFormat(
+	string function dateTimeFormat(
 		required numeric thisOffset,
 		numeric thisDateFormat = 1,
 		numeric thisTimeFormat = 1,
@@ -331,7 +331,7 @@ component singleton accessors="true" {
 	 * @thisDateFormat FULL=0, LONG=1, MEDIUM=2, SHORT=3
 	 * @tz timezone
 	 */
-	string function DateFormat(
+	string function dateFormat(
 		required numeric thisOffset,
 		numeric thisDateFormat = 1,
 		tz                     = variables.timeZone.getDefault().getID()
@@ -353,7 +353,7 @@ component singleton accessors="true" {
 	 * @thisTimeFormat FULL=0, LONG=1, MEDIUM=2, SHORT=3
 	 * @tz timezone
 	 */
-	string function TimeFormat(
+	string function timeFormat(
 		required numeric thisOffset,
 		numeric thisTimeFormat = 1,
 		tz                     = variables.timeZone.getDefault().getID()
@@ -448,7 +448,7 @@ component singleton accessors="true" {
 	 *
 	 * @thisDate
 	 */
-	numeric function DateParse( required string thisDate ) {
+	numeric function dateParse( required string thisDate ) {
 		var isOk           = false;
 		var parsedDate     = "";
 		var tDateFormatter = "";
@@ -478,7 +478,7 @@ component singleton accessors="true" {
 	 *
 	 * @thisDate
 	 */
-	numeric function DateTimeParse( required string thisDate ) {
+	numeric function dateTimeParse( required string thisDate ) {
 		var isOk           = false;
 		var dStyle         = 0;
 		var tStyle         = 0;
@@ -803,7 +803,7 @@ component singleton accessors="true" {
 	 * @dateUnits
 	 * @thisTZ
 	 */
-	numeric function DateAdd(
+	numeric function dateAdd(
 		required numeric thisOffset,
 		required string thisDatePart,
 		required numeric dateUnits,
@@ -859,7 +859,7 @@ component singleton accessors="true" {
 	 * @thisDatePart
 	 * @thisTZ
 	 */
-	numeric function DateDiff(
+	numeric function dateDiff(
 		required numeric thisOffset,
 		required numeric thatOffset,
 		required string thisDatePart,
