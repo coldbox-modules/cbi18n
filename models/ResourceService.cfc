@@ -260,7 +260,7 @@ component singleton accessors="true" {
 
 		// Validate resource is loaded or error.
 		if( !IsValidBundleLoaded ){
-			var rbFilePath = "#arguments.rbFile#_#arguments.rbLocale#.properties"
+			var rbFilePath = "#arguments.rbFile#_#arguments.rbLocale#.properties";
 			var rbFullPath = variables.controller.locateFilePath( rbFilePath );
 			throw("The resource bundle file: #rbFilePath# does not exist. Please check your path", "FullPath: #rbFullPath#", "ResourceBundle.InvalidBundlePath");
 		}
