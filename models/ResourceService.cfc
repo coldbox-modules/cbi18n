@@ -228,33 +228,41 @@ component singleton accessors="true" {
 	 * @rbLocale The locale of the resource bundle
 	 */
 	struct function getResourceBundle( required rbFile, rbLocale = "en_US" ) {
-		var resourceBundle = {};
-		var thisKEY        = "";
-		var rbFilePath     = arguments.rbFile & iIf(
-			len( arguments.rbLocale ),
-			de( "_" ),
-			de( "" )
-		) & arguments.rbLocale & ".properties";
+		// try to load hierarchical resource rbfile_LANG_COUNTRY_VARIANT, start with default resource, followed by 
+		// rbFile.properties, rbFile_LANG.properties, rbFile_LANG_COUNTRY.properties, rbFile_LANG_COUNTRY_VARIANT.properties (assuming LANG, COUNTRY and VARIANT are present)
+		// All items in resourceBundle will be overwritten by more specific ones.			
 
-		var rbFilePath = ( len( arguments.rbLocale ) ) ? "#arguments.rBFile#_#arguments.rbLocale#.properties" : "#arguments.rBFile#.properties";
+		// Create all file options from locale
+		var myRbFile = arguments.rbFile;
+		//start with default locale
+		var smartBundleFiles = ["#myRbFile#_#variables.defaultLocale#.properties"];
+		//add base resource, without language, country or variant
+		smartBundleFiles.append("#myRbFile#.properties");
+		//include lang, country and variant (if present)
+		// extract and add to bundleArray by splitting rbLocale as list on '_'
+		arguments.rbLocale.listEach( function( localePart, index, list){
+			myRbFile &= "_#localePart#";
+			smartBundleFiles.append("#myRbFile#.properties");	
+		}, "_" );
+		
+		// load all resource files for all default,lang, country and variants 
+		// and overwrite parent keys when present so you you will always have defaults
+		// AND specific resource values for countries and variants without duplicating everything.
+		var resourceBundle = structNew();
+		var IsValidBundleLoaded = false;
+		smartBundleFiles.each(function(resourceFile){
+			var ResourceBundleFullPath = variables.controller.locateFilePath( resourceFile );
+			if ( ResourceBundleFullPath.len() ) {
+				resourceBundle.append( _loadSubBundle( ResourceBundleFullPath ), true ); //append and overwrite
+				IsValidBundleLoaded = true; // at least one bundle loaded so no errors
+			};
+		});
 
-		// read file
-		var fis = getResourceFileInputStream( rbFilePath );
-		var fir = createObject( "java", "java.io.InputStreamReader" ).init( fis, "UTF-8" );
-
-		// Init RB with file Stream
-		var rb = createObject( "java", "java.util.PropertyResourceBundle" ).init( fir );
-		try {
-			// Get Keys
-			var keys = rb.getKeys();
-
-			// Loop through property keys and store the values into bundle
-			while ( keys.hasMoreElements() ) {
-				thisKEY                   = keys.nextElement();
-				resourceBundle[ thisKEY ] = rb.handleGetObject( thisKEY );
-			}
-		} finally {
-			fis.close();
+		// Validate resource is loaded or error.
+		if( !IsValidBundleLoaded ){
+			var rbFilePath = "#arguments.rbFile#_#arguments.rbLocale#.properties"
+			var rbFullPath = variables.controller.locateFilePath( rbFilePath );
+			throw("The resource bundle file: #rbFilePath# does not exist. Please check your path", "FullPath: #rbFullPath#", "ResourceBundle.InvalidBundlePath");
 		}
 
 		return resourceBundle;
@@ -490,4 +498,37 @@ component singleton accessors="true" {
 		return createObject( "java", "java.io.FileInputStream" ).init( rbFullPath );
 	}
 
+	/**
+	 * loads a java resource file from file
+	 * 
+	 * @resourceBundleFullPath full path to a (partial) resourceFile
+	 * 
+	 * @return struct resourcebundle
+	 */
+	private function _loadSubBundle( required string resourceBundleFullPath ) {
+		var resourceBundle = {};
+		var thisKey = "";
+		// create a file input stream with file location
+		var fis = getResourceFileInputStream( resourceBundleFullPath );
+		var fir = createObject( "java", "java.io.InputStreamReader" ).init( fis, "UTF-8" );
+		// init rb with file stream
+		var rb = createObject( "java", "java.util.PropertyResourceBundle").init( fir );
+		try{
+			//get keys
+			var keys = rb.getKeys();
+			//Loop through property keys and store the values into bundle
+			while( keys.hasMoreElements() ){
+				thisKey = keys.nextElement();
+				resourceBundle[ thisKey ] = rb.handleGetObject( thisKey );
+			}
+		}
+		catch( any e ) {
+			fis.close();
+			rethrow;
+		}
+		// Close input stream
+		fis.close();
+
+		return resourceBundle;
+	}
 }
