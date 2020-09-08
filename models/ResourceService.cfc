@@ -267,7 +267,7 @@ component singleton accessors="true" {
 			throw(
 				message = "The resource bundle file: #rbFilePath# does not exist. Please check your path",
 				type    = "ResourceBundle.InvalidBundlePath",
-				details = "FullPath: #rbFullPath#"
+				detail = "FullPath: #rbFullPath#"
 			);
 		}
 
@@ -527,7 +527,7 @@ component singleton accessors="true" {
 				thisKey                   = keys.nextElement();
 				resourceBundle[ thisKey ] = rb.handleGetObject( thisKey );
 			}
-		} finally ( any e ){
+		} finally {
 				fis.close();
 			}
 
