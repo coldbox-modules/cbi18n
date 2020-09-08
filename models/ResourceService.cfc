@@ -226,43 +226,49 @@ component singleton accessors="true" {
 	 *
 	 * @rbFile This must be the path + filename UP to but NOT including the locale. We auto-add the local and .properties to the end.
 	 * @rbLocale The locale of the resource bundle
+	 *
+	 * @throws ResourceBundle.InvalidBundlePath if bundlePath is not found
 	 */
 	struct function getResourceBundle( required rbFile, rbLocale = "en_US" ) {
-		// try to load hierarchical resource rbfile_LANG_COUNTRY_VARIANT, start with default resource, followed by 
+		// try to load hierarchical resource rbfile_LANG_COUNTRY_VARIANT, start with default resource, followed by
 		// rbFile.properties, rbFile_LANG.properties, rbFile_LANG_COUNTRY.properties, rbFile_LANG_COUNTRY_VARIANT.properties (assuming LANG, COUNTRY and VARIANT are present)
-		// All items in resourceBundle will be overwritten by more specific ones.			
+		// All items in resourceBundle will be overwritten by more specific ones.
 
 		// Create all file options from locale
-		var myRbFile = arguments.rbFile;
-		//start with default locale
-		var smartBundleFiles = ["#myRbFile#_#variables.defaultLocale#.properties"];
-		//add base resource, without language, country or variant
-		smartBundleFiles.append("#myRbFile#.properties");
-		//include lang, country and variant (if present)
+		var myRbFile         = arguments.rbFile;
+		// start with default locale
+		var smartBundleFiles = [ "#myRbFile#_#variables.defaultLocale#.properties" ];
+		// add base resource, without language, country or variant
+		smartBundleFiles.append( "#myRbFile#.properties" );
+		// include lang, country and variant (if present)
 		// extract and add to bundleArray by splitting rbLocale as list on '_'
-		arguments.rbLocale.listEach( function( localePart, index, list){
+		arguments.rbLocale.listEach( function( localePart, index, list ) {
 			myRbFile &= "_#localePart#";
-			smartBundleFiles.append("#myRbFile#.properties");	
+			smartBundleFiles.append( "#myRbFile#.properties" );
 		}, "_" );
-		
-		// load all resource files for all default,lang, country and variants 
+
+		// load all resource files for all default,lang, country and variants
 		// and overwrite parent keys when present so you you will always have defaults
 		// AND specific resource values for countries and variants without duplicating everything.
-		var resourceBundle = structNew();
-		var IsValidBundleLoaded = false;
-		smartBundleFiles.each(function(resourceFile){
-			var ResourceBundleFullPath = variables.controller.locateFilePath( resourceFile );
-			if ( ResourceBundleFullPath.len() ) {
-				resourceBundle.append( _loadSubBundle( ResourceBundleFullPath ), true ); //append and overwrite
-				IsValidBundleLoaded = true; // at least one bundle loaded so no errors
+		var resourceBundle      = structNew();
+		var isValidBundleLoaded = false;
+		smartBundleFiles.each( function( resourceFile ) {
+			var resourceBundleFullPath = variables.controller.locateFilePath( resourceFile );
+			if ( resourceBundleFullPath.len() ) {
+				resourceBundle.append( _loadSubBundle( resourceBundleFullPath ), true ); // append and overwrite
+				isValidBundleLoaded = true; // at least one bundle loaded so no errors
 			};
-		});
+		} );
 
 		// Validate resource is loaded or error.
-		if( !IsValidBundleLoaded ){
+		if ( !isValidBundleLoaded ) {
 			var rbFilePath = "#arguments.rbFile#_#arguments.rbLocale#.properties";
 			var rbFullPath = variables.controller.locateFilePath( rbFilePath );
-			throw("The resource bundle file: #rbFilePath# does not exist. Please check your path", "FullPath: #rbFullPath#", "ResourceBundle.InvalidBundlePath");
+			throw(
+				message = "The resource bundle file: #rbFilePath# does not exist. Please check your path",
+				type    = "ResourceBundle.InvalidBundlePath",
+				details = "FullPath: #rbFullPath#"
+			);
 		}
 
 		return resourceBundle;
@@ -318,9 +324,8 @@ component singleton accessors="true" {
 
 		// Nothing to return, throw it
 		throw(
-			"Fatal error: resource bundle #arguments.rbFile# does not contain key #arguments.rbKey#",
-			"",
-			"ResourceBundle.RBKeyNotFoundException"
+			message = "Fatal error: resource bundle #arguments.rbFile# does not contain key #arguments.rbKey#",
+			type    = "ResourceBundle.RBKeyNotFoundException"
 		);
 	}
 
@@ -488,9 +493,9 @@ component singleton accessors="true" {
 		// Validate Location
 		if ( !len( rbFullPath ) ) {
 			throw(
-				"The resource bundle file: #rbFilePath# does not exist. Please check your path",
-				"FullPath: #rbFullPath#",
-				"ResourceBundle.InvalidBundlePath"
+				message = "The resource bundle file: #rbFilePath# does not exist. Please check your path",
+				type    = "ResourceBundle.InvalidBundlePath",
+				detail  = "FullPath: #rbFullPath#"
 			);
 		}
 
@@ -500,35 +505,33 @@ component singleton accessors="true" {
 
 	/**
 	 * loads a java resource file from file
-	 * 
+	 *
 	 * @resourceBundleFullPath full path to a (partial) resourceFile
-	 * 
+	 *
 	 * @return struct resourcebundle
+	 * @throws ResourceBundle.InvalidBundlePath
 	 */
 	private function _loadSubBundle( required string resourceBundleFullPath ) {
 		var resourceBundle = {};
-		var thisKey = "";
+		var thisKey        = "";
 		// create a file input stream with file location
-		var fis = getResourceFileInputStream( resourceBundleFullPath );
-		var fir = createObject( "java", "java.io.InputStreamReader" ).init( fis, "UTF-8" );
+		var fis            = getResourceFileInputStream( resourceBundleFullPath );
+		var fir            = createObject( "java", "java.io.InputStreamReader" ).init( fis, "UTF-8" );
 		// init rb with file stream
-		var rb = createObject( "java", "java.util.PropertyResourceBundle").init( fir );
-		try{
-			//get keys
+		var rb             = createObject( "java", "java.util.PropertyResourceBundle" ).init( fir );
+		try {
+			// get keys
 			var keys = rb.getKeys();
-			//Loop through property keys and store the values into bundle
-			while( keys.hasMoreElements() ){
-				thisKey = keys.nextElement();
+			// Loop through property keys and store the values into bundle
+			while ( keys.hasMoreElements() ) {
+				thisKey                   = keys.nextElement();
 				resourceBundle[ thisKey ] = rb.handleGetObject( thisKey );
 			}
-		}
-		catch( any e ) {
-			fis.close();
-			rethrow;
-		}
-		// Close input stream
-		fis.close();
+		} finally ( any e ){
+				fis.close();
+			}
 
 		return resourceBundle;
 	}
+
 }
