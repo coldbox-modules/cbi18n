@@ -10,6 +10,7 @@ component singleton accessors="true" {
 	// DI
 	property name="log"  inject="logbox:logger:{this}";
 	property name="i18n" inject="i18n@cbi18n";
+	property name="settings" inject="coldbox:moduleSettings:cbi18n";
 
 	/**
 	 * properties
@@ -31,20 +32,22 @@ component singleton accessors="true" {
 		variables.controller = arguments.controller;
 		variables.i18n       = arguments.i18n;
 
-		// check if localization struct exists in memory, else create it.
-		if ( !arguments.controller.settingExists( "RBundles" ) ) {
-			arguments.controller.setSetting( "RBundles", {} );
-		}
-		// store bundles
-		// setup local instance references
-		variables.aBundles              = arguments.controller.getSetting( "RBundles" );
-		variables.defaultLocale         = arguments.controller.getSetting( "DefaultLocale" );
-		variables.defaultResourceBundle = arguments.controller.getSetting( "DefaultResourceBundle" );
-		variables.unknownTranslation    = arguments.controller.getSetting( "UnknownTranslation" );
-		variables.resourceBundles       = arguments.controller.getSetting( "ResourceBundles" );
-		variables.logUnknownTranslation = arguments.controller.getSetting( "logUnknownTranslation" );
+		// store bundles in memory
+		variables.aBundles              = {};
 
 		return this;
+	}
+
+	/**
+	 * Runs after DI, here is where we setup the jwt settings for operation
+	 */
+	function onDIComplete(){
+		// setup local instance references
+		variables.defaultLocale         = variables.settings.DefaultLocale;
+		variables.defaultResourceBundle = variables.settings.DefaultResourceBundle;
+		variables.unknownTranslation    = variables.settings.UnknownTranslation;
+		variables.resourceBundles       = variables.settings.ResourceBundles;
+		variables.logUnknownTranslation = variables.settings.logUnknownTranslation;
 	}
 
 	/**

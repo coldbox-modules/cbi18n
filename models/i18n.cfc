@@ -10,6 +10,9 @@ component singleton accessors="true" {
 	// DI
 	property name="resourceService" inject="resourceService@cbi18n";
 	property name="controller"      inject="coldbox";
+	property name="wirebox"         inject="wirebox";
+	property name="settings"        inject="coldbox:moduleSettings:cbi18n";
+	property name="cbstorageSettings" inject="coldbox:moduleSettings:cbstorages";
 
 	// properties
 	property name="LocaleStorage";
@@ -35,15 +38,34 @@ component singleton accessors="true" {
 	}
 
 	/**
-	 * Reads,parses,saves the locale and resource bundles defined in the config. Called only internally by the framework. Use at your own risk
+	 * Reads,parses,saves the locale and resource bundles defined in the config. 
+	 * 
+	 * @throws i18N.DefaultSettingsInvalidException
 	 */
-	void function configure() {
+	void function onDIComplete() {
 		// Default instance settings
-		variables.localeStorage         = variables.controller.getSetting( "LocaleStorage" );
-		variables.defaultResourceBundle = variables.controller.getSetting( "DefaultResourceBundle" );
-		variables.defaultLocale         = variables.controller.getSetting( "DefaultLocale" );
+		variables.localeStorage         = variables.settings.LocaleStorage;
+		variables.defaultResourceBundle = variables.settings.DefaultResourceBundle;
+		variables.defaultLocale         = variables.settings.DefaultLocale;
 
-		// set locale setup on configuration file
+		//instantiate storage service for locale storage
+//		try {
+			variables.storageService = wirebox.getInstance( 
+				name = variables.localeStorage,
+				initArguments = variables.cbstorageSettings 
+			);
+/*		}
+		catch (any e) {
+			var message = variables.localeStorage.len() 
+				? "The LocaleStorage setting #variables.localeStorage# is invalid."
+				: "The LocaleStorage setting cannot be found. Please make sure you create the i18n elements"
+			throw(
+				message = e.message,
+				type    = "i18N.DefaultSettingsInvalidException",
+				extendedInfo = "Please check cbstorages documentation, LocaleStorage should be in format 'someStorage@cbstorages', e.g cookieStorage@cbstorages, cacheStorage@cbstorages etcetera."
+			);
+		}		
+*/		// set locale setup on configuration file
 		setFWLocale( variables.defaultLocale, true );
 
 		// test for rb file and if it exists load it as the default resource bundle
@@ -56,7 +78,7 @@ component singleton accessors="true" {
 		}
 
 		// are we loading multiple resource bundles? If so, load up their default locale
-		var resourceBundles = variables.controller.getSetting( name = "resourceBundles", defaultValue = {} );
+		var resourceBundles = variables.settings.resourceBundles;
 		resourceBundles.each( function( bundleKey, thisBundle ) {
 			variables.resourceService.loadBundle(
 				rbFile   = thisBundle,
@@ -66,61 +88,17 @@ component singleton accessors="true" {
 		} );
 	}
 
-	/**
-	 * Get a reference to the loaded language keys
-	 *
-	 * @returns struct of loaded languages keys
-	 */
-	struct function getRBundles() {
-		return variables.resourceService.getBundles();
-	}
-
 	/************************************************************************************/
 	/****************************** CHOSEN LOCAL METHODS ********************************/
 	/************************************************************************************/
 
 	/**
 	 * Get the user's locale
+	 * 
 	 */
 	any function getFwLocale() {
-		var storage = "";
-
-		// locale check
-		if ( NOT variables.localeStorage.len() ) {
-			throw(
-				message = "The LocaleStorage setting cannot be found. Please make sure you create the i18n elements.",
-				type    = "i18N.DefaultSettingsInvalidException"
-			);
-		}
-
-		// storage switch
-		switch ( variables.localeStorage ) {
-			case "session": {
-				storage = session;
-				break;
-			}
-			case "client": {
-				storage = client;
-				break;
-			}
-			case "cookie": {
-				storage = cookie;
-				break;
-			}
-			case "request": {
-				storage = request;
-				break;
-			}
-		}
-
-
-		// check if default locale exists, else set it to the default locale.
-		if ( !storage.keyExists( "DefaultLocale" ) ) {
-			setfwLocale( variables.defaultLocale );
-		}
-
-		// return locale
-		return storage[ "DefaultLocale" ];
+		// return locale, default already set in onDIComplete
+		return variables.storageService.get("DefaultLocale");
 	}
 
 	/**
@@ -133,19 +111,7 @@ component singleton accessors="true" {
 		if ( !arguments.locale.len() ) {
 			arguments.locale = variables.defaultLocale;
 		}
-		switch ( variables.localeStorage ) {
-			case "session":
-				session.DefaultLocale = arguments.locale;
-				break;
-			case "client":
-				client.DefaultLocale = arguments.locale;
-				break;
-			case "request":
-				request.DefaultLocale = arguments.locale;
-				break;
-			default:
-				cfcookie( name="DefaultLocale", value=arguments.locale );
-		}
+		variables.storageService.set( "DefaultLocale", arguments.locale );
 		return this;
 	}
 
