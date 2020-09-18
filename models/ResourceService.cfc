@@ -8,8 +8,8 @@
 component singleton accessors="true" {
 
 	// DI
-	property name="log"  inject="logbox:logger:{this}";
-	property name="i18n" inject="i18n@cbi18n";
+	property name="log"      inject="logbox:logger:{this}";
+	property name="i18n"     inject="i18n@cbi18n";
 	property name="settings" inject="coldbox:moduleSettings:cbi18n";
 
 	/**
@@ -33,7 +33,7 @@ component singleton accessors="true" {
 		variables.i18n       = arguments.i18n;
 
 		// store bundles in memory
-		variables.aBundles              = {};
+		variables.aBundles = {};
 
 		return this;
 	}
@@ -41,7 +41,7 @@ component singleton accessors="true" {
 	/**
 	 * Runs after DI, here is where we setup the jwt settings for operation
 	 */
-	function onDIComplete(){
+	function onDIComplete() {
 		// setup local instance references
 		variables.defaultLocale         = variables.settings.DefaultLocale;
 		variables.defaultResourceBundle = variables.settings.DefaultResourceBundle;
@@ -270,7 +270,7 @@ component singleton accessors="true" {
 			throw(
 				message = "The resource bundle file: #rbFilePath# does not exist. Please check your path",
 				type    = "ResourceBundle.InvalidBundlePath",
-				detail = "FullPath: #rbFullPath#"
+				detail  = "FullPath: #rbFullPath#"
 			);
 		}
 
@@ -531,8 +531,8 @@ component singleton accessors="true" {
 				resourceBundle[ thisKey ] = rb.handleGetObject( thisKey );
 			}
 		} finally {
-				fis.close();
-			}
+			fis.close();
+		}
 
 		return resourceBundle;
 	}

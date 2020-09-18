@@ -8,10 +8,10 @@
 component singleton accessors="true" {
 
 	// DI
-	property name="resourceService" inject="resourceService@cbi18n";
-	property name="controller"      inject="coldbox";
-	property name="wirebox"         inject="wirebox";
-	property name="settings"        inject="coldbox:moduleSettings:cbi18n";
+	property name="resourceService"   inject="resourceService@cbi18n";
+	property name="controller"        inject="coldbox";
+	property name="wirebox"           inject="wirebox";
+	property name="settings"          inject="coldbox:moduleSettings:cbi18n";
 	property name="cbstorageSettings" inject="coldbox:moduleSettings:cbstorages";
 
 	// properties
@@ -38,8 +38,8 @@ component singleton accessors="true" {
 	}
 
 	/**
-	 * Reads,parses,saves the locale and resource bundles defined in the config. 
-	 * 
+	 * Reads,parses,saves the locale and resource bundles defined in the config.
+	 *
 	 * @throws i18N.DefaultSettingsInvalidException
 	 */
 	void function onDIComplete() {
@@ -48,15 +48,15 @@ component singleton accessors="true" {
 		variables.defaultResourceBundle = variables.settings.DefaultResourceBundle;
 		variables.defaultLocale         = variables.settings.DefaultLocale;
 
-		//instantiate storage service for locale storage
-//		try {
-			variables.storageService = wirebox.getInstance( 
-				name = variables.localeStorage,
-				initArguments = variables.cbstorageSettings 
-			);
-/*		}
+		// instantiate storage service for locale storage
+		//		try {
+		variables.storageService = wirebox.getInstance(
+			name          = variables.localeStorage,
+			initArguments = variables.cbstorageSettings
+		);
+		/*		}
 		catch (any e) {
-			var message = variables.localeStorage.len() 
+			var message = variables.localeStorage.len()
 				? "The LocaleStorage setting #variables.localeStorage# is invalid."
 				: "The LocaleStorage setting cannot be found. Please make sure you create the i18n elements"
 			throw(
@@ -64,7 +64,7 @@ component singleton accessors="true" {
 				type    = "i18N.DefaultSettingsInvalidException",
 				extendedInfo = "Please check cbstorages documentation, LocaleStorage should be in format 'someStorage@cbstorages', e.g cookieStorage@cbstorages, cacheStorage@cbstorages etcetera."
 			);
-		}		
+		}
 */		// set locale setup on configuration file
 		setFWLocale( variables.defaultLocale, true );
 
@@ -94,11 +94,11 @@ component singleton accessors="true" {
 
 	/**
 	 * Get the user's locale
-	 * 
+	 *
 	 */
 	any function getFwLocale() {
 		// return locale, default already set in onDIComplete
-		return variables.storageService.get("DefaultLocale");
+		return variables.storageService.get( "DefaultLocale" );
 	}
 
 	/**
@@ -303,11 +303,8 @@ component singleton accessors="true" {
 		tz                     = variables.timeZone.getDefault().getID()
 	) {
 		var tDateFormat    = javacast( "int", arguments.thisDateFormat );
-		var tDateFormatter = variables.aDateFormat.getDateInstance(
-			tDateFormat,
-			buildLocale( getfwLocale() )
-		);
-		var tTZ = variables.timeZone.getTimezone( arguments.tz );
+		var tDateFormatter = variables.aDateFormat.getDateInstance( tDateFormat, buildLocale( getfwLocale() ) );
+		var tTZ            = variables.timeZone.getTimezone( arguments.tz );
 		tDateFormatter.setTimezone( tTZ );
 		return tDateFormatter.format( arguments.thisOffset );
 	}
@@ -325,11 +322,8 @@ component singleton accessors="true" {
 		tz                     = variables.timeZone.getDefault().getID()
 	) {
 		var tTimeFormat    = javacast( "int", arguments.thisTimeFormat );
-		var tTimeFormatter = variables.aDateFormat.getTimeInstance(
-			tTimeFormat,
-			buildLocale( getfwLocale() )
-		);
-		var tTZ = variables.timeZone.getTimezone( arguments.tz );
+		var tTimeFormatter = variables.aDateFormat.getTimeInstance( tTimeFormat, buildLocale( getfwLocale() ) );
+		var tTZ            = variables.timeZone.getTimezone( arguments.tz );
 		tTimeFormatter.setTimezone( tTZ );
 		return tTimeFormatter.format( arguments.thisOffset );
 	}
@@ -884,34 +878,26 @@ component singleton accessors="true" {
 				case "day":
 					// very much a special case
 					e = after.getTimeInMillis() + after.getTimeZone().getOffset( after.getTimeInMillis() );
-					s = before.getTimeInMillis() + before
-						.getTimeZone()
-						.getOffset( before.getTimeInMillis() );
+					s = before.getTimeInMillis() + before.getTimeZone().getOffset( before.getTimeInMillis() );
 					return int( ( e - s ) / 86400000 ) * direction;
 					break;
 				case "h":
 				case "hr":
 				case "hour":
 					e = after.getTimeInMillis() + after.getTimeZone().getOffset( after.getTimeInMillis() );
-					s = before.getTimeInMillis() + before
-						.getTimeZone()
-						.getOffset( before.getTimeInMillis() );
+					s = before.getTimeInMillis() + before.getTimeZone().getOffset( before.getTimeInMillis() );
 					return int( ( e - s ) / 3600000 ) * direction;
 					break;
 				case "n":
 				case "minute":
 					e = after.getTimeInMillis() + after.getTimeZone().getOffset( after.getTimeInMillis() );
-					s = before.getTimeInMillis() + before
-						.getTimeZone()
-						.getOffset( before.getTimeInMillis() );
+					s = before.getTimeInMillis() + before.getTimeZone().getOffset( before.getTimeInMillis() );
 					return int( ( e - s ) / 60000 ) * direction;
 					break;
 				case "s":
 				case "second":
 					e = after.getTimeInMillis() + after.getTimeZone().getOffset( after.getTimeInMillis() );
-					s = before.getTimeInMillis() + before
-						.getTimeZone()
-						.getOffset( before.getTimeInMillis() );
+					s = before.getTimeInMillis() + before.getTimeZone().getOffset( before.getTimeInMillis() );
 					return int( ( e - s ) / 1000 ) * direction;
 					break;
 			}

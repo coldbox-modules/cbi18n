@@ -10,6 +10,9 @@
         },
         "rewrites":{
             "enable":"true"
+        },
+        "aliases":{
+            "/moduleroot/cbi18n":"../"
         }
     },
     "openBrowser":"false"
