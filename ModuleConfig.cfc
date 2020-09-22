@@ -28,7 +28,7 @@ component {
 		settings = {
 			"defaultResourceBundle" : "",
 			"defaultLocale"         : "",
-			"localeStorage"         : "",
+			"localeStorage"         : "cookieStorage@cbstorages",
 			"unknownTranslation"    : "",
 			"logUnknownTranslation" : false,
 			"using_i18N"            : false,
@@ -72,7 +72,7 @@ component {
 				modules[ thisModule ].cbi18n = {
 					defaultResourceBundle : "",
 					defaultLocale         : "",
-					localeStorage         : "",
+					localeStorage         : "cookieStorage@cbstorages",
 					unknownTranslation    : "",
 					logUnknownTranslation : false,
 					resourceBundles       : {},

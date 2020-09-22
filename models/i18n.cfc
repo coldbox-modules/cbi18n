@@ -8,11 +8,10 @@
 component singleton accessors="true" {
 
 	// DI
-	property name="resourceService"   inject="resourceService@cbi18n";
-	property name="controller"        inject="coldbox";
-	property name="wirebox"           inject="wirebox";
-	property name="settings"          inject="coldbox:moduleSettings:cbi18n";
-	property name="cbstorageSettings" inject="coldbox:moduleSettings:cbstorages";
+	property name="resourceService" inject="resourceService@cbi18n";
+	property name="controller"      inject="coldbox";
+	property name="wirebox"         inject="wirebox";
+	property name="settings"        inject="coldbox:moduleSettings:cbi18n";
 
 	// properties
 	property name="LocaleStorage";
@@ -50,10 +49,7 @@ component singleton accessors="true" {
 
 		// instantiate storage service for locale storage
 		//		try {
-		variables.storageService = wirebox.getInstance(
-			name          = variables.localeStorage,
-			initArguments = variables.cbstorageSettings
-		);
+		variables.storageService = wirebox.getInstance( name = variables.localeStorage );
 		/*		}
 		catch (any e) {
 			var message = variables.localeStorage.len()
