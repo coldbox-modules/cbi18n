@@ -49,12 +49,15 @@
 			cbi18n = {
 				defaultResourceBundle = "includes/i18n/main",
 				resourceBundles = {
-					"support" = "includes/i18n/support"
+					"support" = "includes/i18n/support",
+					"jsonTest" = "includes/i18n/jsonTest",
+					"nestedJsonTest" = "includes/i18n/nestedJsonTest",
 				},
 				defaultLocale = "en_US",
 				localeStorage = "cookieStorage@cbstorages",
 				unknownTranslation = "**NOT FOUND**",
-				logUnknownTranslation = true
+				logUnknownTranslation = true,
+				resourceType="json"
 			}
 		};
 

@@ -1,6 +1,13 @@
 <cfoutput>
 	<h1>i18n</h1>
 
+	<!--- This will show a JSON resoure --->
+	#getResource( resource="sub.intromessage", bundle="jsonTest" )#
+	<br>
+	<!--- This will show a nestedJSON resoure --->
+	#getResource( resource="sub.intromessage", bundle="nestedJsonTest" )#
+	<br>
+	<cfabort>
 	<hr><h2>homebutton</h2>
 	#getResource( resource='homebutton' )#
 	<br>
@@ -23,6 +30,12 @@
 	<hr><h2>Missing IntroMessage in nl_NL will be replaced by default (en_US)</h2>
 	<!--- This will show the default locale, because there is no nl or nl_NL resource --->
 	#getResource( resource='intromessage', locale="nl_NL" )#
+	<br>
+	<!--- This will show a JSON resoure --->
+	#myRes.getResource( resource="sub.intromessage", bundle="jsonTest" )#
+	<br>
+	<!--- This will show a nestedJSON resoure --->
+	#getInstance("resourceService@cbi18n").getResource( resource="sub.intromessage", bundle="nestedJsonTest" )#
 	<br>
 
 </cfoutput> 
