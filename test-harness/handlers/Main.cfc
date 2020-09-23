@@ -31,5 +31,10 @@ component{
 	any function testi18nCustomResourceService( event, rc, prc ){
 		return getResource( "welcome@crs" );
 	}
-
+	any function testi18nJsonResourceService( event, rc, prc ){
+		return getInstance('JsonResourceService').getResource( resource="sub.intromessage", bundle="jsonTest" );
+	}
+	any function testi18nNestedJsonResourceService( event, rc, prc ){
+		return getInstance('JsonResourceService').getResource( resource="sub.intromessage", bundle="nestedJsonTest" );
+	}
 }

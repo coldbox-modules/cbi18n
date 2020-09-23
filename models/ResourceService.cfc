@@ -30,38 +30,34 @@ component singleton accessors="true" {
 	 * @controller.inject coldbox
 	 * @i18n cbi18n module
 	 * @i18n.inject i18n@cbi18n
-	 */
-	function init( required controller, required i18n ) {
-		// store controller variable
-		variables.controller = arguments.controller;
-		variables.i18n       = arguments.i18n;
-
-		// store bundles in memory
-		variables.aBundles = {};
-
-		return this;
-	}
-
-	/**
-	 * Runs after DI, here is where we setup the jwt settings for operation
+	 * @settings cbi18n settings
+	 * @settings.inject coldbox:moduleSettings:cbi18n
 	 * 
 	 * @throws cbi18n.InvalidConfiguration
 	 */
-	function onDIComplete() {
+	function init( required controller, required i18n, required settings ) {
+		// store controller variable
+		variables.controller = arguments.controller;
+		variables.i18n       = arguments.i18n;
+		variables.settings = arguments.settings;
+
+		// store bundles in memory
+		variables.aBundles = {};
 		// setup local instance references
-		variables.defaultLocale         = variables.settings.DefaultLocale;
-		variables.defaultResourceBundle = variables.settings.DefaultResourceBundle;
-		variables.unknownTranslation    = variables.settings.UnknownTranslation;
-		variables.resourceBundles       = variables.settings.ResourceBundles;
-		variables.logUnknownTranslation = variables.settings.logUnknownTranslation;
+		variables.defaultLocale         = arguments.settings.DefaultLocale;
+		variables.defaultResourceBundle = arguments.settings.DefaultResourceBundle;
+		variables.unknownTranslation    = arguments.settings.UnknownTranslation;
+		variables.resourceBundles       = arguments.settings.ResourceBundles;
+		variables.logUnknownTranslation = arguments.settings.logUnknownTranslation;
 		//resource type = java vs JSON
-		if ( !listFindNoCase("json,java", variables.settings.resourceType) ){
+		if ( !listFindNoCase("json,java", arguments.settings.resourceType) ){
 			throw(
 				message = "Invalid resourceType, valid entries are (java|json)",
 				type = "cbi18n.InvalidConfiguration"
 			)
 		}
-		variables.resourceType			= lcase(variables.settings.resourceType);
+		variables.resourceType			= lcase(arguments.settings.resourceType);
+		return this;
 	}
 
 	/**

@@ -1,13 +1,6 @@
 <cfoutput>
 	<h1>i18n</h1>
 
-	<!--- This will show a JSON resoure --->
-	#getResource( resource="sub.intromessage", bundle="jsonTest" )#
-	<br>
-	<!--- This will show a nestedJSON resoure --->
-	#getResource( resource="sub.intromessage", bundle="nestedJsonTest" )#
-	<br>
-	<cfabort>
 	<hr><h2>homebutton</h2>
 	#getResource( resource='homebutton' )#
 	<br>
@@ -32,10 +25,12 @@
 	#getResource( resource='intromessage', locale="nl_NL" )#
 	<br>
 	<!--- This will show a JSON resoure --->
-	#myRes.getResource( resource="sub.intromessage", bundle="jsonTest" )#
+	<hr><h2>JSON resource (flat)</h2>
+	#getInstance('JsonResourceService').getResource( resource="sub.intromessage", bundle="jsonTest" )#
 	<br>
 	<!--- This will show a nestedJSON resoure --->
-	#getInstance("resourceService@cbi18n").getResource( resource="sub.intromessage", bundle="nestedJsonTest" )#
+	<hr><h2>JSON resource (nested)</h2></h2>
+	#getInstance('JsonResourceService').getResource( resource="sub.intromessage", bundle="nestedJsonTest" )#
 	<br>
 
 </cfoutput> 
