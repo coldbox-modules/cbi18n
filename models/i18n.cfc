@@ -4,7 +4,6 @@
  * ---
  * Internationalization and localization support for ColdBox
  */
-
 component singleton accessors="true" {
 
 	// DI
@@ -14,9 +13,9 @@ component singleton accessors="true" {
 	property name="settings"        inject="coldbox:moduleSettings:cbi18n";
 
 	// properties
-	property name="LocaleStorage";
-	property name="DefaultLocale";
-	property name="DefaultResourceBundle";
+	property name="localeStorage";
+	property name="defaultLocale";
+	property name="defaultResourceBundle";
 
 	/**
 	 * Constructor
@@ -43,9 +42,9 @@ component singleton accessors="true" {
 	 */
 	void function onDIComplete() {
 		// Default instance settings
-		variables.localeStorage         = variables.settings.LocaleStorage;
-		variables.defaultResourceBundle = variables.settings.DefaultResourceBundle;
-		variables.defaultLocale         = variables.settings.DefaultLocale;
+		variables.localeStorage         = variables.settings.localeStorage;
+		variables.defaultResourceBundle = variables.settings.defaultResourceBundle;
+		variables.defaultLocale         = variables.settings.defaultLocale;
 
 		// instantiate storage service for locale storage
 		//		try {

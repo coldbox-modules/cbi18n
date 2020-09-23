@@ -7,7 +7,7 @@
     "type":"modules",
     "keywords":"i18n,internationalization,localization,language support",
     "homepage":"https://github.com/coldbox-modules/cbi18n",
-    "documentation":"https://github.com/coldbox-modules/cbi18n/wiki",
+    "documentation":"https://coldbox-i18n.ortusbooks.com/",
     "repository":{
         "type":"git",
         "url":"https://github.com/coldbox-modules/cbi18n"
@@ -30,6 +30,9 @@
         ".git*"
     ],
     "scripts":{
-        "toMaster":"recipe build/toMaster.boxr"
+        "release":"recipe build/release.boxr",
+        "format":"cfformat run models/,test-harness/tests/specs",
+        "format:watch":"cfformat watch models/,test-harness/tests/specs ./.cfformat.json",
+        "format:check":"cfformat check models/,test-harness/tests/specs"
     }
 }
