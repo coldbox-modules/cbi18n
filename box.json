@@ -1,8 +1,8 @@
 {
     "name":"ColdBox i18n Support",
     "author":"Ortus Solutions <info@ortussolutions.com>",
-    "version":"1.6.0",
-    "location":"http://downloads.ortussolutions.com/ortussolutions/coldbox-modules/cbi18n/@build.version@/cbi18n-@build.version@.zip",
+    "version":"2.0.0",
+    "location":"https://downloads.ortussolutions.com/ortussolutions/coldbox-modules/cbi18n/@build.version@/cbi18n-@build.version@.zip",
     "slug":"cbi18n",
     "type":"modules",
     "keywords":"i18n,internationalization,localization,language support",
