@@ -33,6 +33,7 @@ component {
 			"logUnknownTranslation" : false,
 			"using_i18N"            : false,
 			"resourceBundles"       : {},
+			"resourceType"			: "java",  //java or JSON
 			"customResourceService" : ""
 		};
 	}
