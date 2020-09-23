@@ -50,7 +50,7 @@ Author 	    :	Luis Majano
 
 	function testisValidLocale(){
 		assertTrue( i18n.isValidLocale( "en_US" ) );
-		assertFalse( i18n.isValidLocale( "ee" ) );
+		assertFalse( i18n.isValidLocale( "xy" ) );
 	}
 
 	function testLocaleMethods(){
