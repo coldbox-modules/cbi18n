@@ -44,17 +44,18 @@
 		interceptors = [
 		];
 
-		//i18n & Localization
-		i18n = {
-			defaultResourceBundle = "includes/i18n/main",
-			resourceBundles = {
-				"support" = "includes/i18n/support"
-			},
-			defaultLocale = "en_US",
-			localeStorage = "cookie",
-			unknownTranslation = "**NOT FOUND**",
-			logUnknownTranslation = true,
-			customResourceService = "root.models.CustomResourceService"
+		modulesettings = {
+			//i18n & Localization
+			cbi18n = {
+				defaultResourceBundle = "includes/i18n/main",
+				resourceBundles = {
+					"support" = "includes/i18n/support"
+				},
+				defaultLocale = "en_US",
+				localeStorage = "cookieStorage@cbstorages",
+				unknownTranslation = "**NOT FOUND**",
+				logUnknownTranslation = true
+			}
 		};
 
 		//LogBox DSL

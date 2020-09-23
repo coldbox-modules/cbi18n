@@ -16,17 +16,22 @@ Author 	    :	Luis Majano
 		mockController = prepareMock( getController() );
 		mockLogger = prepareMock( mockController.getLogBox().getLogger( 'ResourceService' ) ).$("canDebug", false);
 		mockController
-			.$("getSetting").$args("RBundles").$results( structnew() )
-			.$("getSetting").$args("DefaultLocale").$results( "en_US" )
-			.$("getSetting").$args("DefaultResourceBundle").$results( "" )
-			.$("getSetting").$args("UnknownTranslation").$results( "**TEST**" )
-			.$("getSetting").$args("logUnknownTranslation").$results("true")
 			.$("settingExists", true)
 			.$("getAppRootPath", expandPath("/root") );
-
 		mocki18n = createEmptyMock( "cbi18n.models.i18n" ).$("getFwLocale", "en_US");
 		resourceService = createMock( "cbi18n.models.ResourceService" ).init( mockController, mocki18n );
 		resourceService.$property( "log", "variables", mockLogger );
+		resourceService.$property( "settings", "variables", {
+			defaultResourceBundle = "includes/i18n/main",
+			resourceBundles = {
+				"support" = "includes/i18n/support"
+			},
+			defaultLocale = "en_US",
+			localeStorage = "cookieStorage@cbstorages",
+			unknownTranslation = "**TEST**",
+			logUnknownTranslation = true
+		} );
+		resourceService.onDiComplete();
 		resourceService.$("getFWLocale", "en_US");
 		resourceService.loadBundle( rbFile=expandPath("/tests/resources/main"), rbAlias="default" );
 	}

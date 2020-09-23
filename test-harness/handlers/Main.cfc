@@ -16,6 +16,14 @@ component{
 		return getResource( "helloworld" );
 	}
 
+	any function testi18nPartialBundle( event, rc, prc ){
+		return getResource( resource = "helloworld", locale="nl_NL" );
+	}
+
+	any function testi18nMissingResourceInBundle( event, rc, prc ){
+		return getResource( resource = "welcomemessage", locale="nl_NL" );
+	}
+
 	any function testi18nExtraBundle( event, rc, prc ){
 		return getResource( "home@support" );
 	}

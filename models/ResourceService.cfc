@@ -8,8 +8,9 @@
 component singleton accessors="true" {
 
 	// DI
-	property name="log"  inject="logbox:logger:{this}";
-	property name="i18n" inject="i18n@cbi18n";
+	property name="log"      inject="logbox:logger:{this}";
+	property name="i18n"     inject="i18n@cbi18n";
+	property name="settings" inject="coldbox:moduleSettings:cbi18n";
 
 	/**
 	 * properties
@@ -31,20 +32,22 @@ component singleton accessors="true" {
 		variables.controller = arguments.controller;
 		variables.i18n       = arguments.i18n;
 
-		// check if localization struct exists in memory, else create it.
-		if ( !arguments.controller.settingExists( "RBundles" ) ) {
-			arguments.controller.setSetting( "RBundles", {} );
-		}
-		// store bundles
-		// setup local instance references
-		variables.aBundles              = arguments.controller.getSetting( "RBundles" );
-		variables.defaultLocale         = arguments.controller.getSetting( "DefaultLocale" );
-		variables.defaultResourceBundle = arguments.controller.getSetting( "DefaultResourceBundle" );
-		variables.unknownTranslation    = arguments.controller.getSetting( "UnknownTranslation" );
-		variables.resourceBundles       = arguments.controller.getSetting( "ResourceBundles" );
-		variables.logUnknownTranslation = arguments.controller.getSetting( "logUnknownTranslation" );
+		// store bundles in memory
+		variables.aBundles = {};
 
 		return this;
+	}
+
+	/**
+	 * Runs after DI, here is where we setup the jwt settings for operation
+	 */
+	function onDIComplete() {
+		// setup local instance references
+		variables.defaultLocale         = variables.settings.DefaultLocale;
+		variables.defaultResourceBundle = variables.settings.DefaultResourceBundle;
+		variables.unknownTranslation    = variables.settings.UnknownTranslation;
+		variables.resourceBundles       = variables.settings.ResourceBundles;
+		variables.logUnknownTranslation = variables.settings.logUnknownTranslation;
 	}
 
 	/**
@@ -226,35 +229,49 @@ component singleton accessors="true" {
 	 *
 	 * @rbFile This must be the path + filename UP to but NOT including the locale. We auto-add the local and .properties to the end.
 	 * @rbLocale The locale of the resource bundle
+	 *
+	 * @throws ResourceBundle.InvalidBundlePath if bundlePath is not found
 	 */
 	struct function getResourceBundle( required rbFile, rbLocale = "en_US" ) {
-		var resourceBundle = {};
-		var thisKEY        = "";
-		var rbFilePath     = arguments.rbFile & iIf(
-			len( arguments.rbLocale ),
-			de( "_" ),
-			de( "" )
-		) & arguments.rbLocale & ".properties";
+		// try to load hierarchical resource rbfile_LANG_COUNTRY_VARIANT, start with default resource, followed by
+		// rbFile.properties, rbFile_LANG.properties, rbFile_LANG_COUNTRY.properties, rbFile_LANG_COUNTRY_VARIANT.properties (assuming LANG, COUNTRY and VARIANT are present)
+		// All items in resourceBundle will be overwritten by more specific ones.
 
-		var rbFilePath = ( len( arguments.rbLocale ) ) ? "#arguments.rBFile#_#arguments.rbLocale#.properties" : "#arguments.rBFile#.properties";
+		// Create all file options from locale
+		var myRbFile         = arguments.rbFile;
+		// start with default locale
+		var smartBundleFiles = [ "#myRbFile#_#variables.defaultLocale#.properties" ];
+		// add base resource, without language, country or variant
+		smartBundleFiles.append( "#myRbFile#.properties" );
+		// include lang, country and variant (if present)
+		// extract and add to bundleArray by splitting rbLocale as list on '_'
+		arguments.rbLocale.listEach( function( localePart, index, list ) {
+			myRbFile &= "_#localePart#";
+			smartBundleFiles.append( "#myRbFile#.properties" );
+		}, "_" );
 
-		// read file
-		var fis = getResourceFileInputStream( rbFilePath );
-		var fir = createObject( "java", "java.io.InputStreamReader" ).init( fis, "UTF-8" );
+		// load all resource files for all default,lang, country and variants
+		// and overwrite parent keys when present so you you will always have defaults
+		// AND specific resource values for countries and variants without duplicating everything.
+		var resourceBundle      = structNew();
+		var isValidBundleLoaded = false;
+		smartBundleFiles.each( function( resourceFile ) {
+			var resourceBundleFullPath = variables.controller.locateFilePath( resourceFile );
+			if ( resourceBundleFullPath.len() ) {
+				resourceBundle.append( _loadSubBundle( resourceBundleFullPath ), true ); // append and overwrite
+				isValidBundleLoaded = true; // at least one bundle loaded so no errors
+			};
+		} );
 
-		// Init RB with file Stream
-		var rb = createObject( "java", "java.util.PropertyResourceBundle" ).init( fir );
-		try {
-			// Get Keys
-			var keys = rb.getKeys();
-
-			// Loop through property keys and store the values into bundle
-			while ( keys.hasMoreElements() ) {
-				thisKEY                   = keys.nextElement();
-				resourceBundle[ thisKEY ] = rb.handleGetObject( thisKEY );
-			}
-		} finally {
-			fis.close();
+		// Validate resource is loaded or error.
+		if ( !isValidBundleLoaded ) {
+			var rbFilePath = "#arguments.rbFile#_#arguments.rbLocale#.properties";
+			var rbFullPath = variables.controller.locateFilePath( rbFilePath );
+			throw(
+				message = "The resource bundle file: #rbFilePath# does not exist. Please check your path",
+				type    = "ResourceBundle.InvalidBundlePath",
+				detail  = "FullPath: #rbFullPath#"
+			);
 		}
 
 		return resourceBundle;
@@ -310,9 +327,8 @@ component singleton accessors="true" {
 
 		// Nothing to return, throw it
 		throw(
-			"Fatal error: resource bundle #arguments.rbFile# does not contain key #arguments.rbKey#",
-			"",
-			"ResourceBundle.RBKeyNotFoundException"
+			message = "Fatal error: resource bundle #arguments.rbFile# does not contain key #arguments.rbKey#",
+			type    = "ResourceBundle.RBKeyNotFoundException"
 		);
 	}
 
@@ -480,14 +496,45 @@ component singleton accessors="true" {
 		// Validate Location
 		if ( !len( rbFullPath ) ) {
 			throw(
-				"The resource bundle file: #rbFilePath# does not exist. Please check your path",
-				"FullPath: #rbFullPath#",
-				"ResourceBundle.InvalidBundlePath"
+				message = "The resource bundle file: #rbFilePath# does not exist. Please check your path",
+				type    = "ResourceBundle.InvalidBundlePath",
+				detail  = "FullPath: #rbFullPath#"
 			);
 		}
 
 		// read file and return
 		return createObject( "java", "java.io.FileInputStream" ).init( rbFullPath );
+	}
+
+	/**
+	 * loads a java resource file from file
+	 *
+	 * @resourceBundleFullPath full path to a (partial) resourceFile
+	 *
+	 * @return struct resourcebundle
+	 * @throws ResourceBundle.InvalidBundlePath
+	 */
+	private function _loadSubBundle( required string resourceBundleFullPath ) {
+		var resourceBundle = {};
+		var thisKey        = "";
+		// create a file input stream with file location
+		var fis            = getResourceFileInputStream( resourceBundleFullPath );
+		var fir            = createObject( "java", "java.io.InputStreamReader" ).init( fis, "UTF-8" );
+		// init rb with file stream
+		var rb             = createObject( "java", "java.util.PropertyResourceBundle" ).init( fir );
+		try {
+			// get keys
+			var keys = rb.getKeys();
+			// Loop through property keys and store the values into bundle
+			while ( keys.hasMoreElements() ) {
+				thisKey                   = keys.nextElement();
+				resourceBundle[ thisKey ] = rb.handleGetObject( thisKey );
+			}
+		} finally {
+			fis.close();
+		}
+
+		return resourceBundle;
 	}
 
 }

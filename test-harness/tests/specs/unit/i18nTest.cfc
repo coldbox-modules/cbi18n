@@ -15,22 +15,34 @@ Author 	    :	Luis Majano
 		// Mocks
 		mockRB =  getMockBox().createEmptyMock( "cbi18n.models.ResourceService" )
 			.$("loadBundle");
+		mockCookieStorage = getMockBox().createEmptyMock( "cbstorages.models.CookieStorage" );
+		mockCookieStorage.$("set",mockCookieStorage).$("get","en_US");
 		mockController = prepareMock( getController() );
-		mockController
-			.$("getSetting").$args("LocaleStorage").$results( "session" )
-			.$("getSetting").$args("DefaultLocale").$results( "en_US" )
-			.$("getSetting").$args("DefaultResourceBundle").$results( "" )
-			.$("settingExists", true)
-			.$("getSetting").$args("RBundles").$results( {} )
-			.$("getSetting").$args( name="resourceBundles", defaultValue=structNew() ).$results( {} );
-
+		// mock dynamic creation of cookiestorage
+		mockWireBox = createMock("coldbox.system.ioc.Injector");
+		mockWireBox.$("getInstance",mockCookieStorage);
 		i18n = createMock( "cbi18n.models.i18n" ).init();
 		i18n.$property( "controller", "variables", mockController )
-			.$property( "resourceService", "variables", mockRB );
-		i18n.configure();
+			.$property( "resourceService", "variables", mockRB )
+			.$property( "storageService", "variables", mockCookieStorage )
+			.$property( "cbstorageSettings", "variables", {} )
+			.$property( "wirebox", "variables", mockWireBox );
+
+		i18n.$property( "settings", "variables", {
+			defaultResourceBundle = "includes/i18n/main",
+			resourceBundles = {
+				"support" = "includes/i18n/support"
+			},
+			defaultLocale = "en_US",
+			localeStorage = "cookieStorage@cbstorages",
+			unknownTranslation = "**TEST**",
+			logUnknownTranslation = true
+		} );
+		i18n.onDiComplete();
 	}
 
 	function testgetSetfwLocale(){
+		mockCookieStorage.$("get").$results("en_US","es_SV");
 		assertEquals( "en_US", i18n.getFWLocale() );
 		i18n.setFWLocale( "es_SV" );
 		assertEquals( "es_SV", i18n.getFWLocale() );
