@@ -55,6 +55,6 @@
 				unknownTranslation = "**NOT FOUND**",
 				logUnknownTranslation = true,
 				resourceType="json"
-			})
+			});
 	}	
 }
