@@ -21,17 +21,6 @@ component singleton accessors="true" {
 	 * Constructor
 	 */
 	function init() {
-		// Internal Java Objects
-		variables.aDateFormat = createObject( "java", "java.text.DateFormat" );
-		variables.aLocale     = createObject( "java", "java.util.Locale" );
-		variables.timeZone    = createObject( "java", "java.util.TimeZone" );
-		variables.aCalendar   = createObject( "java", "java.util.GregorianCalendar" ).init( buildLocale() );
-
-		// internal settings
-		variables.localeStorage         = "";
-		variables.defaultResourceBundle = "";
-		variables.defaultLocale         = "";
-
 		return this;
 	}
 
@@ -41,26 +30,32 @@ component singleton accessors="true" {
 	 * @throws i18N.DefaultSettingsInvalidException
 	 */
 	void function onDIComplete() {
+		// Internal Java Objects
+		variables.aDateFormat = createObject( "java", "java.text.DateFormat" );
+		variables.aLocale     = createObject( "java", "java.util.Locale" );
+		variables.timeZone    = createObject( "java", "java.util.TimeZone" );
+		variables.aCalendar   = createObject( "java", "java.util.GregorianCalendar" ).init( buildLocale() );
+
 		// Default instance settings
 		variables.localeStorage         = variables.settings.localeStorage;
 		variables.defaultResourceBundle = variables.settings.defaultResourceBundle;
 		variables.defaultLocale         = variables.settings.defaultLocale;
 
 		// instantiate storage service for locale storage
-		//		try {
-		variables.storageService = wirebox.getInstance( name = variables.localeStorage );
-		/*		}
+		try {
+			variables.storageService = wirebox.getInstance( name = variables.localeStorage );
+		}
 		catch (any e) {
 			var message = variables.localeStorage.len()
 				? "The LocaleStorage setting #variables.localeStorage# is invalid."
-				: "The LocaleStorage setting cannot be found. Please make sure you create the i18n elements"
+				: "The LocaleStorage setting cannot be found. Please make sure you create the i18n elements";
 			throw(
 				message = e.message,
 				type    = "i18N.DefaultSettingsInvalidException",
 				extendedInfo = "Please check cbstorages documentation, LocaleStorage should be in format 'someStorage@cbstorages', e.g cookieStorage@cbstorages, cacheStorage@cbstorages etcetera."
 			);
 		}
-*/		// set locale setup on configuration file
+		// set locale setup on configuration file
 		setFWLocale( variables.defaultLocale, true );
 
 		// test for rb file and if it exists load it as the default resource bundle

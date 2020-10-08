@@ -33,13 +33,13 @@ component singleton accessors="true" {
 		// store bundles in memory
 		variables.aBundles = {};
 		//resource type = java vs JSON
-		if ( !listFindNoCase("json,java", arguments.settings.resourceType) ){
+		if ( !listFindNoCase("json,java", variables.settings.resourceType) ){
 			throw(
 				message = "Invalid resourceType, valid entries are (java|json)",
 				type = "cbi18n.InvalidConfiguration"
 			)
 		}
-		variables.settings.resourceType	= lcase(arguments.settings.resourceType);
+		variables.settings.resourceType	= lcase(variables.settings.resourceType);
 	}
 
 	/**
