@@ -36,7 +36,7 @@ Author 	    :	Luis Majano
 				resourceType = "java"
 			}
 		);
-		resourceService..onDiComplete();
+		resourceService.onDiComplete();
 		resourceService.$("getFWLocale", "en_US");
 		resourceService.loadBundle( rbFile=expandPath("/tests/resources/main"), rbAlias="default" );
 	}
