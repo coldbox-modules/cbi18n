@@ -242,7 +242,6 @@ component singleton accessors="true" {
 			myRbFile &= "_#localePart#";
 			smartBundleFiles.append( "#myRbFile##extension#" );
 		}, "_" );
-
 		// load all resource files for all lang, country and variants
 		// and overwrite parent keys when present so you you will always have defaults
 		// AND specific resource values for countries and variants without duplicating everything.
