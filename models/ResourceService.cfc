@@ -252,8 +252,6 @@ component singleton accessors="true" {
 
 		// Create all file options from locale
 		var myRbFile         = arguments.rbFile;
-		// start with default locale
-		var smartBundleFiles = [ "#myRbFile#_#variables.defaultLocale##extension#" ];
 		// add base resource, without language, country or variant
 		smartBundleFiles.append( "#myRbFile##extension#" );
 		// include lang, country and variant (if present)
@@ -263,7 +261,7 @@ component singleton accessors="true" {
 			smartBundleFiles.append( "#myRbFile##extension#" );
 		}, "_" );
 
-		// load all resource files for all default,lang, country and variants
+		// load all resource files for all lang, country and variants
 		// and overwrite parent keys when present so you you will always have defaults
 		// AND specific resource values for countries and variants without duplicating everything.
 		var resourceBundle      = structNew();

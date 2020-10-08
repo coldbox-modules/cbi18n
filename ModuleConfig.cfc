@@ -27,7 +27,7 @@ component {
 	function configure() {
 		settings = {
 			"defaultResourceBundle" : "",
-			"defaultLocale"         : "",
+			"defaultLocale"         : "en_US",
 			"localeStorage"         : "cookieStorage@cbstorages",
 			"unknownTranslation"    : "",
 			"logUnknownTranslation" : false,
