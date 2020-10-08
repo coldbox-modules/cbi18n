@@ -9,46 +9,29 @@ component singleton accessors="true" {
 
 	// DI
 	property name="log"      inject="logbox:logger:{this}";
+	property name="controller" inject="coldbox";
 	property name="i18n"     inject="i18n@cbi18n";
 	property name="settings" inject="coldbox:moduleSettings:cbi18n";
 
 	/**
 	 * properties
 	 */
-	property name="DefaultLocale";
-	property name="DefaultResourceBundle";
-	property name="UnknownTranslation";
-	property name="resourceBundles";
-	property name="logUnknownTranslation";
-	property name="resourceType";
-
 
 	/**
 	 * Constructor
-	 *
-	 * @controller The coldbox controller
-	 * @controller.inject coldbox
-	 * @i18n cbi18n module
-	 * @i18n.inject i18n@cbi18n
-	 * @settings cbi18n settings
-	 * @settings.inject coldbox:moduleSettings:cbi18n
+	 */
+	function init() {
+		return this;
+	}
+
+	/**
+	 * executes after wirebox injections to complete initialization
 	 * 
 	 * @throws cbi18n.InvalidConfiguration
 	 */
-	function init( required controller, required i18n, required settings ) {
-		// store controller variable
-		variables.controller = arguments.controller;
-		variables.i18n       = arguments.i18n;
-		variables.settings = arguments.settings;
-
+	function onDiComplete(){
 		// store bundles in memory
 		variables.aBundles = {};
-		// setup local instance references
-		variables.defaultLocale         = arguments.settings.DefaultLocale;
-		variables.defaultResourceBundle = arguments.settings.DefaultResourceBundle;
-		variables.unknownTranslation    = arguments.settings.UnknownTranslation;
-		variables.resourceBundles       = arguments.settings.ResourceBundles;
-		variables.logUnknownTranslation = arguments.settings.logUnknownTranslation;
 		//resource type = java vs JSON
 		if ( !listFindNoCase("json,java", arguments.settings.resourceType) ){
 			throw(
@@ -56,8 +39,7 @@ component singleton accessors="true" {
 				type = "cbi18n.InvalidConfiguration"
 			)
 		}
-		variables.resourceType			= lcase(arguments.settings.resourceType);
-		return this;
+		variables.settings.resourceType	= lcase(arguments.settings.resourceType);
 	}
 
 	/**
@@ -174,9 +156,9 @@ component singleton accessors="true" {
 			) {
 				// Try to load the language bundle either by default or config search
 				if ( arguments.bundle eq "default" ) {
-					rbFile = variables.defaultResourceBundle;
-				} else if ( structKeyExists( variables.resourceBundles, arguments.bundle ) ) {
-					rbFile = variables.resourceBundles[ arguments.bundle ];
+					rbFile = variables.settings.defaultResourceBundle;
+				} else if ( structKeyExists( variables.settings.resourceBundles, arguments.bundle ) ) {
+					rbFile = variables.settings.resourceBundles[ arguments.bundle ];
 				}
 				loadBundle(
 					rbFile   = rbFile,
@@ -198,8 +180,8 @@ component singleton accessors="true" {
 		// Check if resource does NOT exists?
 		if ( !structKeyExists( thisBundle, arguments.resource ) ) {
 			// if logging enable
-			if ( variables.logUnknownTranslation ) {
-				log.error( variables.unknownTranslation & " key: #arguments.resource#" );
+			if ( variables.settings.logUnknownTranslation ) {
+				log.error( variables.settings.unknownTranslation & " key: #arguments.resource#" );
 			}
 
 			// argument defaultValue was 'default'. both NOT required in function definition so we can check both
@@ -213,8 +195,8 @@ component singleton accessors="true" {
 			}
 
 			// Check unknown translation setting
-			if ( len( variables.unknownTranslation ) ) {
-				return variables.unknownTranslation & " key: #arguments.resource#";
+			if ( len( variables.settings.unknownTranslation ) ) {
+				return variables.settings.unknownTranslation & " key: #arguments.resource#";
 			}
 
 			// Else return nasty unknown string.
@@ -248,7 +230,7 @@ component singleton accessors="true" {
 		// All items in resourceBundle will be overwritten by more specific ones.
 
 		// define extension based on resourceType, .properties for java, else .json (for json)
-		var extension = ( variables.resourceType == "java" ) ? ".properties" : ".json";
+		var extension = ( variables.settings.resourceType == "java" ) ? ".properties" : ".json";
 
 		// Create all file options from locale
 		var myRbFile         = arguments.rbFile;
@@ -308,10 +290,10 @@ component singleton accessors="true" {
 	) {
 		// default locale?
 		if ( !len( arguments.rbLocale ) ) {
-			arguments.rbLocale = variables.defaultLocale;
+			arguments.rbLocale = variables.settings.defaultLocale;
 		}
 
-		if ( variables.ResourceType == "java" ){
+		if ( variables.settings.ResourceType == "java" ){
 			// read file
 			var fis = getResourceFileInputStream( "#arguments.rbFile#_#arguments.rbLocale#.properties" );
 			var rb  = createObject( "java", "java.util.PropertyResourceBundle" ).init( fis );
@@ -322,7 +304,7 @@ component singleton accessors="true" {
 				fis.close();
 			}
 		} else {
-			var myJsonResource = _flattenStruct( deserializeJSON( fileRead( "#arguments.rbFile#_#arguments.rbLocale#.json" ) ) );
+			var myJsonResource = _loadJsonSubBundle( "#arguments.rbFile#_#arguments.rbLocale#.json" );
 			if ( myJsonResource.KeyExists( arguments.rbKey ) ) {
 				var rbString = myJsonResource[ arguments.rbKey ];
 			}
@@ -364,10 +346,10 @@ component singleton accessors="true" {
 
 		// default locale?
 		if ( NOT len( arguments.rbLocale ) ) {
-			arguments.rbLocale = variables.defaultLocale;
+			arguments.rbLocale = variables.settings.defaultLocale;
 		}
 
-		if ( variables.ResourceType =="java" ){
+		if ( variables.settings.ResourceType =="java" ){
 			// read file
 			var fis = getResourceFileInputStream( "#arguments.rbFile#_#arguments.rbLocale#.properties" );
 			var rb  = createObject( "java", "java.util.PropertyResourceBundle" ).init( fis );
@@ -384,7 +366,7 @@ component singleton accessors="true" {
 			}
 			return keys;
 		} else {
-			var myResource= _flattenStruct( deserializeJSON( fileRead( "#arguments.rbFile#_#arguments.rbLocale#.json" ) ) );
+			var myResource= _loadJsonSubBundle( "#arguments.rbFile#_#arguments.rbLocale#.json" );
 			return myResource.reduce( function(acc, key, value){
 				acc.append(key);
 			}, [] );
@@ -456,7 +438,7 @@ component singleton accessors="true" {
 
 		// locale?
 		if ( !arguments.thisLocale.len() ) {
-			arguments.thisLocale = variables.defaultLocale;
+			arguments.thisLocale = variables.settings.defaultLocale;
 		}
 
 		// Create correct java locale
@@ -539,7 +521,7 @@ component singleton accessors="true" {
 	 * @throws ResourceBundle.InvalidBundlePath
 	 */
 	private function _loadSubBundle( required string resourceBundleFullPath ) {
-		if ( variables.resourceType == "java" ){
+		if ( variables.settings.resourceType == "java" ){
 			return _loadJavaSubBundle(resourceBundleFullPath);
 		} else {
 			//load JSON (sub)bundle
