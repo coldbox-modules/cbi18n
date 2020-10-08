@@ -235,7 +235,7 @@ component singleton accessors="true" {
 		// Create all file options from locale
 		var myRbFile         = arguments.rbFile;
 		// add base resource, without language, country or variant
-		smartBundleFiles.append( "#myRbFile##extension#" );
+		var smartBundleFiles= [ "#myRbFile##extension#" ];
 		// include lang, country and variant (if present)
 		// extract and add to bundleArray by splitting rbLocale as list on '_'
 		arguments.rbLocale.listEach( function( localePart, index, list ) {
