@@ -47,7 +47,6 @@ component extends="coldbox.system.testing.BaseTestCase" appMapping="/root" {
 					.toInclude( "Casa" )
 					.toInclude( "Help Me from Support" )
 					.toInclude( "Thuis" )
-					.toInclude( "This is my introduction message." )
 					.toInclude( "Flat JSON" )
 					.toInclude( "Nested JSON" );
 			} );
@@ -74,11 +73,6 @@ component extends="coldbox.system.testing.BaseTestCase" appMapping="/root" {
 			it( "can load resource in the parent from a language bundle without country", function() {
 				var event = execute( event = "main.testi18nPartialBundle", renderResults = true );
 				expect( event.getValue( "cbox_rendered_content" ) ).toInclude( "Hallo Wereld" );
-			} );
-
-			it( "can load resource in the parent from a default resource when missing in actual bundle", function() {
-				var event = execute( event = "main.testi18nMissingResourceInBundle", renderResults = true );
-				expect( event.getValue( "cbox_rendered_content" ) ).toInclude( "Welcome to ColdBox" );
 			} );
 
 			it( "can load a JSON resource in the parent from a flat JSON file", function() {

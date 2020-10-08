@@ -20,10 +20,6 @@
 	<!--- This will show the nl locale, NOT the (non existing) nl_NL --->
 	#getResource( resource='homebutton', locale="nl_NL" )#
 	<br>
-	<hr><h2>Missing IntroMessage in nl_NL will be replaced by default (en_US)</h2>
-	<!--- This will show the default locale, because there is no nl or nl_NL resource --->
-	#getResource( resource='intromessage', locale="nl_NL" )#
-	<br>
 	<!--- This will show a JSON resoure --->
 	<hr><h2>JSON resource (flat)</h2>
 	#getInstance('JsonResourceService').getResource( resource="sub.intromessage", bundle="jsonTest" )#

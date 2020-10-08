@@ -19,9 +19,11 @@ Author 	    :	Luis Majano
 			.$("settingExists", true)
 			.$("getAppRootPath", expandPath("/root") );
 		mocki18n = createEmptyMock( "cbi18n.models.i18n" ).$("getFwLocale", "en_US");
-		resourceService = createMock( "cbi18n.models.ResourceService" ).init( 
-			mockController, 
-			mocki18n,
+		resourceService = createMock( "cbi18n.models.ResourceService" );
+		resourceService.$property( "log", "variables", mockLogger );
+		resourceService.$property( "controller", "variables", mockController );
+		resourceService.$property( "i18n", "variables", mocki18n );
+		resourceService.$property( "settings", "variables", 
 			{
 				defaultResourceBundle = "includes/i18n/main",
 				resourceBundles = {
@@ -34,7 +36,7 @@ Author 	    :	Luis Majano
 				resourceType = "java"
 			}
 		);
-		resourceService.$property( "log", "variables", mockLogger );
+		resourceService..onDiComplete();
 		resourceService.$("getFWLocale", "en_US");
 		resourceService.loadBundle( rbFile=expandPath("/tests/resources/main"), rbAlias="default" );
 	}
