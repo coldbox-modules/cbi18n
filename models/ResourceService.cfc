@@ -8,10 +8,10 @@
 component singleton accessors="true" {
 
 	// DI
-	property name="log"      inject="logbox:logger:{this}";
+	property name="log"        inject="logbox:logger:{this}";
 	property name="controller" inject="coldbox";
-	property name="i18n"     inject="i18n@cbi18n";
-	property name="settings" inject="coldbox:moduleSettings:cbi18n";
+	property name="i18n"       inject="i18n@cbi18n";
+	property name="settings"   inject="coldbox:moduleSettings:cbi18n";
 
 	/**
 	 * properties
@@ -20,26 +20,31 @@ component singleton accessors="true" {
 	/**
 	 * Constructor
 	 */
-	function init() {
+	function init(){
 		return this;
 	}
 
 	/**
 	 * executes after wirebox injections to complete initialization
-	 * 
+	 *
 	 * @throws cbi18n.InvalidConfiguration
 	 */
 	function onDiComplete(){
 		// store bundles in memory
 		variables.aBundles = {};
-		//resource type = java vs JSON
-		if ( !listFindNoCase("json,java", variables.settings.resourceType) ){
+		// resource type = java vs JSON
+		if (
+			!listFindNoCase(
+				"json,java",
+				variables.settings.resourceType
+			)
+		) {
 			throw(
 				message = "Invalid resourceType, valid entries are (java|json)",
-				type = "cbi18n.InvalidConfiguration"
+				type    = "cbi18n.InvalidConfiguration"
 			)
 		}
-		variables.settings.resourceType	= lcase(variables.settings.resourceType);
+		variables.settings.resourceType = lCase( variables.settings.resourceType );
 	}
 
 	/**
@@ -47,7 +52,7 @@ component singleton accessors="true" {
 	 *
 	 * @return struct of bundles
 	 */
-	struct function getBundles() {
+	struct function getBundles(){
 		return variables.aBundles;
 	}
 
@@ -56,7 +61,7 @@ component singleton accessors="true" {
 	 *
 	 * @return array of all keys of loaded bundles
 	 */
-	array function getLoadedBundles() {
+	array function getLoadedBundles(){
 		return structKeyArray( variables.aBundles );
 	}
 
@@ -73,7 +78,7 @@ component singleton accessors="true" {
 		string rbLocale = "en_US",
 		boolean force   = false,
 		string rbAlias  = "default"
-	) {
+	){
 		// Setup rbAlias if not passed
 		if ( !structKeyExists( arguments, "rbAlias" ) || !len( arguments.rbAlias ) ) {
 			arguments.rbFile  = replace( arguments.rbFile, "\", "/", "all" );
@@ -81,26 +86,46 @@ component singleton accessors="true" {
 		}
 
 		// Verify bundle register name exists
-		if ( !structKeyExists( variables.aBundles, arguments.rbAlias ) ) {
+		if (
+			!structKeyExists(
+				variables.aBundles,
+				arguments.rbAlias
+			)
+		) {
 			lock
 				name          ="rbregister.#hash( arguments.rbFile & arguments.rbAlias )#"
 				type          ="exclusive"
 				timeout       ="10"
 				throwontimeout="true" {
-				if ( !structKeyExists( variables.aBundles, arguments.rbAlias ) ) {
+				if (
+					!structKeyExists(
+						variables.aBundles,
+						arguments.rbAlias
+					)
+				) {
 					variables.aBundles[ arguments.rbAlias ] = {};
 				}
 			}
 		}
 
 		// Verify bundle register locale exists or forced
-		if ( !structKeyExists( variables.aBundles[ arguments.rbAlias ], arguments.rbLocale ) || arguments.force ) {
+		if (
+			!structKeyExists(
+				variables.aBundles[ arguments.rbAlias ],
+				arguments.rbLocale
+			) || arguments.force
+		) {
 			lock
 				name          ="rbload.#hash( arguments.rbFile & arguments.rbLocale )#"
 				type          ="exclusive"
 				timeout       ="10"
 				throwontimeout="true" {
-				if ( !structKeyExists( variables.aBundles[ arguments.rbAlias ], arguments.rbLocale ) || arguments.force ) {
+				if (
+					!structKeyExists(
+						variables.aBundles[ arguments.rbAlias ],
+						arguments.rbLocale
+					) || arguments.force
+				) {
 					// load a bundle and store it.
 					variables.aBundles[ arguments.rbAlias ][ arguments.rbLocale ] = getResourceBundle(
 						rbFile   = arguments.rbFile,
@@ -133,7 +158,7 @@ component singleton accessors="true" {
 		locale = variables.i18n.getfwLocale(),
 		values,
 		bundle = "default"
-	) {
+	){
 		var thisBundle = {};
 		var thisLocale = arguments.locale;
 		var rbFile     = "";
@@ -157,7 +182,12 @@ component singleton accessors="true" {
 				// Try to load the language bundle either by default or config search
 				if ( arguments.bundle eq "default" ) {
 					rbFile = variables.settings.defaultResourceBundle;
-				} else if ( structKeyExists( variables.settings.resourceBundles, arguments.bundle ) ) {
+				} else if (
+					structKeyExists(
+						variables.settings.resourceBundles,
+						arguments.bundle
+					)
+				) {
 					rbFile = variables.settings.resourceBundles[ arguments.bundle ];
 				}
 				loadBundle(
@@ -205,7 +235,10 @@ component singleton accessors="true" {
 
 		// Return Resource with value replacements
 		if ( structKeyExists( arguments, "values" ) ) {
-			return formatRBString( thisBundle[ arguments.resource ], arguments.values );
+			return formatRBString(
+				thisBundle[ arguments.resource ],
+				arguments.values
+			);
 		}
 
 		// return from bundle
@@ -223,7 +256,7 @@ component singleton accessors="true" {
 	 *
 	 * @throws ResourceBundle.InvalidBundlePath if bundlePath is not found
 	 */
-	struct function getResourceBundle( required rbFile, rbLocale = "en_US" ) {
+	struct function getResourceBundle( required rbFile, rbLocale = "en_US" ){
 		// try to load hierarchical resource rbfile_LANG_COUNTRY_VARIANT, start with default resource, followed by
 		// rbFile.[ext], rbFile_LANG.[ext], rbFile_LANG_COUNTRY.[ext], rbFile_LANG_COUNTRY_VARIANT.[ext] (assuming LANG, COUNTRY and VARIANT are present)
 		// [ext] = (json|java)
@@ -235,10 +268,10 @@ component singleton accessors="true" {
 		// Create all file options from locale
 		var myRbFile         = arguments.rbFile;
 		// add base resource, without language, country or variant
-		var smartBundleFiles= [ "#myRbFile##extension#" ];
+		var smartBundleFiles = [ "#myRbFile##extension#" ];
 		// include lang, country and variant (if present)
 		// extract and add to bundleArray by splitting rbLocale as list on '_'
-		arguments.rbLocale.listEach( function( localePart, index, list ) {
+		arguments.rbLocale.listEach( function( localePart, index, list ){
 			myRbFile &= "_#localePart#";
 			smartBundleFiles.append( "#myRbFile##extension#" );
 		}, "_" );
@@ -247,17 +280,19 @@ component singleton accessors="true" {
 		// AND specific resource values for countries and variants without duplicating everything.
 		var resourceBundle      = structNew();
 		var isValidBundleLoaded = false;
-		smartBundleFiles.each( function( resourceFile ) {
+		smartBundleFiles.each( function( resourceFile ){
 			var resourceBundleFullPath = variables.controller.locateFilePath( resourceFile );
 			if ( resourceBundleFullPath.len() ) {
-				resourceBundle.append( _loadSubBundle( resourceBundleFullPath ), true ); // append and overwrite
+				resourceBundle.append(
+					_loadSubBundle( resourceBundleFullPath ),
+					true
+				); // append and overwrite
 				isValidBundleLoaded = true; // at least one bundle loaded so no errors
 			};
 		} );
 
 		// Validate resource is loaded or error.
 		if ( !isValidBundleLoaded ) {
-
 			var rbFilePath = "#arguments.rbFile#_#arguments.rbLocale##extension#";
 			var rbFullPath = variables.controller.locateFilePath( rbFilePath );
 			throw(
@@ -266,7 +301,7 @@ component singleton accessors="true" {
 				detail  = "FullPath: #rbFullPath#"
 			);
 		}
-		
+
 		return resourceBundle;
 	}
 
@@ -286,16 +321,19 @@ component singleton accessors="true" {
 		required rbKey,
 		rbLocale = "en_US",
 		defaultValue
-	) {
+	){
 		// default locale?
 		if ( !len( arguments.rbLocale ) ) {
 			arguments.rbLocale = variables.settings.defaultLocale;
 		}
 
-		if ( variables.settings.ResourceType == "java" ){
+		if ( variables.settings.ResourceType == "java" ) {
 			// read file
 			var fis = getResourceFileInputStream( "#arguments.rbFile#_#arguments.rbLocale#.properties" );
-			var rb  = createObject( "java", "java.util.PropertyResourceBundle" ).init( fis );
+			var rb  = createObject(
+				"java",
+				"java.util.PropertyResourceBundle"
+			).init( fis );
 			try {
 				// Retrieve string
 				var rbString = rb.handleGetObject( arguments.rbKey );
@@ -339,8 +377,7 @@ component singleton accessors="true" {
 	 * @returns array of keys from a specific resource bundle
 	 * @throws ResourceBundle.InvalidBundlePath if bundlePath is not found
 	 */
-	array function getRBKeys( required rbFile, rbLocale = "" ) {
-
+	array function getRBKeys( required rbFile, rbLocale = "" ){
 		var keys = arrayNew( 1 );
 
 		// default locale?
@@ -348,10 +385,13 @@ component singleton accessors="true" {
 			arguments.rbLocale = variables.settings.defaultLocale;
 		}
 
-		if ( variables.settings.ResourceType =="java" ){
+		if ( variables.settings.ResourceType == "java" ) {
 			// read file
 			var fis = getResourceFileInputStream( "#arguments.rbFile#_#arguments.rbLocale#.properties" );
-			var rb  = createObject( "java", "java.util.PropertyResourceBundle" ).init( fis );
+			var rb  = createObject(
+				"java",
+				"java.util.PropertyResourceBundle"
+			).init( fis );
 
 			try {
 				// Get Keys
@@ -365,9 +405,9 @@ component singleton accessors="true" {
 			}
 			return keys;
 		} else {
-			var myResource= _loadJsonSubBundle( "#arguments.rbFile#_#arguments.rbLocale#.json" );
-			return myResource.reduce( function(acc, key, value){
-				acc.append(key);
+			var myResource = _loadJsonSubBundle( "#arguments.rbFile#_#arguments.rbLocale#.json" );
+			return myResource.reduce( function( acc, key, value ){
+				acc.append( key );
 			}, [] );
 		}
 	}
@@ -380,7 +420,10 @@ component singleton accessors="true" {
 	 *
 	 * @returns formatted string
 	 */
-	string function formatRBString( required rbString, required substituteValues ) {
+	string function formatRBString(
+		required rbString,
+		required substituteValues
+	){
 		var tmpStr = arguments.rbString;
 
 		// Array substitutions by position
@@ -430,7 +473,7 @@ component singleton accessors="true" {
 		required string thisPattern,
 		required args,
 		thisLocale = ""
-	) {
+	){
 		var pattern   = createObject( "java", "java.util.regex.Pattern" );
 		var regexStr  = "(\{[0-9]{1,},number.*?\})";
 		var inputArgs = arguments.args;
@@ -473,7 +516,7 @@ component singleton accessors="true" {
 	 *
 	 * @returns boolean
 	 */
-	boolean function verifyPattern( required string pattern ) {
+	boolean function verifyPattern( required string pattern ){
 		try {
 			var test = createObject( "java", "java.text.MessageFormat" ).init( arguments.pattern );
 		} catch ( Any e ) {
@@ -494,7 +537,7 @@ component singleton accessors="true" {
 	 * @return java.io.FileInputStream
 	 * @throws ResourceBundle.InvalidBundlePath
 	 */
-	private function getResourceFileInputStream( required string rbFilePath ) {
+	private function getResourceFileInputStream( required string rbFilePath ){
 		// Try to locate the path using the coldbox plugin utility
 		var rbFullPath = variables.controller.locateFilePath( rbFilePath );
 
@@ -519,12 +562,12 @@ component singleton accessors="true" {
 	 * @return struct resourcebundle
 	 * @throws ResourceBundle.InvalidBundlePath
 	 */
-	private function _loadSubBundle( required string resourceBundleFullPath ) {
-		if ( variables.settings.resourceType == "java" ){
-			return _loadJavaSubBundle(resourceBundleFullPath);
+	private function _loadSubBundle( required string resourceBundleFullPath ){
+		if ( variables.settings.resourceType == "java" ) {
+			return _loadJavaSubBundle( resourceBundleFullPath );
 		} else {
-			//load JSON (sub)bundle
-			return _loadJsonSubBundle(resourceBundleFullPath);
+			// load JSON (sub)bundle
+			return _loadJsonSubBundle( resourceBundleFullPath );
 		}
 	}
 
@@ -536,14 +579,17 @@ component singleton accessors="true" {
 	 * @return struct resourcebundle
 	 * @throws ResourceBundle.InvalidBundlePath
 	 */
-	private function _loadJavaSubBundle( required string resourceBundleFullPath ) {
+	private function _loadJavaSubBundle( required string resourceBundleFullPath ){
 		var resourceBundle = {};
 		var thisKey        = "";
 		// create a file input stream with file location
 		var fis            = getResourceFileInputStream( resourceBundleFullPath );
 		var fir            = createObject( "java", "java.io.InputStreamReader" ).init( fis, "UTF-8" );
 		// init rb with file stream
-		var rb             = createObject( "java", "java.util.PropertyResourceBundle" ).init( fir );
+		var rb             = createObject(
+			"java",
+			"java.util.PropertyResourceBundle"
+		).init( fir );
 		try {
 			// get keys
 			var keys = rb.getKeys();
@@ -566,13 +612,13 @@ component singleton accessors="true" {
 	 * @return struct resourcebundle
 	 * @throws ResourceBundle.InvalidJSONBundlePath
 	 */
-	private function _loadJsonSubBundle( required string resourceBundleFullPath ) {
+	private function _loadJsonSubBundle( required string resourceBundleFullPath ){
 		try {
 			return _flattenStruct( deserializeJSON( fileRead( resourceBundleFullPath ) ) );
-		} catch (any e) {
-			throw( 
-				message="Invalid JSON resource bundle #arguments.resourceBundleFullPath#",
-				type = "ResourceBundle.InvalidJSONBundlePath"
+		} catch ( any e ) {
+			throw(
+				message = "Invalid JSON resource bundle #arguments.resourceBundleFullPath#",
+				type    = "ResourceBundle.InvalidJSONBundlePath"
 			)
 		}
 	}
@@ -583,7 +629,7 @@ component singleton accessors="true" {
 	 * @originalStruct
 	 * @flattenedStruct necessary for recursion
 	 * @prefix_string necessary for processing, so key kan be prepended with parent name
-	 * 
+	 *
 	 *
 	 * @return struct resourcebundle
 	 * @throws ResourceBundle.InvalidBundlePath
@@ -591,15 +637,25 @@ component singleton accessors="true" {
 	private function _flattenStruct(
 		required struct originalStruct,
 		struct flattenedStruct = {},
-		string prefixString = ""
+		string prefixString    = ""
 	){
 		arguments.originalStruct.each( function( key, value ){
-			if ( isStruct( value ) ){
-				flattenedStruct = _flattenStruct( value, flattenedStruct, "#prefixString##key#." );
-			} else { 
-				structInsert(flattenedStruct,"#prefixString##key#",value,false);
+			if ( isStruct( value ) ) {
+				flattenedStruct = _flattenStruct(
+					value,
+					flattenedStruct,
+					"#prefixString##key#."
+				);
+			} else {
+				structInsert(
+					flattenedStruct,
+					"#prefixString##key#",
+					value,
+					false
+				);
 			}
-		});
+		} );
 		return flattenedStruct;
 	}
+
 }
