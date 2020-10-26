@@ -10,7 +10,7 @@ component singleton accessors="true" {
 	// DI
 	property name="log"        inject="logbox:logger:{this}";
 	property name="controller" inject="coldbox";
-	property name="i18n"       inject="i18n@cbi18n";
+	property name="i18n"       inject="provider:i18n@cbi18n";
 	property name="settings"   inject="coldbox:moduleSettings:cbi18n";
 
 	/**
