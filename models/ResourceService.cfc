@@ -564,10 +564,10 @@ component singleton accessors="true" {
 	 */
 	private function _loadSubBundle( required string resourceBundleFullPath ){
 		if ( variables.settings.resourceType == "java" ) {
-			return _loadJavaSubBundle( resourceBundleFullPath );
+			return _loadJavaSubBundle( arguments.resourceBundleFullPath );
 		} else {
 			// load JSON (sub)bundle
-			return _loadJsonSubBundle( resourceBundleFullPath );
+			return _loadJsonSubBundle( arguments.resourceBundleFullPath );
 		}
 	}
 
@@ -583,7 +583,7 @@ component singleton accessors="true" {
 		var resourceBundle = {};
 		var thisKey        = "";
 		// create a file input stream with file location
-		var fis            = getResourceFileInputStream( resourceBundleFullPath );
+		var fis            = getResourceFileInputStream( arguments.resourceBundleFullPath );
 		var fir            = createObject( "java", "java.io.InputStreamReader" ).init( fis, "UTF-8" );
 		// init rb with file stream
 		var rb             = createObject(
@@ -614,7 +614,7 @@ component singleton accessors="true" {
 	 */
 	private function _loadJsonSubBundle( required string resourceBundleFullPath ){
 		try {
-			return _flattenStruct( deserializeJSON( fileRead( resourceBundleFullPath ) ) );
+			return _flattenStruct( deserializeJSON( fileRead( arguments.resourceBundleFullPath ) ) );
 		} catch ( any e ) {
 			throw(
 				message = "Invalid JSON resource bundle #arguments.resourceBundleFullPath#",

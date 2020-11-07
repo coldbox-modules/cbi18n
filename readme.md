@@ -43,6 +43,8 @@ cbi18n = {
     // The value to show when a translation is not found
     unknownTranslation = "**NOT FOUND**",
     logUnknownTranslation = true | false,
+    // resourceType can be java or json
+    resourceType = "java",
     // Extra resource bundles to load, specify path up to but not including _lang_COUNTRY.properties here
     resourceBundles = {
         alias = "path"

@@ -187,7 +187,7 @@ component singleton accessors="true" {
 	string function getLocaleNames(){
 		var theseLocales = "";
 		var thisName     = "";
-		for ( orgLocale in getLocales() ) {
+		for ( var orgLocale in getLocales() ) {
 			if ( listLen( orgLocale, "_" ) == 2 ) {
 				if ( left( orgLocale, 2 ) == "ar" || left( orgLocale, 2 ) == "iw" ) {
 					thisName = chr( 8235 ) & orgLocale.getDisplayName( orgLocale ) & chr( 8234 );
@@ -1021,36 +1021,16 @@ component singleton accessors="true" {
 	 * returns a sorted query of locales (locale,country,language,dspName,localname. 'localname' will contain the locale's name in its native characters). Suitable for use in creating select lists.
 	 */
 	query function getLocaleQuery(){
-		var aLocales  = getLocales();
 		var qryLocale = queryNew( "locale,country,language,dspName,localname" );
-		aLocales.each( function( localeItem ){
-			qryLocale.addRow( 1 );
-			qryLocale.setCell( "locale", localeItem.toString() );
-			if ( left( localeItem, 2 ) == "ar" || left( localeItem, 2 ) == "iw" ) {
-				// need to write the value from right to left
-				qryLocale.setCell(
-					"localname",
-					chr( 8235 ) & localeItem.getDisplayName( localeItem ) & chr( 8234 )
-				);
-			} else {
-				qryLocale.setCell(
-					"localname",
-					localeItem.getDisplayName( localeItem )
-				);
-			}
-			qryLocale.setCell(
-				"dspName",
-				localeItem.getDisplayName()
-			);
-			qryLocale.setCell(
-				"language",
-				localeItem.getDisplayLanguage()
-			);
-			qryLocale.setCell(
-				"country",
-				localeItem.getDisplayCountry()
-			);
-		} );
+		for (var localeItem in getLocales() ) {
+			qryLocale.addRow( {
+				"locale": localeItem.toString(),
+				"localname": ( left( localeItem, 2 ) == "ar" || left( localeItem, 2 ) == "iw" ) ? chr( 8235 ) & localeItem.getDisplayName( localeItem ) & chr( 8234 ) : localeItem.getDisplayName( localeItem ),
+				"dspName": localeItem.getDisplayName(),
+				"language":	localeItem.getDisplayLanguage(),
+				"country":	localeItem.getDisplayCountry()
+			} );
+		};
 		return qryLocale.sort( function( rowA, rowB ){
 			if ( compare( rowA.locale, rowB.locale ) == 0 ) {
 				// if locale=equal, further sort on langugage
