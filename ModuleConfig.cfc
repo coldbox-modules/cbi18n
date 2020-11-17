@@ -27,12 +27,13 @@ component {
 	function configure() {
 		settings = {
 			"defaultResourceBundle" : "",
-			"defaultLocale"         : "",
+			"defaultLocale"         : "en_US",
 			"localeStorage"         : "cookieStorage@cbstorages",
 			"unknownTranslation"    : "",
 			"logUnknownTranslation" : false,
 			"using_i18N"            : false,
 			"resourceBundles"       : {},
+			"resourceType"			: "java",  //java or JSON
 			"customResourceService" : ""
 		};
 	}

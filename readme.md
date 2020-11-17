@@ -14,8 +14,8 @@ Apache License, Version 2.0.
 - [Changelog](changelog.md)
 
 ## SYSTEM REQUIREMENTS
-- Lucee 4.5+
-- ColdFusion 11+
+- Lucee 5+
+- ColdFusion 2016+
 
 ## INSTRUCTIONS
 
@@ -29,20 +29,23 @@ This module registers the following models in WireBox:
 - `resourceService@cbi18n` : Service to interact with language resource bundles - You may override this service by providing a `customResourceService` key in your configuration.  [More information on custom resource services](https://github.com/coldbox-modules/cbox-i18n/wiki/Custom-Resource-Services).
 
 ## Settings
-You can add a `i18n` structure of settings to your `ColdBox.cfc` or to any other module configuration file: `ModuleConfig.cfc` to configure the module:
+You can add a `cbi18n` structure of settings to your modulesettings in  `ColdBox.cfc` or to any other module configuration file: `ModuleConfig.cfc` to configure the module:
 
 ```js
-i18n = {
+cbi18n = {
     // The base path of the default resource bundle to load
+    // base path is path + resource name but excluding _lang_COUNTRY.properties
     defaultResourceBundle = "includes/i18n/main",
     // The default locale of the application
     defaultLocale = "en_US",
-    // The storage to use for user's locale: session, client, cookie, request
-    localeStorage = "cookie",
+    // The storage to use for user's locale: any cbstorages service. Please use full wirebox ID
+    localeStorage = "CookieStorage@cbstorages",
     // The value to show when a translation is not found
     unknownTranslation = "**NOT FOUND**",
     logUnknownTranslation = true | false,
-    // Extra resource bundles to load
+    // resourceType can be java or json. json can also be nested keys
+    resourceType = "java",
+    // Extra resource bundles to load, specify path up to but not including _lang_COUNTRY.properties here
     resourceBundles = {
         alias = "path"
     },

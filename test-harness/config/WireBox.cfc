@@ -41,6 +41,23 @@
 		};
 		
 		// Map Bindings below
-	}	
 
+		// extra instance for ResourceService, but now based on JSON resources.
+		map("JsonResourceService").to("cbi18n.models.ResourceService")
+			.property(
+				name="settings",
+				value = {
+					defaultResourceBundle = "",
+					resourceBundles = {
+						"jsonTest" = "includes/i18n/jsonTest",
+						"nestedJsonTest" = "includes/i18n/nestedJsonTest"
+					},
+					defaultLocale = "en_US",
+					localeStorage = "cookieStorage@cbstorages",
+					unknownTranslation = "**NOT FOUND**",
+					logUnknownTranslation = true,
+					resourceType="json"
+				}
+			);
+	}
 }

@@ -20,10 +20,6 @@ component{
 		return getResource( resource = "helloworld", locale="nl_NL" );
 	}
 
-	any function testi18nMissingResourceInBundle( event, rc, prc ){
-		return getResource( resource = "welcomemessage", locale="nl_NL" );
-	}
-
 	any function testi18nExtraBundle( event, rc, prc ){
 		return getResource( "home@support" );
 	}
@@ -31,5 +27,10 @@ component{
 	any function testi18nCustomResourceService( event, rc, prc ){
 		return getResource( "welcome@crs" );
 	}
-
+	any function testi18nJsonResourceService( event, rc, prc ){
+		return getInstance('JsonResourceService').getResource( resource="sub.intromessage", bundle="jsonTest" );
+	}
+	any function testi18nNestedJsonResourceService( event, rc, prc ){
+		return getInstance('JsonResourceService').getResource( resource="sub.intromessage", bundle="nestedJsonTest" );
+	}
 }

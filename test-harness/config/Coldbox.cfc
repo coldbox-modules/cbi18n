@@ -54,7 +54,8 @@
 				defaultLocale = "en_US",
 				localeStorage = "cookieStorage@cbstorages",
 				unknownTranslation = "**NOT FOUND**",
-				logUnknownTranslation = true
+				logUnknownTranslation = true,
+				resourceType="java"
 			}
 		};
 
