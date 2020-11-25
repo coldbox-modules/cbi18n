@@ -90,7 +90,7 @@ component singleton accessors="true" {
 	 */
 	any function getFwLocale(){
 		// return locale, default already set in onDIComplete
-		return variables.storageService.get( "currentLocale" );
+		return variables.storageService.get( "currentLocale", variables.settings.defaultLocale );
 	}
 
 	/**
