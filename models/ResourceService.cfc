@@ -8,10 +8,11 @@
 component singleton accessors="true" {
 
 	// DI
-	property name="log"        inject="logbox:logger:{this}";
-	property name="controller" inject="coldbox";
-	property name="i18n"       inject="provider:i18n@cbi18n";
-	property name="settings"   inject="coldbox:moduleSettings:cbi18n";
+	property name="log"                inject="logbox:logger:{this}";
+	property name="controller"         inject="coldbox";
+	property name="i18n"               inject="provider:i18n@cbi18n";
+	property name="settings"           inject="coldbox:moduleSettings:cbi18n";
+	property name="interceptorService" inject="coldbox:interceptorService";
 
 	/**
 	 * properties
@@ -209,6 +210,15 @@ component singleton accessors="true" {
 
 		// Check if resource does NOT exists?
 		if ( !structKeyExists( thisBundle, arguments.resource ) ) {
+			variables.interceptorService.processState(
+				"onUnknownTranslation",
+				{
+					resource : arguments.resource,
+					locale   : arguments.locale,
+					bundle   : arguments.bundle
+				}
+			);
+
 			// if logging enable
 			if ( variables.settings.logUnknownTranslation ) {
 				log.error( variables.settings.unknownTranslation & " key: #arguments.resource#" );

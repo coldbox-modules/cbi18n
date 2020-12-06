@@ -24,7 +24,7 @@ component {
 	/**
 	 * Configure Module
 	 */
-	function configure() {
+	function configure(){
 		settings = {
 			"defaultResourceBundle" : "",
 			"defaultLocale"         : "en_US",
@@ -33,15 +33,16 @@ component {
 			"logUnknownTranslation" : false,
 			"using_i18N"            : false,
 			"resourceBundles"       : {},
-			"resourceType"			: "java",  //java or JSON
+			"resourceType"          : "java", // java or JSON
 			"customResourceService" : ""
 		};
+		interceptorSettings = { customInterceptionPoints : "onUnknownTranslation" };
 	}
 
 	/**
 	 * Fired when the module is registered and activated.
 	 */
-	function onLoad() {
+	function onLoad(){
 		// Remap Resource Service if settings allow it
 		if ( settings.customResourceService.len() ) {
 			binder.map( "resourceService@cbi18n", true ).to( settings.customResourceService );
@@ -51,18 +52,18 @@ component {
 	/**
 	 * Fired when the module is unregistered and unloaded
 	 */
-	function onUnload() {
+	function onUnload(){
 	}
 
 	/**
 	 * Listen when modules are activated to load their i18n capabilities
 	 */
-	function afterAspectsLoad( event, interceptData ) {
+	function afterAspectsLoad( event, interceptData ){
 		var modules           = controller.getSetting( "modules" );
 		var moduleService     = controller.getModuleService();
 		var moduleConfigCache = moduleService.getModuleConfigCache();
 
-		modules.each( function( thisModule ) {
+		modules.each( function( thisModule ){
 			// get module config object
 			var oConfig        = moduleConfigCache[ thisModule ];
 			// Get module settings and see if it uses cbi18n
@@ -87,7 +88,7 @@ component {
 				);
 				// process settings, only set if not there yet.
 				var keys = "defaultResourceBundle,unknownTranslation,defaultLocale,localeStorage";
-				keys.listEach( function( element, index, list ) {
+				keys.listEach( function( element, index, list ){
 					if ( modules[ thisModule ][ "cbi18n" ][ element ].len() && !settings[ element ].len() ) {
 						settings[ element ] = modules[ thisModule ][ "cbi18n" ][ element ];
 						flagi18n            = true;
@@ -95,7 +96,10 @@ component {
 				} );
 
 				if ( structCount( modules[ thisModule ].cbi18n.resourceBundles ) ) {
-					settings.resourceBundles.append( modules[ thisModule ].cbi18n.resourceBundles, true );
+					settings.resourceBundles.append(
+						modules[ thisModule ].cbi18n.resourceBundles,
+						true
+					);
 					flagi18n = true;
 				}
 				if ( flagi18n ) {
