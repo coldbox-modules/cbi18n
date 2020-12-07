@@ -56,6 +56,14 @@ cbi18n = {
 
 Each module in your ColdBox Application can have its own resource bundles that can be loaded by this module.
 
+## Interceptors
+This module announces a `onUnknownTranslation` interception. The `interceptdata` argument has the following format
+```js
+{
+    { resource= ..., locale= ... , bundle = ... }
+}
+```
+
 ## Mixin Helpers
 The module registers the following methods for **handlers/layouts/views/interceptors**:
 

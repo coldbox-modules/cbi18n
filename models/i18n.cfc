@@ -90,7 +90,10 @@ component singleton accessors="true" {
 	 */
 	any function getFwLocale(){
 		// return locale, default already set in onDIComplete
-		return variables.storageService.get( "currentLocale", variables.settings.defaultLocale );
+		return variables.storageService.get(
+			"currentLocale",
+			variables.settings.defaultLocale
+		);
 	}
 
 	/**
@@ -1022,13 +1025,15 @@ component singleton accessors="true" {
 	 */
 	query function getLocaleQuery(){
 		var qryLocale = queryNew( "locale,country,language,dspName,localname" );
-		for (var localeItem in getLocales() ) {
+		for ( var localeItem in getLocales() ) {
 			qryLocale.addRow( {
-				"locale": localeItem.toString(),
-				"localname": ( left( localeItem, 2 ) == "ar" || left( localeItem, 2 ) == "iw" ) ? chr( 8235 ) & localeItem.getDisplayName( localeItem ) & chr( 8234 ) : localeItem.getDisplayName( localeItem ),
-				"dspName": localeItem.getDisplayName(),
-				"language":	localeItem.getDisplayLanguage(),
-				"country":	localeItem.getDisplayCountry()
+				"locale"    : localeItem.toString(),
+				"localname" : ( left( localeItem, 2 ) == "ar" || left( localeItem, 2 ) == "iw" ) ? chr( 8235 ) & localeItem.getDisplayName(
+					localeItem
+				) & chr( 8234 ) : localeItem.getDisplayName( localeItem ),
+				"dspName"  : localeItem.getDisplayName(),
+				"language" : localeItem.getDisplayLanguage(),
+				"country"  : localeItem.getDisplayCountry()
 			} );
 		};
 		return qryLocale.sort( function( rowA, rowB ){

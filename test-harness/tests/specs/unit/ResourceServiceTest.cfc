@@ -15,6 +15,7 @@ Author 	    :	Luis Majano
 		// Mocks
 		mockController = prepareMock( getController() );
 		mockLogger = prepareMock( mockController.getLogBox().getLogger( 'ResourceService' ) ).$("canDebug", false);
+		mockInterceptorService = prepareMock(getController().getInterceptorService());
 		mockController
 			.$("settingExists", true)
 			.$("getAppRootPath", expandPath("/root") );
@@ -22,6 +23,7 @@ Author 	    :	Luis Majano
 		resourceService = createMock( "cbi18n.models.ResourceService" );
 		resourceService.$property( "log", "variables", mockLogger );
 		resourceService.$property( "controller", "variables", mockController );
+		resourceService.$property( "interceptorService", "variables", mockInterceptorService );
 		resourceService.$property( "i18n", "variables", mocki18n );
 		resourceService.$property( "settings", "variables", 
 			{
