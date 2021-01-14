@@ -1,4 +1,6 @@
 language: java
+os: "linux"
+dist: focal
 
 notifications:
   slack:
@@ -17,9 +19,6 @@ branches:
   only:
   - development
   - master
-
-sudo: required
-dist: xenial
 
 before_install:
   # CommandBox Keys
