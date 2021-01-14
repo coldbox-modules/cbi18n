@@ -7,17 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ----
 
-## [2.0.0] => 2020-SEP-
+## [2.0.0] => 2021-JAN-
 
 ### Added
 
 * Github autopublishing of changelogs
 * New CI procedures based on new ColdBox modules
 * More formatting goodness and watchers
+* ACF2016, ACF2018 Support
+* Complete migration to script
+* Fallback mechanism for resource selection
+* Migration to leverage cbStorages for locale storage
+* Interceptor for missing translations `onUnknownTranslation`
+* CookieStorage is now used as the default for storing locales
+* Support for flat or embedded JSON resource bundles via the new setting `resourceType`
+* New `i18n()` mixin helper to get easy access to i18n methods
+* New `resoureService()` mixin helper to get easy access to the resource service model
 
 ### Removed
 
+* Old approach to top level `i18n` settings. You know will use the normal `moduleSettings` with a `cbi18n` key for settings
+* On modules, you will use also the `cbi18n` top level key for configuration for each module
+* ACF11, Lucee 4.5 Support
+* `DefaultLocale` in storage now renamed to `CurrentLocale`
+
 ### Fixed
+
+* Lots of fixes on localization methods using old Java classes that didn't exist anymore
+* Lots of fixes on streamlining the java classes used for localization
 
 ----
 

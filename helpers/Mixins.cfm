@@ -3,10 +3,7 @@
  * Get the user's currently set locale or default locale according to settings
  */
 function getFWLocale() {
-	if ( NOT structKeyExists( variables, "cbox18n" ) ) {
-		variables.cbox18n = getInstance( "i18n@cbi18n" );
-	}
-	return variables.cbox18n.getfwLocale();
+	return i18n().getfwLocale();
 }
 
 /**
@@ -17,10 +14,7 @@ function getFWLocale() {
  * @return i18n Service
  */
 function setFWLocale( string locale = "", boolean dontloadRBFlag = false ) {
-	if ( NOT structKeyExists( variables, "cbox18n" ) ) {
-		variables.cbox18n = getInstance( "i18n@cbi18n" );
-	}
-	return variables.cbox18n.setfwLocale( argumentCollection = arguments );
+	return i18n().setfwLocale( argumentCollection = arguments );
 }
 
 /**
@@ -38,14 +32,31 @@ function getResource(
 	values,
 	bundle
 ) {
-	// Verify injection
-	if ( NOT structKeyExists( variables, "cboxResourceService" ) ) {
-		variables.cboxResourceService = getInstance( "resourceService@cbi18n" );
-	}
 	// return resource info
-	return variables.cboxResourceService.getResource( argumentCollection = arguments );
+	return resourceService().getResource( argumentCollection = arguments );
 }
 
 // Alias to getResource
 variables.$r = variables.getResource;
+
+/**
+ * Get i18n Model
+ */
+function i18n(){
+	if ( NOT structKeyExists( variables, "cbox18n" ) ) {
+		variables.cbox18n = getInstance( "i18n@cbi18n" );
+	}
+	return variables.cboxi18n;
+}
+
+/**
+ * Get the resource service model
+ */
+function resourceService(){
+	// Verify injection
+	if ( NOT structKeyExists( variables, "cboxResourceService" ) ) {
+		variables.cboxResourceService = getInstance( "resourceService@cbi18n" );
+	}
+	return variables.cboxResourceService;
+}
 </cfscript>

@@ -5,11 +5,11 @@
     "private":true,
     "description":"",
     "dependencies":{
-        "coldbox":"^5.0.0",
+        "coldbox":"^6.0.0",
         "cbstorages":"^2.2.0+50"
     },
     "devDependencies":{
-        "testbox":"^3.0.0"
+        "testbox":"^4.0.0"
     },
     "installPaths":{
         "coldbox":"coldbox/",

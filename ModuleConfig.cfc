@@ -65,13 +65,13 @@ component {
 
 		modules.each( function( thisModule ){
 			// get module config object
-			var oConfig        = moduleConfigCache[ thisModule ];
+			var oConfig        = moduleConfigCache[ arguments.thisModule ];
 			// Get module settings and see if it uses cbi18n
 			var moduleSettings = oConfig.getPropertyMixin( "cbi18n", "variables", {} );
 			if ( structCount( moduleSettings ) ) {
 				var flagi18n = false;
 				// set defaults
-				modules[ thisModule ].cbi18n = {
+				modules[ arguments.thisModule ].cbi18n = {
 					defaultResourceBundle : "",
 					defaultLocale         : "",
 					localeStorage         : "cookieStorage@cbstorages",
@@ -82,7 +82,7 @@ component {
 				};
 				// append incoming settings
 				structAppend(
-					modules[ thisModule ].cbi18n,
+					modules[ arguments.thisModule ].cbi18n,
 					moduleSettings,
 					true
 				);
@@ -95,9 +95,9 @@ component {
 					}
 				} );
 
-				if ( structCount( modules[ thisModule ].cbi18n.resourceBundles ) ) {
+				if ( structCount( modules[ arguments.thisModule ].cbi18n.resourceBundles ) ) {
 					settings.resourceBundles.append(
-						modules[ thisModule ].cbi18n.resourceBundles,
+						modules[ arguments.thisModule ].cbi18n.resourceBundles,
 						true
 					);
 					flagi18n = true;
