@@ -1,59 +1,94 @@
-[![Build Status](https://travis-ci.org/coldbox-modules/cbox-i18n.svg?branch=development)](https://travis-ci.org/coldbox-modules/cbox-i18n)
+[![Build Status](https://travis-ci.com/coldbox-modules/cbi18n.svg?branch=development)](https://travis-ci.com/coldbox-modules/cbi18n)
 
 # WELCOME TO THE COLDBOX I18N & LOCALIZATION MODULE
-This module will enhance your ColdBox applications with i18n capabilities,
-resource bundles and localization.
+
+This module will enhance your ColdBox applications with i18n capabilities, resource bundles and localization.  It supports traditional Java resource bundles and also modern JSON resource bundles.
 
 ## LICENSE
+
 Apache License, Version 2.0.
 
 ## IMPORTANT LINKS
-- Documentation: https://github.com/coldbox-modules/cbox-i18n/wiki
-- Source: https://github.com/coldbox-modules/cbox-i18n
-- ForgeBox: https://forgebox.io/view/i18n
+
+- Documentation: https://coldbox-i18n.ortusbooks.com/
+- Source: https://github.com/coldbox-modules/cbi18n
+- ForgeBox: https://forgebox.io/view/cbi18n
 - [Changelog](changelog.md)
 
 ## SYSTEM REQUIREMENTS
-- Lucee 4.5+
-- ColdFusion 11+
+
+- Lucee 5+
+- Adobe ColdFusion 2016+
 
 ## INSTRUCTIONS
 
-Just drop into your **modules** folder or use the box-cli to install
+Leverage CommandBox and install it:
 
 `box install cbi18n`
 
 This module registers the following models in WireBox:
 
 - `i18n@cbi18n` : Helper with all kinds of methods for localization
-- `resourceService@cbi18n` : Service to interact with language resource bundles - You may override this service by providing a `customResourceService` key in your configuration.  [More information on custom resource services](https://github.com/coldbox-modules/cbox-i18n/wiki/Custom-Resource-Services).
+- `resourceService@cbi18n` : Service to interact with language resource bundles - You may override this service by providing a `customResourceService` key in your configuration.  [More information on custom resource services](https://coldbox-i18n.ortusbooks.com/coding-for-i18n/custom-resource-services).
 
 ## Settings
-You can add a `i18n` structure of settings to your `ColdBox.cfc` or to any other module configuration file: `ModuleConfig.cfc` to configure the module:
+
+You can add a `cbi18n` structure of settings to your `modulesettings` in  `ColdBox.cfc` or to any other module configuration file: `ModuleConfig.cfc` to configure the module:
 
 ```js
-i18n = {
-    // The base path of the default resource bundle to load
-    defaultResourceBundle = "includes/i18n/main",
-    // The default locale of the application
-    defaultLocale = "en_US",
-    // The storage to use for user's locale: session, client, cookie, request
-    localeStorage = "cookie",
-    // The value to show when a translation is not found
-    unknownTranslation = "**NOT FOUND**",
-    logUnknownTranslation = true | false,
-    // Extra resource bundles to load
-    resourceBundles = {
-        alias = "path"
-    },
-    //Specify a Custom Resource Service, which should implement the methods or extend the base i18n ResourceService ( e.g. - using a database to store i18n )
-    customResourceService = ""
-};
+// config/ColdBox.cfc
+moduleSettings = 
+	cbi18n = {
+		// The base path of the default resource bundle to load
+		// base path is path + resource name but excluding _lang_COUNTRY.properties
+		defaultResourceBundle = "includes/i18n/main",
+		// The default locale of the application
+		defaultLocale = "en_US",
+		// The storage to use for user's locale: any cbstorages service. Please use full wirebox ID
+		localeStorage = "CookieStorage@cbstorages",
+		// The value to show when a translation is not found
+		unknownTranslation = "**NOT FOUND**",
+		logUnknownTranslation = true | false,
+		// Extra resource bundles to load, specify path up to but not including _lang_COUNTRY.properties here
+		resourceBundles = {
+			alias = "path"
+		},
+		//Specify a Custom Resource Service, which should implement the methods or extend the base i18n ResourceService ( e.g. - using a database to store i18n )
+		customResourceService = ""
+	}
+}
 ```
 
-Each module in your ColdBox Application can have its own resource bundles that can be loaded by this module.
+Each module in your ColdBox Application can have its own resource bundles that can be loaded by this module as well. Just configure it via the `cbi18n` key in your `ModuleConfig.cfc`
+
+```js
+function configure(){
+
+	cbi18n = {
+		defaultLocale = "es_SV",
+		resourceBundles = {
+			// Alias => path in module
+			"module@test1" = "#moduleMapping#/includes/module"
+		}
+	};
+
+}
+```
+
+## Interceptors
+
+This module announces an `onUnknownTranslation` interception. The `data` announced is a struct with the following format:
+
+```js
+{ 
+	resource 	= ..., 
+	locale 		= ... , 
+	bundle  	= ... 
+}
+```
 
 ## Mixin Helpers
+
 The module registers the following methods for **handlers/layouts/views/interceptors**:
 
 ```js
@@ -89,15 +124,27 @@ function getResource(
 
 // Alias to getResource
 function $r()
+
+/**
+ * Get Access to the i18n Model
+ */
+function i18n()
+
+/**
+ * Get the resource service model
+ */
+function resourceService()
 ```
 
-You can read more about this module here: https://github.com/coldbox-modules/cbox-i18n/wiki
+You can read more about this module here: https://coldbox-i18n.ortusbooks.com
 
 ********************************************************************************
 Copyright Since 2005 ColdBox Framework by Luis Majano and Ortus Solutions, Corp
 www.coldbox.org | www.luismajano.com | www.ortussolutions.com
 ********************************************************************************
+
 #### HONOR GOES TO GOD ABOVE ALL
+
 Because of His grace, this project exists. If you don't like this, then don't read it, its not for you.
 
 >"Therefore being justified by faith, we have peace with God through our Lord Jesus Christ:
@@ -108,4 +155,5 @@ And hope maketh not ashamed; because the love of God is shed abroad in our heart
 Holy Ghost which is given unto us. ." Romans 5:5
 
 ### THE DAILY BREAD
+
  > "I am the way, and the truth, and the life; no one comes to the Father, but by me (JESUS)" Jn 14:1-12

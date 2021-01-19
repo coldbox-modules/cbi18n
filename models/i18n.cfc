@@ -1,970 +1,1167 @@
-<!-----------------------------------------------------------------------
-********************************************************************************
-Copyright Since 2005 ColdBox Framework by Luis Majano and Ortus Solutions, Corp
-www.ortussolutions.com
-********************************************************************************
------------------------------------------------------------------------>
-<cfcomponent name="i18n"
-			 hint="Internationalization and localization support for ColdBox"
-			 output="false"
-			 singleton>
+/**
+ * Copyright Since 2005 ColdBox Framework by Luis Majano and Ortus Solutions, Corp
+ * www.ortussolutions.com
+ * ---
+ * Internationalization and localization support for ColdBox
+ */
+component singleton accessors="true" {
 
-<!------------------------------------------- CONSTRUCTOR ------------------------------------------->
+	// DI
+	property name="resourceService" inject="resourceService@cbi18n";
+	property name="controller"      inject="coldbox";
+	property name="wirebox"         inject="wirebox";
+	property name="settings"        inject="coldbox:moduleSettings:cbi18n";
 
-	<cfproperty name="resourceService" 	inject="resourceService@cbi18n">
-	<cfproperty name="controller" 		inject="coldbox">
+	/**
+	 * The wirebox id of the storage provider
+	 */
+	property name="localeStorage";
+	/**
+	 * The default locale configured for the application
+	 */
+	property name="defaultLocale";
+	/**
+	 * The default resource bundle for the application, if any
+	 */
+	property name="defaultResourceBundle";
 
-	<cfset instance = {}>
+	/**
+	 * Constructor
+	 */
+	i18n function init(){
+		// Internal Java Objects
+		variables.aDateFormat = createObject( "java", "java.text.DateFormat" );
+		variables.aLocale     = createObject( "java", "java.util.Locale" );
+		variables.timeZone    = createObject( "java", "java.util.TimeZone" );
+		variables.aCalendar   = createObject(
+			"java",
+			"java.util.GregorianCalendar"
+		).init( buildLocale() );
 
-	<cffunction name="init" access="public" returntype="i18n" hint="Constructor" output="false">
-		<cfscript>
-			// Internal Java Objects
-			instance.aDFSymbol		= createObject( "java", "java.text.DecimalFormatSymbols" );
-			instance.aDateFormat	= createObject( "java", "java.text.DateFormat" );
-			instance.sDateFormat	= createObject( "java", "java.text.SimpleDateFormat" );
-			instance.aLocale		= createObject( "java", "java.util.Locale" );
-			instance.timeZone		= createObject( "java", "java.util.TimeZone" );
-			instance.aCalendar		= createObject( "java", "java.util.GregorianCalendar" ).init( buildLocale() );
-			instance.dateSymbols 	= createObject( "java", "java.text.DateFormatSymbols" ).init( buildLocale() );
+		return this;
+	}
 
-			// internal settings
-			instance.localeStorage 			= "";
-			instance.defaultResourceBundle 	= "";
-			instance.defaultLocale 			= "";
+	/**
+	 * Reads,parses,saves the locale and resource bundles defined in the config.
+	 *
+	 * @throws i18N.DefaultSettingsInvalidException
+	 */
+	void function onDIComplete(){
+		// Default instance settings
+		variables.localeStorage         = variables.settings.localeStorage;
+		variables.defaultResourceBundle = variables.settings.defaultResourceBundle;
+		variables.defaultLocale         = variables.settings.defaultLocale;
 
-			return this;
-		</cfscript>
-	</cffunction>
+		// instantiate storage service for locale storage
+		try {
+			variables.storageService = variables.wirebox.getInstance( variables.localeStorage );
+		} catch ( any e ) {
+			var message = variables.localeStorage.len()
+			 ? "The LocaleStorage setting #variables.localeStorage# is invalid."
+			 : "The LocaleStorage setting cannot be found. Please make sure you create the i18n elements";
+			throw(
+				message     : e.message,
+				type        : "i18N.DefaultSettingsInvalidException",
+				extendedInfo: "Please check the cbstorages documentation, LocaleStorage should be in the format of a valid storage object 'someStorage@cbstorages', e.g cookieStorage@cbstorages, cacheStorage@cbstorages etcetera."
+			);
+		}
+		// set locale setup on configuration file
+		setFWLocale( variables.defaultLocale );
 
-	<cffunction name="configure" access="public" output="false" hint="Reads,parses,saves the locale and resource bundles defined in the config. Called only internally by the framework. Use at your own risk" returntype="void">
-		<cfscript>
-			// Default instance settings
-			instance.localeStorage 			= variables.controller.getSetting( "LocaleStorage" );
-			instance.defaultResourceBundle 	= variables.controller.getSetting( "DefaultResourceBundle" );
-			instance.defaultLocale 			= variables.controller.getSetting( "DefaultLocale" );
+		// Verify if we have a default resource bundle, if we do, load it.
+		if ( variables.defaultResourceBundle.len() ) {
+			variables.resourceService.loadBundle(
+				rbFile  : variables.defaultResourceBundle,
+				rbLocale: variables.defaultLocale,
+				rbAlias : "default"
+			);
+		}
 
-			// set locale setup on configuration file
-			setFWLocale( instance.defaultLocale, true );
+		// are we loading multiple resource bundles? If so, load them up
+		variables.settings.resourceBundles.each( function( bundleKey, thisBundle ){
+			variables.resourceService.loadBundle(
+				rbFile  : thisBundle,
+				rbLocale: variables.defaultLocale,
+				rbAlias : lCase( bundleKey )
+			);
+		} );
+	}
 
-			// test for rb file and if it exists load it as the default resource bundle
-			if( len( instance.defaultResourceBundle ) ){
-				variables.resourceService.loadBundle( rbFile=instance.defaultResourceBundle, rbLocale=instance.defaultLocale, rbAlias="default" );
-			}
+	/************************************************************************************/
+	/****************************** CHOSEN LOCAL METHODS ********************************/
+	/************************************************************************************/
 
-			// are we loading multiple resource bundles? If so, load up their default locale
-			var resourceBundles = variables.controller.getSetting( name="resourceBundles", defaultValue=structNew() );
-			if( structCount( resourceBundles ) ){
-				for( var thisBundle in resourceBundles ){
-					variables.resourceService.loadBundle( rbFile=resourceBundles[ thisBundle ], rbLocale=instance.defaultLocale, rbAlias=lcase( thisBundle ) );
+	/**
+	 * Get the user's locale
+	 *
+	 * @return The users locale string if set, else, the default locale
+	 */
+	string function getFwLocale(){
+		// return locale, default already set in onDIComplete
+		return variables.storageService.get(
+			"currentLocale",
+			variables.settings.defaultLocale
+		);
+	}
+
+	/**
+	 * Set the default locale to use in the framework for a specific user.
+	 *
+	 * @locale The locale to change and set. Must be Java Style: en_US. If none passed, then we default to default locale from configuration settings
+	 */
+	i18n function setFwLocale( string locale = "" ){
+		if ( !arguments.locale.len() ) {
+			arguments.locale = variables.defaultLocale;
+		}
+		variables.storageService.set( "currentLocale", arguments.locale );
+		return this;
+	}
+
+	/**
+	 * Returns a name for the locale that is appropriate for display to the user. Eg: English (United States)
+	 */
+	string function getFWLocaleDisplay(){
+		return buildLocale( getfwLocale() ).getDisplayName();
+	}
+
+	/**
+	 * returns a human readable country name for the chosen application locale. Eg: United States
+	 */
+	string function getFWCountry(){
+		return buildLocale( getfwLocale() ).getDisplayCountry();
+	}
+
+	/**
+	 * returns 2-letter ISO country name for the chosen application locale. Eg: us
+	 *
+	 */
+	string function getFWCountryCode(){
+		return buildLocale( getfwLocale() ).getCountry();
+	}
+
+	/**
+	 * returns 3-letter ISO country name for the chosen application locale. Eg: USA
+	 */
+	string function getFWISO3CountryCode(){
+		return buildLocale( getfwLocale() ).getISO3Country();
+	}
+
+	/**
+	 * Returns a human readable name for the locale's language. Eg: English
+	 */
+	string function getFWLanguage(){
+		return buildLocale( getfwLocale() ).getDisplayLanguage();
+	}
+
+	/**
+	 * Returns the two digit code for the locale's language. Eg: en
+	 */
+	string function getFWLanguageCode(){
+		return buildLocale( getfwLocale() ).getLanguage();
+	}
+
+	/**
+	 * Returns the ISO 3 code for the locale's language. Eg: eng
+	 */
+	string function getFWISO3LanguageCode(){
+		return buildLocale( getfwLocale() ).getISO3Language();
+	}
+
+	/**
+	 * Validate a locale
+	 *
+	 * @thisLocale Locale to validate
+	 */
+	boolean function isValidLocale( required string thisLocale ){
+		return (
+			listFind(
+				arrayToList( getLocales() ),
+				arguments.thisLocale
+			)
+		) ? true : false;
+	}
+
+	/**
+	 * returns array of locales
+	 */
+	array function getLocales(){
+		return variables.aLocale.getAvailableLocales();
+	}
+
+	/**
+	 * returns list of locale names, UNICODE direction char (LRE/RLE) added as required
+	 */
+	string function getLocaleNames(){
+		var theseLocales = "";
+		var thisName     = "";
+		for ( var orgLocale in getLocales() ) {
+			if ( listLen( orgLocale, "_" ) == 2 ) {
+				if ( left( orgLocale, 2 ) == "ar" || left( orgLocale, 2 ) == "iw" ) {
+					thisName = chr( 8235 ) & orgLocale.getDisplayName( orgLocale ) & chr( 8234 );
+				} else {
+					thisName = orgLocale.getDisplayName( orgLocale );
 				}
-			}
-		</cfscript>
-	</cffunction>
+				theseLocales = theseLocales.listAppend( thisName );
+			};
+		};
+		return theseLocales;
+	}
 
-<!------------------------------------------- STUPID GETTER/SETTERS (CF8 REMOVE BY CB4) ------------------------------------------->
+	/**
+	 * returns array of 2 letter ISO languages
+	 */
+	array function getIsoLanguages(){
+		return variables.aLocale.getIsoLanguages();
+	}
 
-	<cffunction name="getLocaleStorage" access="public" output="false" hint="Get the locale storage string">
-		<cfreturn instance.localeStorage>
-	</cffunction>
-	<cffunction name="getDefaultLocale" access="public" output="false" hint="Get the default locale string">
-		<cfreturn instance.defaultLocale>
-	</cffunction>
-	<cffunction name="getDefaultResourceBundle" access="public" output="false" hint="Get the default resource bundle path">
-		<cfreturn instance.defaultResourceBundle>
-	</cffunction>
-	<cffunction name="getRBundles" access="public" output="false" hint="Get a reference to the loaded language keys" returntype="struct">
-		<cfreturn variables.resourceService.getBundles()>
-	</cffunction>
+	/**
+	 * returns array of 2 letter ISO countries
+	 */
+	array function getIsoCountries(){
+		return variables.aLocale.getISOCountries();
+	}
 
-	<cffunction name="setLocaleStorage" access="public" output="false" hint="Set the locale storage">
-		<cfargument name="localeStorage" required="true">
-		<cfset instance.localeStorage = arguments.localeStorage>
-		<cfreturn this>
-	</cffunction>
-	<cffunction name="setDefaultLocale" access="public" output="false" hint="Set the default locale">
-		<cfargument name="defaultLocale" required="true">
-		<cfset instance.defaultLocale = arguments.defaultLocale>
-		<cfreturn this>
-	</cffunction>
-	<cffunction name="setDefaultResourceBundle" access="public" output="false" hint="Set the default resource bundle">
-		<cfargument name="defaultResourceBundle" required="true">
-		<cfset instance.defaultResourceBundle = arguments.defaultResourceBundle>
-		<cfreturn this>
-	</cffunction>
+	/**
+	 * determines if given locale is BIDI. core java uses 'iw' for hebrew, leaving 'he' just in case this is a version thing
+	 */
+	boolean function isBidi(){
+		return listFind(
+			"ar,iw,fa,ps,he",
+			left(
+				buildLocale( getfwLocale() ).toString(),
+				2
+			)
+		) ? true : false;
+	}
 
-<!------------------------------------------- CHOSEN LOCAL METHODS ------------------------------------------->
+	/**
+	 * returns currency symbol for this locale
+	 *
+	 * @localized return international (USD, THB, etc.) or localized ($,etc.) symbol
+	 */
+	string function getCurrencySymbol( boolean localized = true ){
+		// var aCurrency = createObject( "java", "com.ibm.icu.util.Currency" );
+		var aCurrency = createObject( "java", "java.util.Currency" );
+		if ( arguments.localized ) {
+		}
+		return ( arguments.localized ) ? aCurrency
+			.getInstance( buildLocale( getfwLocale() ) )
+			.getSymbol( buildLocale( getfwLocale() ) ) : aCurrency
+			.getInstance( buildLocale( getfwLocale() ) )
+			.getCurrencyCode();
+	}
 
-	<!--- Discover fw Locale --->
-	<cffunction name="getfwLocale" access="public" output="false" returnType="any" hint="Get the user's locale">
-		<cfscript>
-			var storage = "";
+	/**
+	 * returns structure holding decimal format symbols for this locale
+	 *
+	 * @returns struct holding decimal format symbols for this locale
+	 */
+	struct function getDecimalSymbols(){
+		var dfSymbols = createObject(
+			"java",
+			"java.text.DecimalFormatSymbols"
+		).init( buildLocale( getfwLocale() ) );
+		var symbols                       = structNew();
+		// symbols.plusSign=dfSymbols.getPlusSign().toString();
+		symbols.Percent                   = dfSymbols.getPercent().toString();
+		symbols.minusSign                 = dfSymbols.getMinusSign().toString();
+		symbols.currencySymbol            = dfSymbols.getCurrencySymbol().toString();
+		symbols.internationCurrencySymbol = dfSymbols.getInternationalCurrencySymbol().toString();
+		symbols.monetaryDecimalSeparator  = dfSymbols.getMonetaryDecimalSeparator().toString();
+		symbols.exponentSeparator         = dfSymbols.getExponentSeparator().toString();
+		symbols.perMille                  = dfSymbols.getPerMill().toString();
+		symbols.decimalSeparator          = dfSymbols.getDecimalSeparator().toString();
+		symbols.groupingSeparator         = dfSymbols.getGroupingSeparator().toString();
+		symbols.zeroDigit                 = dfSymbols.getZeroDigit().toString();
+		return symbols;
+	}
 
-			// locale check
-			if ( NOT len(instance.localeStorage) ){
-				throw( message="The LocaleStorage setting cannot be found. Please make sure you create the i18n elements.", type="i18N.DefaultSettingsInvalidException" );
-			}
+	/**
+	 * DateTime format
+	 *
+	 * @thisOffset java epoch offset
+	 * @thisDateFormat FULL=0, LONG=1, MEDIUM=2, SHORT=3
+	 * @thisTimeFormat FULL=0, LONG=1, MEDIUM=2, SHORT=3
+	 * @tz timezone
+	 */
+	string function dateTimeFormat(
+		required numeric thisOffset,
+		numeric thisDateFormat = 1,
+		numeric thisTimeFormat = 1,
+		tz                     = variables.timeZone.getDefault().getID()
+	){
+		var tDateFormat    = javacast( "int", arguments.thisDateFormat );
+		var tTimeFormat    = javacast( "int", arguments.thisTimeFormat );
+		var tDateFormatter = variables.aDateFormat.getDateTimeInstance(
+			tDateFormat,
+			tTimeFormat,
+			buildLocale( getfwLocale() )
+		);
+		var tTZ = variables.timeZone.getTimezone( arguments.tz );
+		tDateFormatter.setTimezone( tTZ );
+		return tDateFormatter.format( arguments.thisOffset );
+	}
 
-			//storage switch
-			switch(instance.localeStorage){
-				case "session" : { storage = session; break; }
-				case "client"  : { storage = client; break;  }
-				case "cookie"  : { storage = cookie; break;  }
-				case "request" : { storage = request; break; }
-			}
+	/**
+	 * Date format
+	 * @thisOffset java epoch offset
+	 * @thisDateFormat FULL=0, LONG=1, MEDIUM=2, SHORT=3
+	 * @tz timezone
+	 */
+	string function dateFormat(
+		required numeric thisOffset,
+		numeric thisDateFormat = 1,
+		tz                     = variables.timeZone.getDefault().getID()
+	){
+		var tDateFormat    = javacast( "int", arguments.thisDateFormat );
+		var tDateFormatter = variables.aDateFormat.getDateInstance(
+			tDateFormat,
+			buildLocale( getfwLocale() )
+		);
+		var tTZ = variables.timeZone.getTimezone( arguments.tz );
+		tDateFormatter.setTimezone( tTZ );
+		return tDateFormatter.format( arguments.thisOffset );
+	}
 
-			// check if default locale exists, else set it to the default locale.
-			if ( not structKeyExists(storage,"DefaultLocale") ){
-				setfwLocale(instance.defaultLocale);
-			}
+	/**
+	 * Time Format
+	 *
+	 * @thisOffset java epoch offset
+	 * @thisTimeFormat FULL=0, LONG=1, MEDIUM=2, SHORT=3
+	 * @tz timezone
+	 */
+	string function timeFormat(
+		required numeric thisOffset,
+		numeric thisTimeFormat = 1,
+		tz                     = variables.timeZone.getDefault().getID()
+	){
+		var tTimeFormat    = javacast( "int", arguments.thisTimeFormat );
+		var tTimeFormatter = variables.aDateFormat.getTimeInstance(
+			tTimeFormat,
+			buildLocale( getfwLocale() )
+		);
+		var tTZ = variables.timeZone.getTimezone( arguments.tz );
+		tTimeFormatter.setTimezone( tTZ );
+		return tTimeFormatter.format( arguments.thisOffset );
+	}
 
-			// return locale
-			return storage["DefaultLocale"];
-		</cfscript>
-	</cffunction>
-
-	<!--- set the fw locale for a user --->
-	<cffunction name="setfwLocale" access="public" output="false" returnType="any" hint="Set the default locale to use in the framework for a specific user.">
-		<!--- ************************************************************* --->
-		<cfargument name="locale"     		type="string"  required="false"  default=""   hint="The locale to change and set. Must be Java Style: en_US. If none passed, then we default to default locale from configuration settings">
-		<cfargument name="dontloadRBFlag" 	type="boolean" required="false"  default="false" hint="Flag to load the resource bundle for the specified locale (If not already loaded) or just change the framework's locale.">
-		<!--- ************************************************************* --->
-
-		<!--- No locale check --->
-		<cfif NOT len( arguments.locale )><cfset arguments.locale = instance.defaultLocale></cfif>
-
-		<!--- Storage of the Locale in the user storage --->
-		<cfif instance.localeStorage eq "session">
-			<cfset session.DefaultLocale = arguments.locale>
-		<cfelseif instance.localeStorage eq "client">
-			<cfset client.DefaultLocale = arguments.locale>
-		<cfelseif instance.localeStorage eq "request">
-			<cfset request.DefaultLocale = arguments.locale>
-		<cfelse>
-			<cfcookie name="DefaultLocale" value="#arguments.locale#" />
-		</cfif>
-
-		<cfreturn this>
-	</cffunction>
-
-	<cffunction name="getFWLocaleDisplay" access="public" output="false" returntype="string" hint="Returns a name for the locale that is appropriate for display to the user. Eg: English (United States)">
-       <cfreturn buildLocale(getfwLocale()).getDisplayName()>
-	</cffunction>
-
-	<cffunction name="getFWCountry" access="public" output="false" returntype="string" hint="returns a human readable country name for the chosen application locale. Eg: United States">
-       <cfreturn buildLocale(getfwLocale()).getDisplayCountry()>
-	</cffunction>
-
-	<cffunction name="getFWCountryCode" access="public" output="false" returntype="string" hint="returns 2-letter ISO country name for the chosen application locale. Eg: us">
-		<cfreturn buildLocale(getfwLocale()).getCountry()>
-	</cffunction>
-
-	<cffunction name="getFWISO3CountryCode" access="public" output="false" returntype="string" hint="returns 3-letter ISO country name for the chosen application locale. Eg: USA">
-		<cfreturn buildLocale(getfwLocale()).getISO3Country()>
-	</cffunction>
-
-	<cffunction name="getFWLanguage" access="public" output="false" returntype="string" hint="Returns a human readable name for the locale's language. Eg: English">
-		<cfreturn buildLocale(getfwLocale()).getDisplayLanguage()>
-	</cffunction>
-
-	<cffunction name="getFWLanguageCode" access="public" output="false" returntype="string" hint="Returns the two digit code for the locale's language. Eg: en">
-		<cfreturn buildLocale(getfwLocale()).getLanguage()>
-	</cffunction>
-
-	<cffunction name="getFWISO3LanguageCode" access="public" output="false" returntype="string" hint="Returns the ISO 3 code for the locale's language. Eg: eng">
-		<cfreturn buildLocale(getfwLocale()).getISO3Language()>
-	</cffunction>
-
-<!------------------------------------------- PUBLIC ------------------------------------------->
-
-	<cffunction name="isValidLocale"  access="public" output="false" returntype="boolean" hint="Validate a locale">
-		<!--- ************************************************************* --->
-		<cfargument name="thisLocale" required="yes" type="string" hint="Locale to validate">
-		<!--- ************************************************************* --->
-		<cfif listFind(arrayToList(getLocales()),arguments.thisLocale)>
-			<cfreturn true>
-		<cfelse>
-			<cfreturn false>
-		</cfif>
-	</cffunction>
-
-	<cffunction name="getLocales" access="public" output="false" returntype="array" hint="returns array of locales">
-    	<cfreturn instance.aLocale.getAvailableLocales()>
-	</cffunction>
-
-	<cffunction name="getLocaleNames" access="public" output="false" returntype="string" hint="returns list of locale names, UNICODE direction char (LRE/RLE) added as required">
-	<cfscript>
-	       var orgLocales=getLocales();
-	       var theseLocales="";
-	       var thisName="";
-	       var i=0;
-	       for (i=1; i LTE arrayLen(orgLocales); i=i+1) {
-	               if (listLen(orgLocales[i],"_") EQ 2) {
-	                       if (left(orgLocales[i],2) EQ "ar" or left(orgLocales[i],2) EQ "iw")
-	                               thisName=chr(8235)&orgLocales[i].getDisplayName(orgLocales[i])&chr(8234);
-	                       else
-	                               thisName=orgLocales[i].getDisplayName(orgLocales[i]);
-	                       theseLocales=listAppend(theseLocales,thisName);
-	               } // if locale more than language
-	       } //for
-	       return theseLocales;
-	</cfscript>
-	</cffunction>
-	<!--- ************************************************************* --->
-
-	<!--- ************************************************************* --->
-	<cffunction name="getISOlanguages"  access="public" output="false" returntype="array" hint="returns array of 2 letter ISO languages">
-    	<cfreturn instance.aLocale.getISOLanguages()>
-	</cffunction>
-	<!--- ************************************************************* --->
-
-	<!--- ************************************************************* --->
-	<cffunction name="getISOcountries" access="public"  output="false" returntype="array" hint="returns array of 2 letter ISO countries">
-    	<cfreturn instance.aLocale.getISOCountries()>
-	</cffunction>
-	<!--- ************************************************************* --->
-
-	<!--- ************************************************************* --->
-	<!--- core java uses 'iw' for hebrew, leaving 'he' just in case this is a version thing --->
-	<cffunction name="isBidi" access="public" output="false" returntype="boolean" hint="determines if given locale is BIDI">
-		<cfif listFind("ar,iw,fa,ps,he",left(buildLocale(getfwLocale()).toString(),2))>
-			<cfreturn true>
-		<cfelse>
-			<cfreturn false>
-		</cfif>
-	</cffunction>
-	<!--- ************************************************************* --->
-
-	<!--- ************************************************************* --->
-	<cffunction name="getCurrencySymbol" access="public" returntype="string" output="false" hint="returns currency symbol for this locale">
-		<!--- ************************************************************* --->
-		<cfargument name="localized" required="no" type="boolean" default="true" hint="return international (USD, THB, etc.) or localized ($,etc.) symbol">
-		<!--- ************************************************************* --->
-		<cfset var aCurrency=createObject("java","com.ibm.icu.util.Currency")>
-		<cfset var tmp=arrayNew(1)>
-		<cfif arguments.localized>
-			<cfset arrayAppend(tmp,true)>
-		    <cfreturn aCurrency.getInstance(buildLocale(getfwLocale())).getName(buildLocale(getfwLocale()),aCurrency.SYMBOL_NAME,tmp)>
-		</cfif>
-
-		<cfreturn aCurrency.getInstance(buildLocale(getfwLocale())).getCurrencyCode()>
-	</cffunction>
-	<!--- ************************************************************* --->
-
-	<!--- ************************************************************* --->
-	<cffunction name="getDecimalSymbols"  access="public"  output="false" returntype="struct" hint="returns strucure holding decimal format symbols for this locale">
-	<cfscript>
-	       var dfSymbols=instance.aDFSymbol.init(buildLocale(getfwLocale()));
-	       var symbols=structNew();
-	       // symbols.plusSign=dfSymbols.getPlusSign().toString();
-	       symbols.Percent=dfSymbols.getPercent().toString();
-	       symbols.minusSign=dfSymbols.getMinusSign().toString();
-	       symbols.currencySymbol=dfSymbols.getCurrencySymbol().toString();
-	       symbols.internationCurrencySymbol=dfSymbols.getInternationalCurrencySymbol().toString();
-	       symbols.monetaryDecimalSeparator=dfSymbols.getMonetaryDecimalSeparator().toString();
-	       symbols.exponentSeparator=dfSymbols.getExponentSeparator().toString();
-	       symbols.perMille=dfSymbols.getPerMill().toString();
-	       symbols.decimalSeparator=dfSymbols.getDecimalSeparator().toString();
-	       symbols.groupingSeparator=dfSymbols.getGroupingSeparator().toString();
-	       symbols.zeroDigit=dfSymbols.getZeroDigit().toString();
-	       return symbols;
-	</cfscript>
-	</cffunction>
-	<!--- ************************************************************* --->
-
-	<!--- ************************************************************* --->
-	<cffunction name="i18nDateTimeFormat" access="public" output="false" returntype="string">
-		<!--- ************************************************************* --->
-		<cfargument name="thisOffset" required="yes" type="numeric" hint="java epoch offset">
-		<cfargument name="thisDateFormat" default="1" required="No" type="numeric" hint="FULL=0, LONG=1, MEDIUM=2, SHORT=3">
-		<cfargument name="thisTimeFormat" default="1" required="No" type="numeric" hint="FULL=0, LONG=1, MEDIUM=2, SHORT=3">
-		<cfargument name="tz" required="no" default="#instance.timeZone.getDefault().getID()#">
-		<!--- ************************************************************* --->
-	       <cfset var tDateFormat=javacast("int",arguments.thisDateFormat)>
-	       <cfset var tTimeFormat=javacast("int",arguments.thisTimeFormat)>
-	       <cfset var tDateFormatter=instance.aDateFormat.getDateTimeInstance(tDateFormat,tTimeFormat,buildLocale(getfwLocale()))>
-	       <cfset var tTZ=instance.timeZone.getTimezone(arguments.tz)>
-	       <cfset tDateFormatter.setTimezone(tTZ)>
-	       <cfreturn tDateFormatter.format(arguments.thisOffset)>
-	</cffunction>
-	<!--- ************************************************************* --->
-
-	<!--- ************************************************************* --->
-	<cffunction name="i18nDateFormat" access="public" output="false" returntype="string">
-		<!--- ************************************************************* --->
-		<cfargument name="thisOffset" required="yes" type="numeric" hint="java epoch offset">
-		<cfargument name="thisDateFormat" default="1" required="No" type="numeric" hint="FULL=0, LONG=1, MEDIUM=2, SHORT=3">
-		<cfargument name="tz" required="no" default="#instance.timeZone.getDefault().getID()#">
-		<!--- ************************************************************* --->
-		   <cfset var tDateFormat=javacast("int",arguments.thisDateFormat)>
-	       <cfset var tDateFormatter=instance.aDateFormat.getDateInstance(tDateFormat,buildLocale(getfwLocale()))>
-	       <cfset var tTZ=instance.timeZone.getTimezone(arguments.tz)>
-	       <cfset tDateFormatter.setTimezone(tTZ)>
-	       <cfreturn tDateFormatter.format(arguments.thisOffset)>
-	</cffunction>
-	<!--- ************************************************************* --->
-
-	<!--- ************************************************************* --->
-	<cffunction name="i18nTimeFormat" access="public" output="false" returntype="string">
-		<!--- ************************************************************* --->
-		<cfargument name="thisOffset" required="yes" type="numeric" hint="java epoch offset">
-		<cfargument name="thisTimeFormat" default="1" required="No" type="numeric" hint="FULL=0, LONG=1, MEDIUM=2, SHORT=3">
-		<cfargument name="tz" required="no" default="#instance.timeZone.getDefault().getID()#">
-	    <!--- ************************************************************* --->
-	       <cfset var tTimeFormat=javacast("int",arguments.thisTimeFormat)>
-	       <cfset var tTimeFormatter=instance.aDateFormat.getTimeInstance(tTimeFormat,buildLocale(getfwLocale()))>
-	       <cfset var tTZ=instance.timeZone.getTimezone(arguments.tz)>
-	       <cfset tTimeFormatter.setTimezone(tTZ)>
-	       <cfreturn tTimeFormatter.format(arguments.thisOffset)>
-	</cffunction>
-	<!--- ************************************************************* --->
-
-	<!--- ************************************************************* --->
-	<cffunction name="dateLocaleFormat" access="public" returnType="any" output="false"
-				hint="locale version of dateFormat. Needs object instantiation. That is your job not mine.">
-		<!--- ************************************************************* --->
-		<cfargument name="date" type="date" required="true">
-		<cfargument name="style" type="string" required="false" default="LONG" hint="FULL=0, LONG=1, MEDIUM=2, SHORT=3">
-		<!--- ************************************************************* --->
-		<cfscript>
+	/**
+	 * locale version of dateFormat. Needs object instantiation. That is your job not mine.
+	 *
+	 * @date
+	 * @style FULL=0, LONG=1, MEDIUM=2, SHORT=3
+	 */
+	function dateLocaleFormat(
+		required date date,
+		string style = "LONG"
+	){
 		// hack to trap & fix varchar mystery goop coming out of mysql datetimes
+		var aCalendar = createObject(
+			"java",
+			"java.util.GregorianCalendar"
+		).init( buildLocale() );
 		try {
-			return instance.aDateFormat.getDateInstance(instance.aDateFormat[arguments.style],buildLocale(getfwLocale())).format(arguments.date);
+			return variables.aDateFormat
+				.getDateInstance(
+					variables.aDateFormat[ arguments.style ],
+					buildLocale( getfwLocale() )
+				)
+				.format( arguments.date );
+		} catch ( Any e ) {
+			aCalendar.setTime( arguments.date );
+			return variables.aDateFormat
+				.getDateInstance(
+					variables.aDateFormat[ arguments.style ],
+					buildLocale( getfwLocale() )
+				)
+				.format( aCalendar.getTime() );
 		}
-		catch(Any e) {
-			instance.aCalendar.setTime(arguments.date);
-			return instance.aDateFormat.getDateInstance(instance.aDateFormat[arguments.style],buildLocale(getfwLocale())).format(instance.aCalendar.getTime());
-		}
-		</cfscript>
-	</cffunction>
-	<!--- ************************************************************* --->
+	}
 
-	<!--- ************************************************************* --->
-	<cffunction name="timeLocaleFormat" access="public" returnType="any" output="false"
-				hint="locale version of timeFormat. Needs object instantiation. That is your job not mine.">
-		<!--- ************************************************************* --->
-		<cfargument name="date"  type="date" 	required="true">
-		<cfargument name="style" type="string"  required="false" default="SHORT" hint="FULL=0, LONG=1, MEDIUM=2, SHORT=3">
-		<!--- ************************************************************* --->
-		<cfscript>
+	/**
+	 * locale version of timeFormat. Needs object instantiation. That is your job not mine.
+	 *
+	 * @date
+	 * @style FULL=0, LONG=1, MEDIUM=2, SHORT=3
+	 */
+	function timeLocaleFormat(
+		required date date,
+		string style = "SHORT"
+	){
 		// hack to trap & fix varchar mystery goop coming out of mysql datetimes
+		var aCalendar = createObject(
+			"java",
+			"java.util.GregorianCalendar"
+		).init( buildLocale() );
 		try {
-			return instance.aDateFormat.getTimeInstance(instance.aDateFormat[arguments.style],buildLocale(getfwLocale())).format(arguments.date);
+			return variables.aDateFormat
+				.getTimeInstance(
+					variables.aDateFormat[ arguments.style ],
+					buildLocale( getfwLocale() )
+				)
+				.format( arguments.date );
+		} catch ( Any e ) {
+			aCalendar.setTime( arguments.date );
+			return variables.aDateFormat
+				.getTimeInstance(
+					variables.aDateFormat[ arguments.style ],
+					buildLocale( getfwLocale() )
+				)
+				.format( aCalendar.getTime() );
 		}
-		catch (Any e) {
-			instance.aCalendar.setTime(arguments.date);
-			return instance.aDateFormat.getTimeInstance(instance.aDateFormat[arguments.style],buildLocale(getfwLocale())).format(instance.aCalendar.getTime());
-		}
-		</cfscript>
-	</cffunction>
-	<!--- ************************************************************* --->
+	}
 
-	<!--- ************************************************************* --->
-	<cffunction name="datetimeLocaleFormat" access="public" returnType="any" output="false" hint="locale date/time format. Needs object instantiation. That is your job not mine.">
-		<!--- ************************************************************* --->
-		<cfargument name="date" 		type="date" required="true">
-		<cfargument name="dateStyle" 	type="string" required="false" default="SHORT" hint="FULL=0, LONG=1, MEDIUM=2, SHORT=3">
-		<cfargument name="timeStyle" 	type="string" required="false" default="SHORT" hint="FULL=0, LONG=1, MEDIUM=2, SHORT=3">
-		<!--- ************************************************************* --->
-		<cfscript>
-		// hack to trap & fix varchar mystery goop coming out of mysql datetimes
+	/**
+	 * locale date/time format. Needs object instantiation. That is your job not mine.
+	 *
+	 * @date
+	 * @dateStyle FULL=0, LONG=1, MEDIUM=2, SHORT=3
+	 * @timeStyle FULL=0, LONG=1, MEDIUM=2, SHORT=3
+	 */
+	function datetimeLocaleFormat(
+		required date date,
+		string dateStyle = "SHORT",
+		string timeStyle = "SHORT"
+	){
+		var aCalendar = createObject(
+			"java",
+			"java.util.GregorianCalendar"
+		).init( buildLocale() );
 		try {
-			return instance.aDateFormat.getDateTimeInstance(instance.aDateFormat[arguments.dateStyle],instance.aDateFormat[arguments.timeStyle],buildLocale(getfwLocale())).format(arguments.date);
+			return variables.aDateFormat
+				.getDateTimeInstance(
+					variables.aDateFormat[ arguments.dateStyle ],
+					variables.aDateFormat[ arguments.timeStyle ],
+					buildLocale( getfwLocale() )
+				)
+				.format( arguments.date );
+		} catch ( Any e ) {
+			aCalendar.setTime( arguments.date );
+			return variables.aDateFormat
+				.getDateTimeInstance(
+					variables.aDateFormat[ arguments.dateStyle ],
+					variables.aDateFormat[ arguments.timeStyle ],
+					buildLocale( getfwLocale() )
+				)
+				.format( aCalendar.getTime() );
 		}
-		catch (Any e) {
-			instance.aCalendar.setTime(arguments.date);
-			return instance.aDateFormat.getDateTimeInstance(instance.aDateFormat[arguments.dateStyle],instance.aDateFormat[arguments.timeStyle],buildLocale(getfwLocale())).format(instance.aCalendar.getTime());
-		}
-		</cfscript>
-	</cffunction>
-	<!--- ************************************************************* --->
+	}
 
-	<!--- ************************************************************* --->
-	<cffunction name="i18nDateParse" access="public" output="false" returntype="numeric" hint="parses localized date string to datetime object or returns blank if it can't parse">
-		<!--- ************************************************************* --->
-		<cfargument name="thisDate" required="yes" type="string">
-		<!--- ************************************************************* --->
-			<cfset var isOk=false>
-			<cfset var i=0>
-			<cfset var parsedDate="">
-			<cfset var tDateFormatter="">
-			<!--- holy cow batman, can't parse dates in an elegant way. bash! pow! socko! --->
-			<cfloop index="i" from="0" to="3">
-				<cfset isOK=true>
-				<cfset tDateFormatter=instance.aDateFormat.getDateInstance(javacast("int",i),buildLocale(getfwLocale()))>
-				<cftry>
-					<cfset parsedDate=tDateFormatter.parse(arguments.thisDate)>
-					<cfcatch type="Any">
-						<cfset isOK=false>
-					</cfcatch>
-				</cftry>
-				<cfif isOK>
-					<cfbreak>
-				</cfif>
-	        </cfloop>
-	        <cfreturn parsedDate.getTime()>
-	</cffunction>
-	<!--- ************************************************************* --->
+	/**
+	 * parses localized date string to datetime object or returns blank if it can't parse
+	 *
+	 * @thisDate
+	 */
+	numeric function dateParse( required string thisDate ){
+		var isOk           = false;
+		var parsedDate     = "";
+		var tDateFormatter = "";
+		/* holy cow batman, can't parse dates in an elegant way. bash! pow! socko! */
 
-	<!--- ************************************************************* --->
-	<cffunction name="i18nDateTimeParse" access="public" output="false" returntype="numeric" hint="parses localized datetime string to datetime object or returns blank if it can't parse">
-		<!--- ************************************************************* --->
-		<cfargument name="thisDate" required="yes" type="string">
-		<!--- ************************************************************* --->
-			<cfset var isOk=false>
-			<cfset var i=0>
-			<cfset var j=0>
-			<cfset var dStyle=0>
-			<cfset var tStyle=0>
-			<cfset var parsedDate="">
-			<cfset var tDateFormatter="">
-			<!--- holy cow batman, can't parse dates in an elegant way. bash! pow! socko! --->
-			<cfloop index="i" from="0" to="3">
-				<cfset dStyle=javacast("int",i)>
-				<cfloop index="j" from="0" to="3">
-					<cfset tStyle=javacast("int",j)>
-					<cfset isOK=true>
-					<cfset tDateFormatter=instance.aDateFormat.getDateTimeInstance(dStyle,tStyle,buildLocale(getfwLocale()))>
-					<cftry>
-						<cfset parsedDate=tDateFormatter.parse(arguments.thisDate)>
-						<cfcatch type="Any">
-							<cfset isOK=false>
-						</cfcatch>
-					</cftry>
-					<cfif isOK>
-						<cfbreak>
-					</cfif>
-				</cfloop>
-	       </cfloop>
-	       <cfreturn parsedDate.getTime()>
-	</cffunction>
-	<!--- ************************************************************* --->
+		var dateStyles = [ 0, 1, 2, 3 ];
+		dateStyles.each( function( thisDateStyle ){
+			isOk           = true;
+			tDateFormatter = variables.aDateFormat.getDateInstance(
+				javacast( "int", thisDateStyle ),
+				buildLocale( getfwLocale() )
+			);
+			try {
+				parsedDate = tDateFormatter.parse( thisDate );
+			} catch ( any e ) {
+				isOK = false;
+			}
+			if ( isOK ) {
+				break;
+			}
+		} );
+		return parsedDate.getTime();
+	}
 
-	<!--- ************************************************************* --->
-	<cffunction name="getDateTimePattern" access="public" output="false" returntype="string" hint="returns locale date/time pattern">
-		<!--- ************************************************************* --->
-		<cfargument name="thisDateFormat" required="no" type="numeric" default="1" hint="FULL=0, LONG=1, MEDIUM=2, SHORT=3">
-		<cfargument name="thisTimeFormat" required="no" type="numeric" default="3" hint="FULL=0, LONG=1, MEDIUM=2, SHORT=3">
-		<!--- ************************************************************* --->
-	       <cfset var tDateFormat=javacast("int",arguments.thisDateFormat)>
-	       <cfset var tTimeFormat=javacast("int",arguments.thisTimeFormat)>
-	       <cfset var tDateFormatter=instance.aDateFormat.getDateTimeInstance(tDateFormat,tTimeFormat,buildLocale(getfwLocale()))>
-	       <cfreturn tDateFormatter.toPattern()>
-	</cffunction>
-	<!--- ************************************************************* --->
+	/**
+	 * parses localized datetime string to datetime object or returns blank if it can't parse
+	 *
+	 * @thisDate
+	 */
+	numeric function dateTimeParse( required string thisDate ){
+		var isOk           = false;
+		var dStyle         = 0;
+		var tStyle         = 0;
+		var parsedDate     = "";
+		var tDateFormatter = "";
+		/* holy cow batman, can't parse dates in an elegant way. bash! pow! socko! */
+		var dateStyles = [ 0, 1, 2, 3 ];
+		var timeStyles = [ 0, 1, 2, 3 ];
+		dateStyles.each( function( thisDateStyle ){
+			dStyle = javacast( "int", thisDateStyle );
+			timeStyles.each( function( thisTimeStyle ){
+				tStyle         = javacast( "int", thisTimeStyle );
+				isOK           = true;
+				tDateFormatter = variables.aDateFormat.getDateTimeInstance(
+					dStyle,
+					tStyle,
+					buildLocale( getfwLocale() )
+				);
+				try {
+					parsedDate = tDateFormatter.parse( thisDate );
+				} catch ( any e ) {
+					isOK = false;
+				}
+				if ( isOK ) {
+					break;
+				}
+			} );
+		} );
+		return parsedDate.getTime();
+	}
 
-	<!--- ************************************************************* --->
-	<cffunction name="formatDateTime" access="public" output="false" returntype="string" hint="formats a date/time to given pattern">
-		<!--- ************************************************************* --->
-		<cfargument name="thisOffset" required="yes" type="numeric">
-		<cfargument name="thisPattern" required="yes" type="string">
-		<cfargument name="tz" required="no" default="#instance.timeZone.getDefault().getID()#">
-		<!--- ************************************************************* --->
-	       <cfset var tDateFormatter=instance.aDateFormat.getDateTimeInstance(instance.aDateFormat.LONG,instance.aDateFormat.LONG,buildLocale(getfwLocale()))>
-	       <cfset tDateFormatter.applyPattern(arguments.thisPattern)>
-	       <cfreturn tDateFormatter.format(arguments.thisOffset)>
-	</cffunction>
-	<!--- ************************************************************* --->
+	/**
+	 * returns locale date/time pattern
+	 *
+	 * @thisDateFormat FULL=0, LONG=1, MEDIUM=2, SHORT=3
+	 * @thisTimeFormat FULL=0, LONG=1, MEDIUM=2, SHORT=3
+	 */
+	string function getDateTimePattern(
+		numeric thisDateFormat = 1,
+		numeric thisTimeFormat = 3
+	){
+		var tDateFormat    = javacast( "int", arguments.thisDateFormat );
+		var tTimeFormat    = javacast( "int", arguments.thisTimeFormat );
+		var tDateFormatter = variables.aDateFormat.getDateTimeInstance(
+			tDateFormat,
+			tTimeFormat,
+			buildLocale( getfwLocale() )
+		);
+		return tDateFormatter.toPattern();
+	}
 
-	<!--- ************************************************************* --->
-	<cffunction name="weekStarts" access="public" returnType="string" output="false" hint="Determines the first DOW.">
-	       <cfreturn instance.aCalendar.getFirstDayOfWeek() />
-	</cffunction>
-	<!--- ************************************************************* --->
+	/**
+	 * formats a date/time to given pattern
+	 *
+	 * @thisOffset
+	 * @thisPattern
+	 * @tz
+	 */
+	string function formatDateTime(
+		required numeric thisOffset,
+		required string thisPattern,
+		tz = variables.timeZone.getDefault().getID()
+	){
+		var tDateFormatter = variables.aDateFormat.getDateTimeInstance(
+			variables.aDateFormat.LONG,
+			variables.aDateFormat.LONG,
+			buildLocale( getfwLocale() )
+		);
+		tDateFormatter.applyPattern( arguments.thisPattern );
+		return tDateFormatter.format( arguments.thisOffset );
+	}
 
-	<!--- ************************************************************* --->
-	<cffunction name="getLocalizedYear" access="public" returnType="string" output="false" hint="Returns localized year, probably only useful for BE calendars like in thailand, etc.">
-		<!--- ************************************************************* --->
-		<cfargument name="thisYear"   type="numeric" required="true" />
-		<!--- ************************************************************* --->
-	       <cfset var thisDF=instance.sDateFormat.init("yyyy", buildLocale(getfwLocale()))>
-	       <cfreturn thisDF.format(createDate(arguments.thisYear, 1, 1)) />
-	</cffunction>
-	<!--- ************************************************************* --->
+	/**
+	 * Determines the first DOW.
+	 */
+	string function weekStarts(){
+		return variables.aCalendar.getFirstDayOfWeek();
+	}
 
-	<!--- ************************************************************* --->
-	<cffunction name="getLocalizedMonth" access="public" returnType="string" output="false" hint="Returns localized month.">
-		<!--- ************************************************************* --->
-		<cfargument name="month" type="numeric" required="true">
-	    <!--- ************************************************************* --->
-	       <cfset var thisDF=instance.sDateFormat.init("MMMM",buildLocale(getfwLocale()))>
-	       <cfreturn thisDF.format(createDate(1999,arguments.month,1))>
-	</cffunction>
-	<!--- ************************************************************* --->
+	/**
+	 * Returns localized year, probably only useful for BE calendars like in thailand, etc.
+	 *
+	 * @thisYear
+	 */
+	string function getLocalizedYear( required numeric thisYear ){
+		var thisDF = createObject( "java", "java.text.SimpleDateFormat" ).init( "yyyy", buildLocale( getfwLocale() ) );
+		return thisDF.format( createDate( arguments.thisYear, 1, 1 ) );
+	}
 
-	<!--- ************************************************************* --->
-	<cffunction name="getLocalizedDays" access="public" returnType="any" output="false"
-				hint="Facade to getShortWeedDays. For compatability">
-		<cfscript>
+	/**
+	 * Returns localized month.
+	 *
+	 * @month
+	 */
+	string function getLocalizedMonth( required numeric month ){
+		var thisDF = createObject( "java", "java.text.SimpleDateFormat" ).init( "MMMM", buildLocale( getfwLocale() ) );
+		return thisDF.format( createDate( 1999, arguments.month, 1 ) );
+	}
+
+	/**
+	 * Facade to getShortWeedDays. For compatability
+	 */
+	function getLocalizedDays(){
 		return getShortWeekDays();
-		</cfscript>
-	</cffunction>
-	<!--- ************************************************************* --->
+	}
 
-	<!--- ************************************************************* --->
-	<cffunction name="getShortWeekDays" access="public" output="false" returntype="array" hint="returns short day names for this calendar">
-		<!--- ************************************************************* --->
-		<cfargument name="calendarOrder" required="no" type="boolean" default="true">
-		<!--- ************************************************************* --->
-	       <cfset var theseDateSymbols= createObject("java","java.text.DateFormatSymbols").init(buildLocale(arguments.locale))>
-	       <cfset var localeDays="">
-	       <cfset var i=0>
-	       <cfset var tmp=listToArray(arrayToList(theseDateSymbols.getShortWeekDays()))>
-	       <cfif NOT arguments.calendarOrder>
-	               <cfreturn tmp>
-	       <cfelse>
-	               <cfswitch expression="#weekStarts(buildLocale(arguments.locale))#">
-		               <cfcase value="1"> <!--- "standard" dates --->
-		                       <cfreturn tmp>
-		               </cfcase>
-		               <cfcase value="2"> <!--- euro dates, starts on monday needs kludge --->
-		                       <cfset localeDays=arrayNew(1)>
-		                       <cfset localeDays[7]=tmp[1]>; <!--- move sunday to last --->
-		                       <cfloop index="i" from="1" to="6">
-		                               <cfset localeDays[i]=tmp[i+1]>
-		                       </cfloop>
-		                       <cfreturn localeDays>
-		               </cfcase>
-		               <cfcase value="7"> <!--- starts saturday, usually arabic, needs kludge --->
-		                       <cfset localeDays=arrayNew(1)>
-		                       <cfset localeDays[1]=tmp[7]> <!--- move saturday to first --->
-		                       <cfloop index="i" from="1" to="6">
-		                               <cfset localeDays[i+1]=tmp[i]>
-		                       </cfloop>
-		                       <cfreturn localeDays>
-		               </cfcase>
-	               </cfswitch>
-	       </cfif>
-	</cffunction>
-	<!--- ************************************************************* --->
-
-	<!--- ************************************************************* --->
-	<cffunction name="getYear" output="false" access="public" returntype="numeric" hint="returns year from epoch offset">
-		<!--- ************************************************************* --->
-		<cfargument name="thisOffset"   required="Yes" hint="java epoch offset" type="numeric">
-		<cfargument name="tz" 			required="no" default="#instance.timeZone.getDefault().getID()#">
-		<!--- ************************************************************* --->
-	       <cfset var thisTZ=instance.timeZone.getTimeZone(arguments.tZ)>
-	       <cfset instance.aCalendar.setTimeInMillis(arguments.thisOffset)>
-	       <cfset instance.aCalendar.setTimeZone(thisTZ)>
-	       <cfreturn instance.aCalendar.get(instance.aCalendar.YEAR)>
-	</cffunction>
-	<!--- ************************************************************* --->
-
-	<!--- ************************************************************* --->
-	<cffunction name="getMonth" output="false" access="public" returntype="numeric" hint="returns month from epoch offset">
-		<!--- ************************************************************* --->
-		<cfargument name="thisOffset" required="Yes" hint="java epoch offset" type="numeric">
-		<cfargument name="tz" required="no" default="#instance.timeZone.getDefault().getID()#">
-		<!--- ************************************************************* --->
-	       <cfset var thisTZ=instance.timeZone.getTimeZone(arguments.tZ)>
-	       <cfset instance.aCalendar.setTimeInMillis(arguments.thisOffset)>
-	       <cfset instance.aCalendar.setTimeZone(thisTZ)>
-	       <cfreturn instance.aCalendar.get(instance.aCalendar.MONTH)+1> <!--- java months start at 0 --->
-	</cffunction>
-	<!--- ************************************************************* --->
-
-	<!--- ************************************************************* --->
-	<cffunction name="getDay" output="false" access="public" returntype="numeric" hint="returns day from epoch offset">
-		<!--- ************************************************************* --->
-		<cfargument name="thisOffset" required="Yes" hint="java epoch offset" type="numeric">
-		<cfargument name="tz" required="no" default="#instance.timeZone.getDefault().getID()#">
-		<!--- ************************************************************* --->
-	       <cfset var thisTZ=instance.timeZone.getTimeZone(arguments.tZ)>
-	       <cfset instance.aCalendar.setTimeInMillis(arguments.thisOffset)>
-	       <cfset instance.aCalendar.setTimeZone(thisTZ)>
-	       <cfreturn instance.aCalendar.get(instance.aCalendar.DATE)>
-	</cffunction>
-	<!--- ************************************************************* --->
-
-	<!--- ************************************************************* --->
-	<cffunction name="getHour" output="false" access="public" returntype="numeric" hint="returns hour of day, 24 hr format, from epoch offset">
-		<!--- ************************************************************* --->
-		<cfargument name="thisOffset" required="Yes" hint="java epoch offset" type="numeric">
-		<cfargument name="tz" required="no" default="#instance.timeZone.getDefault().getID()#">
-		<!--- ************************************************************* --->
-	       <cfset var thisTZ=instance.timeZone.getTimeZone(arguments.tZ)>
-	       <cfset instance.aCalendar.setTimeInMillis(arguments.thisOffset)>
-	       <cfset instance.aCalendar.setTimeZone(thisTZ)>
-	       <cfreturn instance.aCalendar.get(instance.aCalendar.HOUR_OF_DAY)>
-	</cffunction>
-	<!--- ************************************************************* --->
-
-	<!--- ************************************************************* --->
-	<cffunction name="getMinute" output="false" access="public" returntype="numeric" hint="returns minute from epoch offset">
-		<!--- ************************************************************* --->
-		<cfargument name="thisOffset" required="Yes" hint="java epoch offset" type="numeric">
-		<cfargument name="tz" required="no" default="#instance.timeZone.getDefault().getID()#">
-		<!--- ************************************************************* --->
-	       <cfset var thisTZ=instance.timeZone.getTimeZone(arguments.tZ)>
-	       <cfset instance.aCalendar.setTimeInMillis(arguments.thisOffset)>
-	       <cfset instance.aCalendar.setTimeZone(thisTZ)>
-	       <cfreturn instance.aCalendar.get(instance.aCalendar.MINUTE)>
-	</cffunction>
-	<!--- ************************************************************* --->
-
-	<!--- ************************************************************* --->
-	<cffunction name="getSecond" output="false" access="public" returntype="numeric" hint="returns second from epoch offset">
-		<!--- ************************************************************* --->
-		<cfargument name="thisOffset" required="Yes" hint="java epoch offset" type="numeric">
-		<cfargument name="tz" required="no" default="#instance.timeZone.getDefault().getID()#">
-		<!--- ************************************************************* --->
-	       <cfset var thisTZ=instance.timeZone.getTimeZone(arguments.tZ)>
-	       <cfset instance.aCalendar.setTimeInMillis(arguments.thisOffset)>
-	       <cfset instance.aCalendar.setTimeZone(thisTZ)>
-	       <cfreturn instance.aCalendar.get(instance.aCalendar.SECOND)>
-	</cffunction>
-	<!--- ************************************************************* --->
-
-	<!--- ************************************************************* --->
-	<cffunction name="toEpoch" access="public" output="false" returnType="numeric" hint="converts datetime to java epoch offset">
-		<cfargument name="thisDate" required="Yes" hint="datetime to convert to java epoch" type="date">
-	       <cfreturn arguments.thisDate.getTime()>
-	 </cffunction>
- 	<!--- ************************************************************* --->
-
-	<!--- ************************************************************* --->
-	<cffunction name="fromEpoch" access="public" output="false" returnType="date" hint="converts java epoch offset to datetime">
-		<cfargument name="thisOffset" required="Yes" hint="java epoch offset to convert to datetime" type="numeric">
-	       <cfset instance.aCalendar.setTimeInMillis(arguments.thisOffset)>
-	       <cfreturn instance.aCalendar.getTime()>
-	 </cffunction>
-	<!--- ************************************************************* --->
-
-	<!--- ************************************************************* --->
-	<cffunction name="getAvailableTZ" output="false" returntype="array" access="public" hint="returns an array of timezones available on this server">
-		<cfreturn instance.timeZone.getAvailableIDs()>
-	</cffunction>
-	<!--- ************************************************************* --->
-
-	<!--- ************************************************************* --->
-	<cffunction name="usesDST" output="false" returntype="boolean" access="public" hint="determines if a given timezone uses DST">
-		<cfargument name="tz" required="no" default="#instance.timeZone.getDefault().getID()#">
-	       <cfreturn instance.timeZone.getTimeZone(arguments.tz).useDaylightTime()>
-	</cffunction>
-	<!--- ************************************************************* --->
-
-	<!--- ************************************************************* --->
-	<cffunction name="getRawOffset" output="false" access="public" returntype="numeric" hint="returns rawoffset in hours">
-		<cfargument name="tZ" required="no" default="#instance.timeZone.getDefault().getID()#">
-               <cfset var thisTZ=instance.timeZone.getTimeZone(arguments.tZ)>
-               <cfreturn thisTZ.getRawOffset()/3600000>
-	</cffunction>
-	<!--- ************************************************************* --->
-
-	<!--- ************************************************************* --->
-	<cffunction name="getDST" output="false" access="public" returntype="numeric" hint="returns DST savings in hours">
-		<cfargument name="thisTZ" required="no" default="#instance.timeZone.getDefault().getID()#">
-	       <cfset var tZ=instance.timeZone.getTimeZone(arguments.thisTZ)>
-	       <cfreturn tZ.getDSTSavings()/3600000>
-	</cffunction>
-	<!--- ************************************************************* --->
-
-	<!--- ************************************************************* --->
-	<cffunction name="getTZByOffset" output="false" returntype="array" access="public" hint="returns a list of timezones available on this server for a given raw offset">
-		<cfargument name="thisOffset" required="Yes" type="numeric">
-	       <cfset var rawOffset=javacast("long",arguments.thisOffset * 3600000)>
-	       <cfreturn instance.timeZone.getAvailableIDs(rawOffset)>
-	</cffunction>
-	<!--- ************************************************************* --->
-
-	<!--- ************************************************************* --->
-	<cffunction name="getServerTZ" output="false" access="public" returntype="any" hint="returns server TZ">
-	       <cfset var serverTZ=instance.timeZone.getDefault()>
-	       <cfreturn serverTZ.getDisplayName(true,instance.timeZone.LONG)>
-	</cffunction>
-	<!--- ************************************************************* --->
-
-	<!--- ************************************************************* --->
-	<cffunction name="inDST" output="false" returntype="boolean" access="public" hint="determines if a given date in a given timezone is in DST">
-		<!--- ************************************************************* --->
-		<cfargument name="thisOffset" required="yes" type="numeric">
-		<cfargument name="tzToTest" required="no" default="#instance.timeZone.getDefault().getID()#">
-		<!--- ************************************************************* --->
-	       <cfset var thisTZ=instance.timeZone.getTimeZone(arguments.tzToTest)>
-	       <cfset instance.aCalendar.setTimeInMillis(arguments.thisOffset)>
-	       <cfset instance.aCalendar.setTimezone(thisTZ)>
-	       <cfreturn thisTZ.inDaylightTime(instance.aCalendar.getTime())>
-	</cffunction>
-	<!--- ************************************************************* --->
-
-	<!--- ************************************************************* --->
-	<cffunction name="getTZOffset" output="false" access="public" hint="returns the offset in hours for the given datetime in the specified timezone">
-		<!--- ************************************************************* --->
-		<cfargument name="thisDate" required="yes" type="date">
-		<cfargument name="thisTZ" required="no" default="#instance.timeZone.getDefault().getID()#">
-		<!--- ************************************************************* --->
-	       <cfset var tZ=instance.timeZone.getTimeZone(arguments.thisTZ)>
-	       <cfreturn tZ.getOffset(arguments.thisDate)/3600000> <!--- return hours --->
-	</cffunction>
-	<!--- ************************************************************* --->
-
-	<!--- ************************************************************* --->
-	<cffunction name="i18nDateAdd" access="public" output="false" returntype="numeric">
-		<!--- ************************************************************* --->
-		<cfargument name="thisOffset" required="yes" type="numeric">
-		<cfargument name="thisDatePart" required="yes" type="string">
-		<cfargument name="dateUnits" required="yes" type="numeric">
-		<cfargument name="thisTZ" required="no" default="#instance.timeZone.getDefault().getID()#">
-		<!--- ************************************************************* --->
-	       <cfscript>
-	               var dPart="";
-	               var tZ=instance.timeZone.getTimeZone(arguments.thisTZ);
-	               switch (arguments.thisDatepart) {
-	                       case "y" :
-	                       case "yr" :
-	                       case "yyyy" :
-	                       case "year" :
-	                               dPart=instance.aCalendar.YEAR;
-	                       break;
-	                       case "m" :
-	                       case "month" :
-	                               dPart=instance.aCalendar.MONTH;
-	                       break;
-	                       case "w" :
-	                       case "week" :
-	                               dPart=instance.aCalendar.WEEK_OF_MONTH;
-	                       break;
-	                       case "d" :
-	                       case "day" :
-	                               dPart=instance.aCalendar.DATE;
-	                       break;
-	                       case "h" :
-	                       case "hr":
-	                       case "hour" :
-	                               dPart=instance.aCalendar.HOUR;
-	                       break;
-	                       case "n" :
-	                       case "minute" :
-	                               dPart=instance.aCalendar.MINUTE;
-	                       break;
-	                       case "s" :
-	                       case "second" :
-	                               dPart=instance.aCalendar.SECOND;
-	                       break;
-	               }
-	               instance.aCalendar.setTimeInMillis(arguments.thisOffset);
-	               instance.aCalendar.setTimezone(tZ);
-	               instance.aCalendar.add(dPart,javacast("int",arguments.dateUnits));
-	               return instance.aCalendar.getTimeInMillis();
-	       </cfscript>
-	</cffunction>
-	<!--- ************************************************************* --->
-
-	<!--- ************************************************************* --->
-	<!--- oh my is this nasty in core java --->
-	<cffunction name="i18nDateDiff"  access="public" output="false" returntype="numeric">
-		<!--- ************************************************************* --->
-		<cfargument name="thisOffset" required="yes" type="numeric">
-		<cfargument name="thatOffset" required="yes" type="numeric">
-		<cfargument name="thisDatePart" required="yes" type="string">
-		<cfargument name="thisTZ" required="no" default="#instance.timeZone.getDefault().getID()#">
-		<!--- ************************************************************* --->
-		<cfscript>
-		       var dPart="";
-		       var elapsed=0;
-		       var before=createObject("java","java.util.GregorianCalendar");
-		       var after=createObject("java","java.util.GregorianCalendar");
-		       var tZ=instance.timeZone.getTimeZone(arguments.thisTZ);
-		       var e=0;
-		       var s=0;
-		       var direction=1;
-		       // lets shortcut first
-		       if (arguments.thisOffset EQ arguments.thatOffset)
-		               return 0;
-		       else {  // setup calendars to test
-		               if (arguments.thisOffset LT arguments.thatOffset) {
-		                       before.setTimeInMillis(arguments.thisOffset);
-		                       after.setTimeInMillis(arguments.thatOffset);
-		                       before.setTimezone(tZ);
-		                       after.setTimezone(tZ);
-		               } else {
-		                       before.setTimeInMillis(arguments.thatOffset);
-		                       after.setTimeInMillis(arguments.thisOffset);
-		                       before.setTimezone(tZ);
-		                       after.setTimezone(tZ);
-		                       direction=-1;
-		               } // which offset came first
-		               switch (arguments.thisDatepart) {
-		                       case "y" :
-		                       case "yr" :
-		                       case "yyyy" :
-		                       case "year" :
-		                               dPart=instance.aCalendar.YEAR;
-		                               before.clear(instance.aCalendar.DATE);
-		                               after.clear(instance.aCalendar.DATE);
-		                               before.clear(instance.aCalendar.MONTH);
-		                               after.clear(instance.aCalendar.MONTH);
-		                       break;
-		                       case "m" :
-		                       case "month" :
-		                               dPart=instance.aCalendar.MONTH;
-		                               before.clear(instance.aCalendar.DATE);
-		                               after.clear(instance.aCalendar.DATE);
-		                       break;
-		                       case "w" :
-		                       case "week" :
-		                               dPart=instance.aCalendar.WEEK_OF_YEAR;
-		                               before.clear(instance.aCalendar.DATE);
-		                               after.clear(instance.aCalendar.DATE);
-		                       break;
-		                       case "d" :
-		                       case "day" :
-		                               // very much a special case
-		                               e=after.getTimeInMillis()+after.getTimeZone().getOffset(after.getTimeInMillis());
-		                               s=before.getTimeInMillis()+before.getTimeZone().getOffset(before.getTimeInMillis());
-		                               return int((e-s)/86400000)*direction;
-		                       break;
-		                       case "h" :
-		                       case "hr" :
-		                       case "hour" :
-		                               e=after.getTimeInMillis()+after.getTimeZone().getOffset(after.getTimeInMillis());
-		                               s=before.getTimeInMillis()+before.getTimeZone().getOffset(before.getTimeInMillis());
-		                               return int((e-s)/3600000)*direction;
-		                       break;
-		                       case "n" :
-		                       case "minute" :
-		                               e=after.getTimeInMillis()+after.getTimeZone().getOffset(after.getTimeInMillis());
-		                               s=before.getTimeInMillis()+before.getTimeZone().getOffset(before.getTimeInMillis());
-		                               return int((e-s)/60000)*direction;
-		                       break;
-		                       case "s" :
-		                       case "second" :
-		                               e=after.getTimeInMillis()+after.getTimeZone().getOffset(after.getTimeInMillis());
-		                               s=before.getTimeInMillis()+before.getTimeZone().getOffset(before.getTimeInMillis());
-		                               return int((e-s)/1000)*direction;
-		                       break;
-		               }// datepart switch
-		               while (before.before(after)){
-		                       before.add(dPart,1);
-		                       elapsed=elapsed+1;
-		               } //count dateparts
-		               return elapsed * direction;
-		       } // if start & end times are the same
-		</cfscript>
-	</cffunction>
-
-	<cffunction name="getLocaleQuery" access="public" output="false" returntype="query" hint="returns a sorted query of locales (locale,country,language,dspName,localname. 'localname' will contain the locale's name in its native characters). Suitable for use in creating select lists.">
-		<cfscript>
-			var aLocales = getLocales();
-			var qryLocale = queryNew("locale,country,language,dspName,localname");
-			var stNames = structnew();
-			var i=0;
-			//building an array of locales,country name, language name, and sorting alphabetically...
-			for(i=1;i LTE arraylen(aLocales);i=i+1){
-				queryAddRow(qryLocale,1);
-				querySetCell(qryLocale,"locale",aLocales[i].toString());
-				if(left(aLocales[i],2) IS "ar" or left(aLocales[i],2) IS "iw"){//need to write the value from right to left
-					querySetCell(qryLocale,"localname",chr(8235)& aLocales[i].getDisplayName(aLocales[i]) & chr(8234));
-				} else {
-					querySetCell(qryLocale,"localname",aLocales[i].getDisplayName(aLocales[i]));
-				}
-				querySetCell(qryLocale,"dspName",aLocales[i].getDisplayName());
-				querySetCell(qryLocale,"language",aLocales[i].getDisplayLanguage());
-				querySetCell(qryLocale,"country",aLocales[i].getDisplayCountry());
+	/**
+	 * returns short day names for this calendar
+	 *
+	 * @calendarOrder
+	 */
+	array function getShortWeekDays( boolean calendarOrder = true ){
+		var theseDateSymbols = createObject(
+			"java",
+			"java.text.DateFormatSymbols"
+		).init( buildLocale( getFWLocale() ) );
+		// array of days, sunday =1 saturday =7
+		var localeDays = listToArray( arrayToList( theseDateSymbols.getShortWeekDays() ) );
+		if ( !arguments.calendarOrder ) {
+			return localeDays;
+		} else {
+			switch ( weekStarts( buildLocale( getFWLocale() ) ) ) {
+				case 1:
+					return localeDays;
+				case 2:
+					// move sunday to last
+					localeDays.append( localeDays[ 1 ] );
+					localeDays.deleteAt( 1 );
+					return localeDays;
+				case 7:
+					// move saturday to first
+					localeDays.prepend( localeDays[ 7 ] );
+					localeDays.deleteAt( 8 );
+					return localeDays;
 			}
-		</cfscript>
-		<cfquery name="qryLocale" dbtype="query">
-			select locale,country,[language],dspName,localname
-			from qryLocale
-			order by dspName,[language]
-		</cfquery>
-		<cfreturn qryLocale />
-	</cffunction>
+		}
+	}
 
-	<cffunction name="getTZQuery" access="public" output="false" returntype="query" hint="returns a sorted query of timezones, optionally filters for only unique display names (fields:id,offset,dspName,longname,shortname,usesDST). Suitable for use in creating select lists.">
-		<cfargument name="returnUnique" type="boolean" required="true" default="true"/>
-		<cfscript>
-			var aTZID = getAvailableTZ();
-			var stNames = structnew();
-			var qryTZ = queryNew("id,offset,dspName,longname,shortname,usesDST");
-			var i = 0;
-			//build our initial query...
-			for(i=1;i LTE arraylen(aTZID);i=i+1){
-				tmpName = getTZDisplayName(aTZID[i]);
-				if(arguments.returnUnique){
-					if(not structkeyexists(stNames,tmpname)){
-						queryAddRow(qryTZ,1);
-						querySetCell(qryTZ,"id",aTZID[i]);
-						querySetCell(qryTZ,"offset",getRawOffset(aTZID[i]));
-						querySetCell(qryTZ,"dspName",tmpName);
-						querySetCell(qryTZ,"longname",getTZDisplayName(aTZID[i],"long"));
-						querySetCell(qryTZ,"shortname",getTZDisplayName(aTZID[i],"short"));
-						querySetCell(qryTZ,"usesDST",usesDST(aTZID[i]));
-						if(arguments.returnUnique){
-							//add this name to  our unique list
-							stnames[tmpName] = "";
-						}
-					}
-				} else {
-					queryAddRow(qryTZ,1);
-					querySetCell(qryTZ,"id",aTZID[i]);
-					querySetCell(qryTZ,"offset",getRawOffset(aTZID[i]));
-					querySetCell(qryTZ,"dspName",tmpName);
-					querySetCell(qryTZ,"longname",getTZDisplayName(aTZID[i],"long"));
-					querySetCell(qryTZ,"shortname",getTZDisplayName(aTZID[i],"short"));
-					querySetCell(qryTZ,"usesDST",usesDST(aTZID[i]));
-				}
-			}
-		</cfscript>
-		<!--- sort the results... --->
-		<cfquery name="qryTZ" dbtype="query">
-			select id,offset,dspname,longname,shortname,usesDST
-			from qryTZ
-			order by offset,dspname
-		</cfquery>
-		<cfreturn qryTZ />
-	</cffunction>
+	/**
+	 * returns year from epoch offset
+	 *
+	 * @thisOffset java epoch offset
+	 * @tz
+	 */
+	numeric function getYear(
+		required numeric thisOffset,
+		tz = variables.timeZone.getDefault().getID()
+	){
+		var thisTZ    = variables.timeZone.getTimeZone( arguments.tZ );
+		var aCalendar = createObject(
+			"java",
+			"java.util.GregorianCalendar"
+		).init( buildLocale() );
+		aCalendar.setTimeInMillis( arguments.thisOffset );
+		aCalendar.setTimeZone( thisTZ );
+		return aCalendar.get( aCalendar.YEAR );
+	}
 
-	<cffunction name="getTZDisplayName" output="false" access="public" returntype="string" hint="returns the display name of the timezone requested in either long, short, or default style">
-		<cfargument name="thisTZ" required="no" default="#instance.timeZone.getDefault().getID()#">
-		<cfargument name="dspType" required="no" type="string" default="" />
-	       <cfset var tZ=instance.timeZone.getTimeZone(arguments.thisTZ)>
-	       <cfif arguments.dspType IS "long">
-	       		<cfreturn tZ.getDisplayName(JavaCast("boolean",false),JavaCast("int",1)) />
-	       <cfelseif arguments.dspType IS "short">
-	       		<cfreturn tZ.getDisplayName(JavaCast("boolean",false),JavaCast("int",0)) />
-	       <cfelse>
-	       	 <cfreturn tZ.getDisplayName()>
-	       </cfif>
-	</cffunction>
+	/**
+	 * returns month from epoch offset
+	 *
+	 * @thisOffset java epoch offset
+	 * @tz
+	 */
+	numeric function getMonth(
+		required numeric thisOffset,
+		tz = variables.timeZone.getDefault().getID()
+	){
+		var thisTZ    = variables.timeZone.getTimeZone( arguments.tZ );
+		var aCalendar = createObject(
+			"java",
+			"java.util.GregorianCalendar"
+		).init( buildLocale() );
+		aCalendar.setTimeInMillis( arguments.thisOffset );
+		aCalendar.setTimeZone( thisTZ );
+		return aCalendar.get( aCalendar.MONTH ) + 1; // --- java months start at 0
+	}
 
-<!------------------------------------------- PRIVATE ------------------------------------------->
+	/**
+	 * returns day from epoch offset
+	 *
+	 * @thisOffset java epoch offset
+	 * @tz
+	 */
+	numeric function getDay(
+		required numeric thisOffset,
+		tz = variables.timeZone.getDefault().getID()
+	){
+		var thisTZ    = variables.timeZone.getTimeZone( arguments.tZ );
+		var aCalendar = createObject(
+			"java",
+			"java.util.GregorianCalendar"
+		).init( buildLocale() );
+		aCalendar.setTimeInMillis( arguments.thisOffset );
+		aCalendar.setTimeZone( thisTZ );
+		return aCalendar.get( aCalendar.DATE );
+	}
 
-	<cffunction name="buildLocale"  access="private" output="false" hint="creates valid core java locale from java style locale ID">
-		<!--- ************************************************************* --->
-		<cfargument name="thisLocale" required="false" type="string" default="en_US">
-		<!--- ************************************************************* --->
-		<cfscript>
-			var l=listFirst( arguments.thisLocale, "_" );
-			var c="";
-			var v="";
-			var tLocale=instance.aLocale.getDefault(); // if we fail fallback on server default
+	/**
+	 * returns hour of day, 24 hr format, from epoch offset
+	 *
+	 * @thisOffset java epoch offset
+	 * @tz
+	 */
+	numeric function getHour(
+		required numeric thisOffset,
+		tz = variables.timeZone.getDefault().getID()
+	){
+		var thisTZ    = variables.timeZone.getTimeZone( arguments.tZ );
+		var aCalendar = createObject(
+			"java",
+			"java.util.GregorianCalendar"
+		).init( buildLocale() );
+		aCalendar.setTimeInMillis( arguments.thisOffset );
+		aCalendar.setTimeZone( thisTZ );
+		return aCalendar.get( aCalendar.HOUR_OF_DAY );
+	}
 
-			// Check locale
-			if ( not isValidLocale(arguments.thisLocale) ){
-				throw( message="Specified locale must be of the form language_COUNTRY_VARIANT where language, country and variant are 2 characters each, ISO 3166 standard.",
-				       detail="The locale tested is: #arguments.thisLocale#",
-				       type="i18n.InvalidLocaleException" );
+	/**
+	 * returns minute from epoch offset
+	 *
+	 * @thisOffset java epoch offset
+	 * @tz
+	 */
+	numeric function getMinute(
+		required numeric thisOffset,
+		tz = variables.timeZone.getDefault().getID()
+	){
+		var thisTZ    = variables.timeZone.getTimeZone( arguments.tZ );
+		var aCalendar = createObject(
+			"java",
+			"java.util.GregorianCalendar"
+		).init( buildLocale() );
+		aCalendar.setTimeInMillis( arguments.thisOffset );
+		aCalendar.setTimeZone( thisTZ );
+		return aCalendar.get( aCalendar.MINUTE );
+	}
+
+	/**
+	 * returns second from epoch offset
+	 *
+	 * @thisOffset java epoch offset
+	 * @tz
+	 */
+	numeric function getSecond(
+		required numeric thisOffset,
+		tz = variables.timeZone.getDefault().getID()
+	){
+		var thisTZ    = variables.timeZone.getTimeZone( arguments.tZ );
+		var aCalendar = createObject(
+			"java",
+			"java.util.GregorianCalendar"
+		).init( buildLocale() );
+		aCalendar.setTimeInMillis( arguments.thisOffset );
+		aCalendar.setTimeZone( thisTZ );
+		return aCalendar.get( aCalendar.SECOND );
+	}
+
+	/**
+	 * converts datetime to java epoch offset
+	 *
+	 * @thisDate datetime to convert to java epoch
+	 */
+	numeric function toEpoch( required date thisDate ){
+		return arguments.thisDate.getTime();
+	}
+
+	/**
+	 * converts java epoch offset to datetime
+	 *
+	 * @thisOffset java epoch offset to convert to datetime
+	 */
+	date function fromEpoch( required numeric thisOffset ){
+		var aCalendar = createObject(
+			"java",
+			"java.util.GregorianCalendar"
+		).init( buildLocale() );
+		aCalendar.setTimeInMillis( arguments.thisOffset );
+		return aCalendar.getTime();
+	}
+
+	/**
+	 * returns an array of timezones available on this server
+	 */
+	array function getAvailableTZ(){
+		return variables.timeZone.getAvailableIDs();
+	}
+
+	/**
+	 * determines if a given timezone uses DST
+	 *
+	 * @tz
+	 */
+	boolean function usesDST( tz = variables.timeZone.getDefault().getID() ){
+		return variables.timeZone.getTimeZone( arguments.tz ).useDaylightTime();
+	}
+
+	/**
+	 * returns rawoffset in hours
+	 * @tz
+	 */
+	numeric function getRawOffset( tz = variables.timeZone.getDefault().getID() ){
+		var thisTZ = variables.timeZone.getTimeZone( arguments.tZ );
+		return thisTZ.getRawOffset() / 3600000;
+	}
+
+	/**
+	 * returns DST savings in hours
+	 *
+	 * @tz
+	 */
+	numeric function getDST( thisTZ = variables.timeZone.getDefault().getID() ){
+		var tZ = variables.timeZone.getTimeZone( arguments.thisTZ );
+		return tZ.getDSTSavings() / 3600000;
+	}
+
+	/**
+	 * returns a list of timezones available on this server for a given raw offset
+	 *
+	 * @thisOffset
+	 */
+	array function getTZByOffset( required numeric thisOffset ){
+		var rawOffset = javacast(
+			"long",
+			arguments.thisOffset * 3600000
+		);
+		return variables.timeZone.getAvailableIDs( rawOffset );
+	}
+
+	/**
+	 * returns server TZ
+	 */
+	function getServerTZ(){
+		var serverTZ = variables.timeZone.getDefault();
+		return serverTZ.getDisplayName( true, variables.timeZone.LONG );
+	}
+
+	/**
+	 * determines if a given date in a given timezone is in DST
+	 *
+	 * @thisOffset
+	 * @tzToTest
+	 */
+	boolean function inDST(
+		requred numeric thisOffset,
+		tzToTest = variables.timeZone.getDefault().getID()
+	){
+		var thisTZ    = variables.timeZone.getTimeZone( arguments.tzToTest );
+		var aCalendar = createObject(
+			"java",
+			"java.util.GregorianCalendar"
+		).init( buildLocale() );
+		aCalendar.setTimeInMillis( arguments.thisOffset );
+		aCalendar.setTimezone( thisTZ );
+		return thisTZ.inDaylightTime( aCalendar.getTime() );
+	}
+
+	/**
+	 * returns the offset in hours for the given datetime in the specified timezone
+	 *
+	 * @thisDate
+	 * @thisTz
+	 */
+	function getTZOffset(
+		required date thisDate,
+		thisTZ = variables.timeZone.getDefault().getID()
+	){
+		var tZ = variables.timeZone.getTimeZone( arguments.thisTZ );
+		return tZ.getOffset( arguments.thisDate ) / 3600000;
+	}
+
+	/**
+	 * DateAdd
+	 *
+	 * @thisOffset
+	 * @thisDatePart
+	 * @dateUnits
+	 * @thisTZ
+	 */
+	numeric function dateAdd(
+		required numeric thisOffset,
+		required string thisDatePart,
+		required numeric dateUnits,
+		thisTZ = variables.timeZone.getDefault().getID()
+	){
+		var dPart     = "";
+		var tZ        = variables.timeZone.getTimeZone( arguments.thisTZ );
+		var aCalendar = createObject(
+			"java",
+			"java.util.GregorianCalendar"
+		).init( buildLocale() );
+		switch ( arguments.thisDatepart ) {
+			case "y":
+			case "yr":
+			case "yyyy":
+			case "year":
+				dPart = aCalendar.YEAR;
+				break;
+			case "m":
+			case "month":
+				dPart = aCalendar.MONTH;
+				break;
+			case "w":
+			case "week":
+				dPart = aCalendar.WEEK_OF_MONTH;
+				break;
+			case "d":
+			case "day":
+				dPart = aCalendar.DATE;
+				break;
+			case "h":
+			case "hr":
+			case "hour":
+				dPart = aCalendar.HOUR;
+				break;
+			case "n":
+			case "minute":
+				dPart = aCalendar.MINUTE;
+				break;
+			case "s":
+			case "second":
+				dPart = aCalendar.SECOND;
+				break;
+		}
+		aCalendar.setTimeInMillis( arguments.thisOffset );
+		aCalendar.setTimezone( tZ );
+		aCalendar.add(
+			dPart,
+			javacast( "int", arguments.dateUnits )
+		);
+		return aCalendar.getTimeInMillis();
+	}
+
+	/**
+	 * DateDiff
+	 *
+	 * @thisOffset
+	 * @thatOffset
+	 * @thisDatePart
+	 * @thisTZ
+	 */
+	numeric function dateDiff(
+		required numeric thisOffset,
+		required numeric thatOffset,
+		required string thisDatePart,
+		thisTZ = variables.timeZone.getDefault().getID()
+	){
+		var dPart   = "";
+		var elapsed = 0;
+		var before  = createObject(
+			"java",
+			"java.util.GregorianCalendar"
+		);
+		var after = createObject(
+			"java",
+			"java.util.GregorianCalendar"
+		);
+		var tZ        = variables.timeZone.getTimeZone( arguments.thisTZ );
+		var e         = 0;
+		var s         = 0;
+		var direction = 1;
+		// lets shortcut first
+		if ( arguments.thisOffset EQ arguments.thatOffset ) return 0;
+		else {
+			// setup calendars to test
+			// which offset came first
+			if ( arguments.thisOffset LT arguments.thatOffset ) {
+				before.setTimeInMillis( arguments.thisOffset );
+				after.setTimeInMillis( arguments.thatOffset );
+				before.setTimezone( tZ );
+				after.setTimezone( tZ );
+			} else {
+				before.setTimeInMillis( arguments.thatOffset );
+				after.setTimeInMillis( arguments.thisOffset );
+				before.setTimezone( tZ );
+				after.setTimezone( tZ );
+				direction = -1;
 			}
 
-			switch (listLen(arguments.thisLocale,"_")) {
-			       case 1:
-			               tLocale=instance.aLocale.init(l);
-			       break;
-			       case 2:
-			               c=listLast(arguments.thisLocale,"_");
-			               tLocale=instance.aLocale.init(l,c);
-			       break;
-			       case 3:
-			               c=listGetAt(arguments.thisLocale,2,"_");
-			               v=listLast(arguments.thisLocale,"_");
-			               tLocale=instance.aLocale.init(l,c,v);
-			       break;
+			switch ( arguments.thisDatepart ) {
+				case "y":
+				case "yr":
+				case "yyyy":
+				case "year":
+					dPart = variables.aCalendar.YEAR;
+					before.clear( variables.aCalendar.DATE );
+					after.clear( variables.aCalendar.DATE );
+					before.clear( variables.aCalendar.MONTH );
+					after.clear( variables.aCalendar.MONTH );
+					break;
+				case "m":
+				case "month":
+					dPart = variables.aCalendar.MONTH;
+					before.clear( variables.aCalendar.DATE );
+					after.clear( variables.aCalendar.DATE );
+					break;
+				case "w":
+				case "week":
+					dPart = variables.aCalendar.WEEK_OF_YEAR;
+					before.clear( variables.aCalendar.DATE );
+					after.clear( variables.aCalendar.DATE );
+					break;
+				case "d":
+				case "day":
+					// very much a special case
+					e = after.getTimeInMillis() + after.getTimeZone().getOffset( after.getTimeInMillis() );
+					s = before.getTimeInMillis() + before.getTimeZone().getOffset( before.getTimeInMillis() );
+					return int( ( e - s ) / 86400000 ) * direction;
+					break;
+				case "h":
+				case "hr":
+				case "hour":
+					e = after.getTimeInMillis() + after.getTimeZone().getOffset( after.getTimeInMillis() );
+					s = before.getTimeInMillis() + before.getTimeZone().getOffset( before.getTimeInMillis() );
+					return int( ( e - s ) / 3600000 ) * direction;
+					break;
+				case "n":
+				case "minute":
+					e = after.getTimeInMillis() + after.getTimeZone().getOffset( after.getTimeInMillis() );
+					s = before.getTimeInMillis() + before.getTimeZone().getOffset( before.getTimeInMillis() );
+					return int( ( e - s ) / 60000 ) * direction;
+					break;
+				case "s":
+				case "second":
+					e = after.getTimeInMillis() + after.getTimeZone().getOffset( after.getTimeInMillis() );
+					s = before.getTimeInMillis() + before.getTimeZone().getOffset( before.getTimeInMillis() );
+					return int( ( e - s ) / 1000 ) * direction;
+					break;
 			}
-			return tLocale;
-		</cfscript>
-	</cffunction>
-	<!--- ************************************************************* --->
+			// datepart switch
+
+			while ( before.before( after ) ) {
+				before.add( dPart, 1 );
+				elapsed = elapsed + 1;
+			}
+			// count dateparts
+			return elapsed * direction;
+		}
+		// if start & end times are the same
+	}
+
+	/**
+	 * returns a sorted query of locales (locale,country,language,dspName,localname. 'localname' will contain the locale's name in its native characters). Suitable for use in creating select lists.
+	 */
+	query function getLocaleQuery(){
+		var qryLocale = queryNew( "locale,country,language,dspName,localname" );
+		for ( var localeItem in getLocales() ) {
+			qryLocale.addRow( {
+				"locale"    : localeItem.toString(),
+				"localname" : ( left( localeItem, 2 ) == "ar" || left( localeItem, 2 ) == "iw" ) ? chr( 8235 ) & localeItem.getDisplayName(
+					localeItem
+				) & chr( 8234 ) : localeItem.getDisplayName( localeItem ),
+				"dspName"  : localeItem.getDisplayName(),
+				"language" : localeItem.getDisplayLanguage(),
+				"country"  : localeItem.getDisplayCountry()
+			} );
+		};
+		return qryLocale.sort( function( rowA, rowB ){
+			if ( compare( rowA.locale, rowB.locale ) == 0 ) {
+				// if locale=equal, further sort on langugage
+				return compare( rowA.language, rowB.language );
+			} else {
+				return compare( rowA.dspName, rowB.dspName );
+			}
+		} );
+	}
+
+	/**
+	 * returns a sorted query of timezones, optionally filters for only unique display names (fields:id,offset,dspName,longname,shortname,usesDST). Suitable for use in creating select lists.
+	 *
+	 * @returnUnique
+	 */
+	query function getTZQuery( required boolean returnUnique ){
+		var aTZID         = getAvailableTZ();
+		var stNames       = {};
+		var qryTZ         = queryNew( "id,offset,dspName,longname,shortname,usesDST" );
+		var fReturnUnique = arguments.returUnique; // not necessary but no arguments issues in each()
+		var tmpName       = "";
+		aTZID.each( function( timeZone ){
+			tmpName = getTZDisplayName( timeZone );
+			if ( !fReturnUnique || ( fReturnUnique && !structKeyExists( stNames, tmpname ) ) ) {
+				qryTZ.addRow( 1 );
+				qryTZ.setCell( "id", timeZone );
+				qryTZ.setCell( "offset", getRawOffset( timeZone ) );
+				qryTZ.setCell( "dspName", tmpName );
+				qryTZ.setCell(
+					"longname",
+					getTZDisplayName( timeZone, "long" )
+				);
+				qryTZ.setCell(
+					"shortname",
+					getTZDisplayName( timeZone, "short" )
+				);
+				qryTZ.setCell( "usesDST", usesDST( timeZone ) );
+			}
+		} );
+		return qryTZ.sort( function( rowA, rowB ){
+			if ( compare( rowA.offset, rowB.offset ) == 0 ) {
+				// if locale=equal, further sort on langugage
+				return compare( rowA.dspname, rowB.dspname );
+			} else {
+				return compare( rowA.offset, rowB.offset );
+			}
+		} );
+	}
+
+	/**
+	 * returns the display name of the timezone requested in either long, short, or default style
+	 *
+	 * @thisTZ
+	 * @dspType
+	 */
+	string function getTZDisplayName(
+		thisTZ         = variables.timeZone.getDefault().getID(),
+		string dspType = ""
+	){
+		var tZ = variables.timeZone.getTimeZone( arguments.thisTZ );
+		switch ( arguments.dspType ) {
+			case "long":
+				return tZ.getDisplayName(
+					javacast( "boolean", false ),
+					javacast( "int", 1 )
+				);
+				// break;
+			case "short":
+				return tZ.getDisplayName(
+					javacast( "boolean", false ),
+					javacast( "int", 0 )
+				);
+				// break;
+			default:
+				return tZ.getDisplayName();
+		}
+	}
+	/************************************************************************************/
+	/****************************** PRIVATE METHODS *************************************/
+	/************************************************************************************/
 
 
-</cfcomponent>
+	/**
+	 * creates valid core java locale from java style locale ID
+	 *
+	 * @thisLocale
+	 *
+	 * @returns valid Java locale
+	 * @throws i18n.InvalidLocaleException if locale is not valid
+	 */
+	private function buildLocale( string thisLocale = "en_US" ){
+		var l       = listFirst( arguments.thisLocale, "_" );
+		var c       = "";
+		var v       = "";
+		var aLocale = createObject( "java", "java.util.Locale" );
+		var tLocale = aLocale.getDefault(); // if we fail fallback on server default
+
+		// Check locale
+		if ( not isValidLocale( arguments.thisLocale ) ) {
+			throw(
+				message: "Specified locale must be of the form language_COUNTRY_VARIANT where language, country and variant are 2 characters each, ISO 3166 standard.",
+				detail : "The locale tested is: #arguments.thisLocale#",
+				type   : "i18n.InvalidLocaleException"
+			);
+		}
+
+		switch ( listLen( arguments.thisLocale, "_" ) ) {
+			case 1:
+				tLocale = aLocale.init( l );
+				break;
+			case 2:
+				c       = listLast( arguments.thisLocale, "_" );
+				tLocale = aLocale.init( l, c );
+				break;
+			case 3:
+				c       = listGetAt( arguments.thisLocale, 2, "_" );
+				v       = listLast( arguments.thisLocale, "_" );
+				tLocale = aLocale.init( l, c, v );
+				break;
+		}
+		return tLocale;
+	}
+
+}
+
