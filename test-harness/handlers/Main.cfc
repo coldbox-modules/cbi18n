@@ -8,6 +8,14 @@ component{
 		event.setView( "main/index" );
 	}
 
+	/**
+	 * locale
+	 */
+	function locale( event, rc, prc ){
+		setFWLocale( "es_SV" );
+		event.setView( "main/index" );
+	}
+
 	// Run on first init
 	any function onAppInit( event, rc, prc ){
 	}

@@ -45,17 +45,17 @@
 		];
 
 		modulesettings = {
-			//i18n & Localization
+			// i18n & Localization
 			cbi18n = {
 				defaultResourceBundle = "includes/i18n/main",
 				resourceBundles = {
-					"support" = "includes/i18n/support"
+					"support" = "includes/i18n/support",
+					"json" = "includes/i18n/jsonTest"
 				},
 				defaultLocale = "en_US",
 				localeStorage = "cookieStorage@cbstorages",
 				unknownTranslation = "**NOT FOUND**",
-				logUnknownTranslation = true,
-				resourceType="java"
+				logUnknownTranslation = true
 			}
 		};
 

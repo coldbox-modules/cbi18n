@@ -12,24 +12,23 @@ component singleton accessors="true" {
 	property name="wirebox"         inject="wirebox";
 	property name="settings"        inject="coldbox:moduleSettings:cbi18n";
 
-	// properties
+	/**
+	 * The wirebox id of the storage provider
+	 */
 	property name="localeStorage";
+	/**
+	 * The default locale configured for the application
+	 */
 	property name="defaultLocale";
+	/**
+	 * The default resource bundle for the application, if any
+	 */
 	property name="defaultResourceBundle";
 
 	/**
 	 * Constructor
 	 */
-	function init(){
-		return this;
-	}
-
-	/**
-	 * Reads,parses,saves the locale and resource bundles defined in the config.
-	 *
-	 * @throws i18N.DefaultSettingsInvalidException
-	 */
-	void function onDIComplete(){
+	i18n function init(){
 		// Internal Java Objects
 		variables.aDateFormat = createObject( "java", "java.text.DateFormat" );
 		variables.aLocale     = createObject( "java", "java.util.Locale" );
@@ -39,6 +38,15 @@ component singleton accessors="true" {
 			"java.util.GregorianCalendar"
 		).init( buildLocale() );
 
+		return this;
+	}
+
+	/**
+	 * Reads,parses,saves the locale and resource bundles defined in the config.
+	 *
+	 * @throws i18N.DefaultSettingsInvalidException
+	 */
+	void function onDIComplete(){
 		// Default instance settings
 		variables.localeStorage         = variables.settings.localeStorage;
 		variables.defaultResourceBundle = variables.settings.defaultResourceBundle;
@@ -46,36 +54,35 @@ component singleton accessors="true" {
 
 		// instantiate storage service for locale storage
 		try {
-			variables.storageService = wirebox.getInstance( name = variables.localeStorage );
+			variables.storageService = variables.wirebox.getInstance( variables.localeStorage );
 		} catch ( any e ) {
 			var message = variables.localeStorage.len()
 			 ? "The LocaleStorage setting #variables.localeStorage# is invalid."
 			 : "The LocaleStorage setting cannot be found. Please make sure you create the i18n elements";
 			throw(
-				message      = e.message,
-				type         = "i18N.DefaultSettingsInvalidException",
-				extendedInfo = "Please check cbstorages documentation, LocaleStorage should be in format 'someStorage@cbstorages', e.g cookieStorage@cbstorages, cacheStorage@cbstorages etcetera."
+				message     : e.message,
+				type        : "i18N.DefaultSettingsInvalidException",
+				extendedInfo: "Please check the cbstorages documentation, LocaleStorage should be in the format of a valid storage object 'someStorage@cbstorages', e.g cookieStorage@cbstorages, cacheStorage@cbstorages etcetera."
 			);
 		}
 		// set locale setup on configuration file
-		setFWLocale( variables.defaultLocale, true );
+		setFWLocale( variables.defaultLocale );
 
-		// test for rb file and if it exists load it as the default resource bundle
+		// Verify if we have a default resource bundle, if we do, load it.
 		if ( variables.defaultResourceBundle.len() ) {
 			variables.resourceService.loadBundle(
-				rbFile   = variables.defaultResourceBundle,
-				rbLocale = variables.defaultLocale,
-				rbAlias  = "default"
+				rbFile  : variables.defaultResourceBundle,
+				rbLocale: variables.defaultLocale,
+				rbAlias : "default"
 			);
 		}
 
-		// are we loading multiple resource bundles? If so, load up their default locale
-		var resourceBundles = variables.settings.resourceBundles;
-		resourceBundles.each( function( bundleKey, thisBundle ){
+		// are we loading multiple resource bundles? If so, load them up
+		variables.settings.resourceBundles.each( function( bundleKey, thisBundle ){
 			variables.resourceService.loadBundle(
-				rbFile   = thisBundle,
-				rbLocale = variables.defaultLocale,
-				rbAlias  = lCase( bundleKey )
+				rbFile  : thisBundle,
+				rbLocale: variables.defaultLocale,
+				rbAlias : lCase( bundleKey )
 			);
 		} );
 	}
@@ -87,8 +94,9 @@ component singleton accessors="true" {
 	/**
 	 * Get the user's locale
 	 *
+	 * @return The users locale string if set, else, the default locale
 	 */
-	any function getFwLocale(){
+	string function getFwLocale(){
 		// return locale, default already set in onDIComplete
 		return variables.storageService.get(
 			"currentLocale",
@@ -100,12 +108,8 @@ component singleton accessors="true" {
 	 * Set the default locale to use in the framework for a specific user.
 	 *
 	 * @locale The locale to change and set. Must be Java Style: en_US. If none passed, then we default to default locale from configuration settings
-	 * @dontloadRBFlag Flag to load the resource bundle for the specified locale (If not already loaded) or just change the framework's locale.
 	 */
-	function setFwLocale(
-		string locale          = "",
-		boolean dontloadRBFlag = false
-	){
+	i18n function setFwLocale( string locale = "" ){
 		if ( !arguments.locale.len() ) {
 			arguments.locale = variables.defaultLocale;
 		}
@@ -1136,9 +1140,9 @@ component singleton accessors="true" {
 		// Check locale
 		if ( not isValidLocale( arguments.thisLocale ) ) {
 			throw(
-				message = "Specified locale must be of the form language_COUNTRY_VARIANT where language, country and variant are 2 characters each, ISO 3166 standard.",
-				detail  = "The locale tested is: #arguments.thisLocale#",
-				type    = "i18n.InvalidLocaleException"
+				message: "Specified locale must be of the form language_COUNTRY_VARIANT where language, country and variant are 2 characters each, ISO 3166 standard.",
+				detail : "The locale tested is: #arguments.thisLocale#",
+				type   : "i18n.InvalidLocaleException"
 			);
 		}
 

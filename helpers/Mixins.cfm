@@ -43,8 +43,8 @@ variables.$r = variables.getResource;
  * Get i18n Model
  */
 function i18n(){
-	if ( NOT structKeyExists( variables, "cbox18n" ) ) {
-		variables.cbox18n = getInstance( "i18n@cbi18n" );
+	if ( NOT structKeyExists( variables, "cboxi18n" ) ) {
+		variables.cboxi18n = getInstance( "i18n@cbi18n" );
 	}
 	return variables.cboxi18n;
 }

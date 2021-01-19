@@ -7,22 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ----
 
-## [2.0.0] => 2021-JAN-
+## [2.0.0] => 2021-JAN-19
 
 ### Added
 
+* ACF2016, ACF2018 Support
+* Complete migration to script thanks to @wpdebruin
+* Fallback mechanism for resource selection from base, to language, to country variants thanks to @wpdebruin
+* Migration to leverage cbStorages for locale storage thanks to @wpdebruin
+* Interceptor for missing translations `onUnknownTranslation` thanks to @wpdebruin
+* `CookieStorage` is now used as the default for storing locales
+* Support for flat or embedded JSON resource bundles as well as Java resource bundles via extension detection `properties` `json` thanks to @wpdebruin
+* New `i18n()` mixin helper to get easy access to i18n methods
+* New `resoureService()` mixin helper to get easy access to the resource service model
+* The extension of the file (`.properties, .json`) is what determines the resource type to use
 * Github autopublishing of changelogs
 * New CI procedures based on new ColdBox modules
 * More formatting goodness and watchers
-* ACF2016, ACF2018 Support
-* Complete migration to script
-* Fallback mechanism for resource selection
-* Migration to leverage cbStorages for locale storage
-* Interceptor for missing translations `onUnknownTranslation`
-* CookieStorage is now used as the default for storing locales
-* Support for flat or embedded JSON resource bundles via the new setting `resourceType`
-* New `i18n()` mixin helper to get easy access to i18n methods
-* New `resoureService()` mixin helper to get easy access to the resource service model
+
 
 ### Removed
 
@@ -30,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * On modules, you will use also the `cbi18n` top level key for configuration for each module
 * ACF11, Lucee 4.5 Support
 * `DefaultLocale` in storage now renamed to `CurrentLocale`
+* `dontloadRBFlag` removed as it was never used anymore.
 
 ### Fixed
 

@@ -32,8 +32,8 @@
     ],
     "scripts":{
         "release":"recipe build/release.boxr",
-        "format":"cfformat run ModuleConfig.cfc,models/,test-harness/tests/specs",
-        "format:watch":"cfformat watch ModuleConfig.cfc,models/,test-harness/tests/specs ./.cfformat.json",
-        "format:check":"cfformat check ModuleConfig.cfc,models/,test-harness/tests/specs"
+        "format":"cfformat run ModuleConfig.cfc,models/,test-harness/config,test-harness/handlers,test-harness/tests/specs",
+        "format:watch":"cfformat watch ModuleConfig.cfc,models/,test-harness/config,test-harness/handlers,test-harness/tests/specs ./.cfformat.json",
+        "format:check":"cfformat check ModuleConfig.cfc,models/,test-harness/config,test-harness/handlers,test-harness/tests/specs"
     }
 }

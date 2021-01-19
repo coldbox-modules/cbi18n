@@ -26,16 +26,25 @@ component {
 	 */
 	function configure(){
 		settings = {
+			// The default resource to load and aliased as `default`
 			"defaultResourceBundle" : "",
+			// The locale to use when none defined
 			"defaultLocale"         : "en_US",
+			// The default storage for the locale
 			"localeStorage"         : "cookieStorage@cbstorages",
+			// What to emit to via the resource methods if a translation is not found
 			"unknownTranslation"    : "",
+			// If true, we will log to LogBox the missing translations
 			"logUnknownTranslation" : false,
+			// Boolean marker indicating if the module has loaded resources and the i18n model needs to load, mostly used internally
 			"using_i18N"            : false,
+			// A-la-carte resources to load by name
 			"resourceBundles"       : {},
-			"resourceType"          : "java", // java or JSON
+			// You can override the ResourceService with your own, just add the WireBox ID
 			"customResourceService" : ""
 		};
+
+		// Emitted Events
 		interceptorSettings = { customInterceptionPoints : "onUnknownTranslation" };
 	}
 
@@ -44,8 +53,13 @@ component {
 	 */
 	function onLoad(){
 		// Remap Resource Service if settings allow it
-		if ( settings.customResourceService.len() ) {
-			binder.map( "resourceService@cbi18n", true ).to( settings.customResourceService );
+		if ( variables.settings.customResourceService.len() ) {
+			binder
+				.map(
+					alias: "resourceService@cbi18n",
+					force: true
+				)
+				.to( variables.settings.customResourceService );
 		}
 	}
 
