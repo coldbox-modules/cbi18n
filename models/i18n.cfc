@@ -52,6 +52,26 @@ component singleton accessors="true" {
 		variables.defaultResourceBundle = variables.settings.defaultResourceBundle;
 		variables.defaultLocale         = variables.settings.defaultLocale;
 
+		// v1 Shim for localestorage, remove by v3
+		switch( variables.localeStorage ){
+			case "session" : {
+				variables.localeStorage = "sessionStorage@cbstorages";
+				break;
+			}
+			case "client" : {
+				variables.localeStorage = "clientStorage@cbstorages";
+				break;
+			}
+			case "cookie" : {
+				variables.localeStorage = "cookieStorage@cbstorages";
+				break;
+			}
+			case "request" : {
+				variables.localeStorage = "requestStorage@cbstorages";
+				break;
+			}
+		}
+
 		// instantiate storage service for locale storage
 		try {
 			variables.storageService = variables.wirebox.getInstance( variables.localeStorage );

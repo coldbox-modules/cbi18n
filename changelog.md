@@ -7,11 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ----
 
-## [2.0.1] => 2021-JAN-20
+## [2.1.0] => 2021-JAN-20
 
 ### Fixed
 
 * Missing `cbStorages` dependency on the `box.json` causes failures upon installation
+
+### Added
+
+* Added a shortcut compatiblity layer so v1 apps don't crash on choosing `localeStorage`. Basically, we map the incoming locale storage from the old approach: `session,client,cookie,request` to the `cbStorages` equivalent
 
 ----
 ## [2.0.0] => 2021-JAN-19
