@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ----
 
+## [2.0.1] => 2021-JAN-20
+
+### Fixed
+
+* Missing `cbStorages` dependency on the `box.json` causes failures upon installation
+
+----
 ## [2.0.0] => 2021-JAN-19
 
 ### Added

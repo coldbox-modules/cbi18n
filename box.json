@@ -24,7 +24,10 @@
         "Curt Gratz <gratz@computerknowhow.com>",
         "Jon Clausen <jon_clausen@silowebworks.com>",
         "Wil de Bruin <wil@site4u.nl>"
-    ],
+	],
+	"dependencies":{
+        "cbstorages":"^2.4.0+64"
+    },
     "ignore":[
         "**/.*",
         "tests/*",
