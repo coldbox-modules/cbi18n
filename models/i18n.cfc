@@ -33,10 +33,7 @@ component singleton accessors="true" {
 		variables.aDateFormat = createObject( "java", "java.text.DateFormat" );
 		variables.aLocale     = createObject( "java", "java.util.Locale" );
 		variables.timeZone    = createObject( "java", "java.util.TimeZone" );
-		variables.aCalendar   = createObject(
-			"java",
-			"java.util.GregorianCalendar"
-		).init( buildLocale() );
+		variables.aCalendar   = createObject( "java", "java.util.GregorianCalendar" ).init( buildLocale() );
 
 		return this;
 	}
@@ -53,20 +50,20 @@ component singleton accessors="true" {
 		variables.defaultLocale         = variables.settings.defaultLocale;
 
 		// v1 Shim for localestorage, remove by v3
-		switch( variables.localeStorage ){
-			case "session" : {
+		switch ( variables.localeStorage ) {
+			case "session": {
 				variables.localeStorage = "sessionStorage@cbstorages";
 				break;
 			}
-			case "client" : {
+			case "client": {
 				variables.localeStorage = "clientStorage@cbstorages";
 				break;
 			}
-			case "cookie" : {
+			case "cookie": {
 				variables.localeStorage = "cookieStorage@cbstorages";
 				break;
 			}
-			case "request" : {
+			case "request": {
 				variables.localeStorage = "requestStorage@cbstorages";
 				break;
 			}
@@ -118,10 +115,7 @@ component singleton accessors="true" {
 	 */
 	string function getFwLocale(){
 		// return locale, default already set in onDIComplete
-		return variables.storageService.get(
-			"currentLocale",
-			variables.settings.defaultLocale
-		);
+		return variables.storageService.get( "currentLocale", variables.settings.defaultLocale );
 	}
 
 	/**
@@ -193,12 +187,7 @@ component singleton accessors="true" {
 	 * @thisLocale Locale to validate
 	 */
 	boolean function isValidLocale( required string thisLocale ){
-		return (
-			listFind(
-				arrayToList( getLocales() ),
-				arguments.thisLocale
-			)
-		) ? true : false;
+		return ( listFind( arrayToList( getLocales() ), arguments.thisLocale ) ) ? true : false;
 	}
 
 	/**
@@ -245,13 +234,7 @@ component singleton accessors="true" {
 	 * determines if given locale is BIDI. core java uses 'iw' for hebrew, leaving 'he' just in case this is a version thing
 	 */
 	boolean function isBidi(){
-		return listFind(
-			"ar,iw,fa,ps,he",
-			left(
-				buildLocale( getfwLocale() ).toString(),
-				2
-			)
-		) ? true : false;
+		return listFind( "ar,iw,fa,ps,he", left( buildLocale( getfwLocale() ).toString(), 2 ) ) ? true : false;
 	}
 
 	/**
@@ -274,13 +257,12 @@ component singleton accessors="true" {
 	/**
 	 * returns structure holding decimal format symbols for this locale
 	 *
-	 * @returns struct holding decimal format symbols for this locale
+	 * @return struct holding decimal format symbols for this locale
 	 */
 	struct function getDecimalSymbols(){
-		var dfSymbols = createObject(
-			"java",
-			"java.text.DecimalFormatSymbols"
-		).init( buildLocale( getfwLocale() ) );
+		var dfSymbols = createObject( "java", "java.text.DecimalFormatSymbols" ).init(
+			buildLocale( getfwLocale() )
+		);
 		var symbols                       = structNew();
 		// symbols.plusSign=dfSymbols.getPlusSign().toString();
 		symbols.Percent                   = dfSymbols.getPercent().toString();
@@ -299,10 +281,10 @@ component singleton accessors="true" {
 	/**
 	 * DateTime format
 	 *
-	 * @thisOffset java epoch offset
+	 * @thisOffset     java epoch offset
 	 * @thisDateFormat FULL=0, LONG=1, MEDIUM=2, SHORT=3
 	 * @thisTimeFormat FULL=0, LONG=1, MEDIUM=2, SHORT=3
-	 * @tz timezone
+	 * @tz             timezone
 	 */
 	string function dateTimeFormat(
 		required numeric thisOffset,
@@ -324,9 +306,10 @@ component singleton accessors="true" {
 
 	/**
 	 * Date format
-	 * @thisOffset java epoch offset
+	 *
+	 * @thisOffset     java epoch offset
 	 * @thisDateFormat FULL=0, LONG=1, MEDIUM=2, SHORT=3
-	 * @tz timezone
+	 * @tz             timezone
 	 */
 	string function dateFormat(
 		required numeric thisOffset,
@@ -334,11 +317,8 @@ component singleton accessors="true" {
 		tz                     = variables.timeZone.getDefault().getID()
 	){
 		var tDateFormat    = javacast( "int", arguments.thisDateFormat );
-		var tDateFormatter = variables.aDateFormat.getDateInstance(
-			tDateFormat,
-			buildLocale( getfwLocale() )
-		);
-		var tTZ = variables.timeZone.getTimezone( arguments.tz );
+		var tDateFormatter = variables.aDateFormat.getDateInstance( tDateFormat, buildLocale( getfwLocale() ) );
+		var tTZ            = variables.timeZone.getTimezone( arguments.tz );
 		tDateFormatter.setTimezone( tTZ );
 		return tDateFormatter.format( arguments.thisOffset );
 	}
@@ -346,9 +326,9 @@ component singleton accessors="true" {
 	/**
 	 * Time Format
 	 *
-	 * @thisOffset java epoch offset
+	 * @thisOffset     java epoch offset
 	 * @thisTimeFormat FULL=0, LONG=1, MEDIUM=2, SHORT=3
-	 * @tz timezone
+	 * @tz             timezone
 	 */
 	string function timeFormat(
 		required numeric thisOffset,
@@ -356,11 +336,8 @@ component singleton accessors="true" {
 		tz                     = variables.timeZone.getDefault().getID()
 	){
 		var tTimeFormat    = javacast( "int", arguments.thisTimeFormat );
-		var tTimeFormatter = variables.aDateFormat.getTimeInstance(
-			tTimeFormat,
-			buildLocale( getfwLocale() )
-		);
-		var tTZ = variables.timeZone.getTimezone( arguments.tz );
+		var tTimeFormatter = variables.aDateFormat.getTimeInstance( tTimeFormat, buildLocale( getfwLocale() ) );
+		var tTZ            = variables.timeZone.getTimezone( arguments.tz );
 		tTimeFormatter.setTimezone( tTZ );
 		return tTimeFormatter.format( arguments.thisOffset );
 	}
@@ -368,32 +345,20 @@ component singleton accessors="true" {
 	/**
 	 * locale version of dateFormat. Needs object instantiation. That is your job not mine.
 	 *
-	 * @date
+	 * @date 
 	 * @style FULL=0, LONG=1, MEDIUM=2, SHORT=3
 	 */
-	function dateLocaleFormat(
-		required date date,
-		string style = "LONG"
-	){
+	function dateLocaleFormat( required date date, string style = "LONG" ){
 		// hack to trap & fix varchar mystery goop coming out of mysql datetimes
-		var aCalendar = createObject(
-			"java",
-			"java.util.GregorianCalendar"
-		).init( buildLocale() );
+		var aCalendar = createObject( "java", "java.util.GregorianCalendar" ).init( buildLocale() );
 		try {
 			return variables.aDateFormat
-				.getDateInstance(
-					variables.aDateFormat[ arguments.style ],
-					buildLocale( getfwLocale() )
-				)
+				.getDateInstance( variables.aDateFormat[ arguments.style ], buildLocale( getfwLocale() ) )
 				.format( arguments.date );
 		} catch ( Any e ) {
 			aCalendar.setTime( arguments.date );
 			return variables.aDateFormat
-				.getDateInstance(
-					variables.aDateFormat[ arguments.style ],
-					buildLocale( getfwLocale() )
-				)
+				.getDateInstance( variables.aDateFormat[ arguments.style ], buildLocale( getfwLocale() ) )
 				.format( aCalendar.getTime() );
 		}
 	}
@@ -401,32 +366,20 @@ component singleton accessors="true" {
 	/**
 	 * locale version of timeFormat. Needs object instantiation. That is your job not mine.
 	 *
-	 * @date
+	 * @date 
 	 * @style FULL=0, LONG=1, MEDIUM=2, SHORT=3
 	 */
-	function timeLocaleFormat(
-		required date date,
-		string style = "SHORT"
-	){
+	function timeLocaleFormat( required date date, string style = "SHORT" ){
 		// hack to trap & fix varchar mystery goop coming out of mysql datetimes
-		var aCalendar = createObject(
-			"java",
-			"java.util.GregorianCalendar"
-		).init( buildLocale() );
+		var aCalendar = createObject( "java", "java.util.GregorianCalendar" ).init( buildLocale() );
 		try {
 			return variables.aDateFormat
-				.getTimeInstance(
-					variables.aDateFormat[ arguments.style ],
-					buildLocale( getfwLocale() )
-				)
+				.getTimeInstance( variables.aDateFormat[ arguments.style ], buildLocale( getfwLocale() ) )
 				.format( arguments.date );
 		} catch ( Any e ) {
 			aCalendar.setTime( arguments.date );
 			return variables.aDateFormat
-				.getTimeInstance(
-					variables.aDateFormat[ arguments.style ],
-					buildLocale( getfwLocale() )
-				)
+				.getTimeInstance( variables.aDateFormat[ arguments.style ], buildLocale( getfwLocale() ) )
 				.format( aCalendar.getTime() );
 		}
 	}
@@ -434,7 +387,7 @@ component singleton accessors="true" {
 	/**
 	 * locale date/time format. Needs object instantiation. That is your job not mine.
 	 *
-	 * @date
+	 * @date     
 	 * @dateStyle FULL=0, LONG=1, MEDIUM=2, SHORT=3
 	 * @timeStyle FULL=0, LONG=1, MEDIUM=2, SHORT=3
 	 */
@@ -443,10 +396,7 @@ component singleton accessors="true" {
 		string dateStyle = "SHORT",
 		string timeStyle = "SHORT"
 	){
-		var aCalendar = createObject(
-			"java",
-			"java.util.GregorianCalendar"
-		).init( buildLocale() );
+		var aCalendar = createObject( "java", "java.util.GregorianCalendar" ).init( buildLocale() );
 		try {
 			return variables.aDateFormat
 				.getDateTimeInstance(
@@ -540,10 +490,7 @@ component singleton accessors="true" {
 	 * @thisDateFormat FULL=0, LONG=1, MEDIUM=2, SHORT=3
 	 * @thisTimeFormat FULL=0, LONG=1, MEDIUM=2, SHORT=3
 	 */
-	string function getDateTimePattern(
-		numeric thisDateFormat = 1,
-		numeric thisTimeFormat = 3
-	){
+	string function getDateTimePattern( numeric thisDateFormat = 1, numeric thisTimeFormat = 3 ){
 		var tDateFormat    = javacast( "int", arguments.thisDateFormat );
 		var tTimeFormat    = javacast( "int", arguments.thisTimeFormat );
 		var tDateFormatter = variables.aDateFormat.getDateTimeInstance(
@@ -557,9 +504,9 @@ component singleton accessors="true" {
 	/**
 	 * formats a date/time to given pattern
 	 *
-	 * @thisOffset
+	 * @thisOffset 
 	 * @thisPattern
-	 * @tz
+	 * @tz         
 	 */
 	string function formatDateTime(
 		required numeric thisOffset,
@@ -588,7 +535,10 @@ component singleton accessors="true" {
 	 * @thisYear
 	 */
 	string function getLocalizedYear( required numeric thisYear ){
-		var thisDF = createObject( "java", "java.text.SimpleDateFormat" ).init( "yyyy", buildLocale( getfwLocale() ) );
+		var thisDF = createObject( "java", "java.text.SimpleDateFormat" ).init(
+			"yyyy",
+			buildLocale( getfwLocale() )
+		);
 		return thisDF.format( createDate( arguments.thisYear, 1, 1 ) );
 	}
 
@@ -598,7 +548,10 @@ component singleton accessors="true" {
 	 * @month
 	 */
 	string function getLocalizedMonth( required numeric month ){
-		var thisDF = createObject( "java", "java.text.SimpleDateFormat" ).init( "MMMM", buildLocale( getfwLocale() ) );
+		var thisDF = createObject( "java", "java.text.SimpleDateFormat" ).init(
+			"MMMM",
+			buildLocale( getfwLocale() )
+		);
 		return thisDF.format( createDate( 1999, arguments.month, 1 ) );
 	}
 
@@ -615,10 +568,9 @@ component singleton accessors="true" {
 	 * @calendarOrder
 	 */
 	array function getShortWeekDays( boolean calendarOrder = true ){
-		var theseDateSymbols = createObject(
-			"java",
-			"java.text.DateFormatSymbols"
-		).init( buildLocale( getFWLocale() ) );
+		var theseDateSymbols = createObject( "java", "java.text.DateFormatSymbols" ).init(
+			buildLocale( getFWLocale() )
+		);
 		// array of days, sunday =1 saturday =7
 		var localeDays = listToArray( arrayToList( theseDateSymbols.getShortWeekDays() ) );
 		if ( !arguments.calendarOrder ) {
@@ -645,17 +597,11 @@ component singleton accessors="true" {
 	 * returns year from epoch offset
 	 *
 	 * @thisOffset java epoch offset
-	 * @tz
+	 * @tz        
 	 */
-	numeric function getYear(
-		required numeric thisOffset,
-		tz = variables.timeZone.getDefault().getID()
-	){
+	numeric function getYear( required numeric thisOffset, tz = variables.timeZone.getDefault().getID() ){
 		var thisTZ    = variables.timeZone.getTimeZone( arguments.tZ );
-		var aCalendar = createObject(
-			"java",
-			"java.util.GregorianCalendar"
-		).init( buildLocale() );
+		var aCalendar = createObject( "java", "java.util.GregorianCalendar" ).init( buildLocale() );
 		aCalendar.setTimeInMillis( arguments.thisOffset );
 		aCalendar.setTimeZone( thisTZ );
 		return aCalendar.get( aCalendar.YEAR );
@@ -665,17 +611,11 @@ component singleton accessors="true" {
 	 * returns month from epoch offset
 	 *
 	 * @thisOffset java epoch offset
-	 * @tz
+	 * @tz        
 	 */
-	numeric function getMonth(
-		required numeric thisOffset,
-		tz = variables.timeZone.getDefault().getID()
-	){
+	numeric function getMonth( required numeric thisOffset, tz = variables.timeZone.getDefault().getID() ){
 		var thisTZ    = variables.timeZone.getTimeZone( arguments.tZ );
-		var aCalendar = createObject(
-			"java",
-			"java.util.GregorianCalendar"
-		).init( buildLocale() );
+		var aCalendar = createObject( "java", "java.util.GregorianCalendar" ).init( buildLocale() );
 		aCalendar.setTimeInMillis( arguments.thisOffset );
 		aCalendar.setTimeZone( thisTZ );
 		return aCalendar.get( aCalendar.MONTH ) + 1; // --- java months start at 0
@@ -685,17 +625,11 @@ component singleton accessors="true" {
 	 * returns day from epoch offset
 	 *
 	 * @thisOffset java epoch offset
-	 * @tz
+	 * @tz        
 	 */
-	numeric function getDay(
-		required numeric thisOffset,
-		tz = variables.timeZone.getDefault().getID()
-	){
+	numeric function getDay( required numeric thisOffset, tz = variables.timeZone.getDefault().getID() ){
 		var thisTZ    = variables.timeZone.getTimeZone( arguments.tZ );
-		var aCalendar = createObject(
-			"java",
-			"java.util.GregorianCalendar"
-		).init( buildLocale() );
+		var aCalendar = createObject( "java", "java.util.GregorianCalendar" ).init( buildLocale() );
 		aCalendar.setTimeInMillis( arguments.thisOffset );
 		aCalendar.setTimeZone( thisTZ );
 		return aCalendar.get( aCalendar.DATE );
@@ -705,17 +639,11 @@ component singleton accessors="true" {
 	 * returns hour of day, 24 hr format, from epoch offset
 	 *
 	 * @thisOffset java epoch offset
-	 * @tz
+	 * @tz        
 	 */
-	numeric function getHour(
-		required numeric thisOffset,
-		tz = variables.timeZone.getDefault().getID()
-	){
+	numeric function getHour( required numeric thisOffset, tz = variables.timeZone.getDefault().getID() ){
 		var thisTZ    = variables.timeZone.getTimeZone( arguments.tZ );
-		var aCalendar = createObject(
-			"java",
-			"java.util.GregorianCalendar"
-		).init( buildLocale() );
+		var aCalendar = createObject( "java", "java.util.GregorianCalendar" ).init( buildLocale() );
 		aCalendar.setTimeInMillis( arguments.thisOffset );
 		aCalendar.setTimeZone( thisTZ );
 		return aCalendar.get( aCalendar.HOUR_OF_DAY );
@@ -725,17 +653,11 @@ component singleton accessors="true" {
 	 * returns minute from epoch offset
 	 *
 	 * @thisOffset java epoch offset
-	 * @tz
+	 * @tz        
 	 */
-	numeric function getMinute(
-		required numeric thisOffset,
-		tz = variables.timeZone.getDefault().getID()
-	){
+	numeric function getMinute( required numeric thisOffset, tz = variables.timeZone.getDefault().getID() ){
 		var thisTZ    = variables.timeZone.getTimeZone( arguments.tZ );
-		var aCalendar = createObject(
-			"java",
-			"java.util.GregorianCalendar"
-		).init( buildLocale() );
+		var aCalendar = createObject( "java", "java.util.GregorianCalendar" ).init( buildLocale() );
 		aCalendar.setTimeInMillis( arguments.thisOffset );
 		aCalendar.setTimeZone( thisTZ );
 		return aCalendar.get( aCalendar.MINUTE );
@@ -745,17 +667,11 @@ component singleton accessors="true" {
 	 * returns second from epoch offset
 	 *
 	 * @thisOffset java epoch offset
-	 * @tz
+	 * @tz        
 	 */
-	numeric function getSecond(
-		required numeric thisOffset,
-		tz = variables.timeZone.getDefault().getID()
-	){
+	numeric function getSecond( required numeric thisOffset, tz = variables.timeZone.getDefault().getID() ){
 		var thisTZ    = variables.timeZone.getTimeZone( arguments.tZ );
-		var aCalendar = createObject(
-			"java",
-			"java.util.GregorianCalendar"
-		).init( buildLocale() );
+		var aCalendar = createObject( "java", "java.util.GregorianCalendar" ).init( buildLocale() );
 		aCalendar.setTimeInMillis( arguments.thisOffset );
 		aCalendar.setTimeZone( thisTZ );
 		return aCalendar.get( aCalendar.SECOND );
@@ -776,10 +692,7 @@ component singleton accessors="true" {
 	 * @thisOffset java epoch offset to convert to datetime
 	 */
 	date function fromEpoch( required numeric thisOffset ){
-		var aCalendar = createObject(
-			"java",
-			"java.util.GregorianCalendar"
-		).init( buildLocale() );
+		var aCalendar = createObject( "java", "java.util.GregorianCalendar" ).init( buildLocale() );
 		aCalendar.setTimeInMillis( arguments.thisOffset );
 		return aCalendar.getTime();
 	}
@@ -802,6 +715,7 @@ component singleton accessors="true" {
 
 	/**
 	 * returns rawoffset in hours
+	 *
 	 * @tz
 	 */
 	numeric function getRawOffset( tz = variables.timeZone.getDefault().getID() ){
@@ -825,10 +739,7 @@ component singleton accessors="true" {
 	 * @thisOffset
 	 */
 	array function getTZByOffset( required numeric thisOffset ){
-		var rawOffset = javacast(
-			"long",
-			arguments.thisOffset * 3600000
-		);
+		var rawOffset = javacast( "long", arguments.thisOffset * 3600000 );
 		return variables.timeZone.getAvailableIDs( rawOffset );
 	}
 
@@ -844,17 +755,11 @@ component singleton accessors="true" {
 	 * determines if a given date in a given timezone is in DST
 	 *
 	 * @thisOffset
-	 * @tzToTest
+	 * @tzToTest  
 	 */
-	boolean function inDST(
-		requred numeric thisOffset,
-		tzToTest = variables.timeZone.getDefault().getID()
-	){
+	boolean function inDST( requred numeric thisOffset, tzToTest = variables.timeZone.getDefault().getID() ){
 		var thisTZ    = variables.timeZone.getTimeZone( arguments.tzToTest );
-		var aCalendar = createObject(
-			"java",
-			"java.util.GregorianCalendar"
-		).init( buildLocale() );
+		var aCalendar = createObject( "java", "java.util.GregorianCalendar" ).init( buildLocale() );
 		aCalendar.setTimeInMillis( arguments.thisOffset );
 		aCalendar.setTimezone( thisTZ );
 		return thisTZ.inDaylightTime( aCalendar.getTime() );
@@ -864,12 +769,9 @@ component singleton accessors="true" {
 	 * returns the offset in hours for the given datetime in the specified timezone
 	 *
 	 * @thisDate
-	 * @thisTz
+	 * @thisTz  
 	 */
-	function getTZOffset(
-		required date thisDate,
-		thisTZ = variables.timeZone.getDefault().getID()
-	){
+	function getTZOffset( required date thisDate, thisTZ = variables.timeZone.getDefault().getID() ){
 		var tZ = variables.timeZone.getTimeZone( arguments.thisTZ );
 		return tZ.getOffset( arguments.thisDate ) / 3600000;
 	}
@@ -877,10 +779,10 @@ component singleton accessors="true" {
 	/**
 	 * DateAdd
 	 *
-	 * @thisOffset
+	 * @thisOffset  
 	 * @thisDatePart
-	 * @dateUnits
-	 * @thisTZ
+	 * @dateUnits   
+	 * @thisTZ      
 	 */
 	numeric function dateAdd(
 		required numeric thisOffset,
@@ -890,10 +792,7 @@ component singleton accessors="true" {
 	){
 		var dPart     = "";
 		var tZ        = variables.timeZone.getTimeZone( arguments.thisTZ );
-		var aCalendar = createObject(
-			"java",
-			"java.util.GregorianCalendar"
-		).init( buildLocale() );
+		var aCalendar = createObject( "java", "java.util.GregorianCalendar" ).init( buildLocale() );
 		switch ( arguments.thisDatepart ) {
 			case "y":
 			case "yr":
@@ -929,20 +828,17 @@ component singleton accessors="true" {
 		}
 		aCalendar.setTimeInMillis( arguments.thisOffset );
 		aCalendar.setTimezone( tZ );
-		aCalendar.add(
-			dPart,
-			javacast( "int", arguments.dateUnits )
-		);
+		aCalendar.add( dPart, javacast( "int", arguments.dateUnits ) );
 		return aCalendar.getTimeInMillis();
 	}
 
 	/**
 	 * DateDiff
 	 *
-	 * @thisOffset
-	 * @thatOffset
+	 * @thisOffset  
+	 * @thatOffset  
 	 * @thisDatePart
-	 * @thisTZ
+	 * @thisTZ      
 	 */
 	numeric function dateDiff(
 		required numeric thisOffset,
@@ -950,16 +846,10 @@ component singleton accessors="true" {
 		required string thisDatePart,
 		thisTZ = variables.timeZone.getDefault().getID()
 	){
-		var dPart   = "";
-		var elapsed = 0;
-		var before  = createObject(
-			"java",
-			"java.util.GregorianCalendar"
-		);
-		var after = createObject(
-			"java",
-			"java.util.GregorianCalendar"
-		);
+		var dPart     = "";
+		var elapsed   = 0;
+		var before    = createObject( "java", "java.util.GregorianCalendar" );
+		var after     = createObject( "java", "java.util.GregorianCalendar" );
 		var tZ        = variables.timeZone.getTimeZone( arguments.thisTZ );
 		var e         = 0;
 		var s         = 0;
@@ -1088,14 +978,8 @@ component singleton accessors="true" {
 				qryTZ.setCell( "id", timeZone );
 				qryTZ.setCell( "offset", getRawOffset( timeZone ) );
 				qryTZ.setCell( "dspName", tmpName );
-				qryTZ.setCell(
-					"longname",
-					getTZDisplayName( timeZone, "long" )
-				);
-				qryTZ.setCell(
-					"shortname",
-					getTZDisplayName( timeZone, "short" )
-				);
+				qryTZ.setCell( "longname", getTZDisplayName( timeZone, "long" ) );
+				qryTZ.setCell( "shortname", getTZDisplayName( timeZone, "short" ) );
 				qryTZ.setCell( "usesDST", usesDST( timeZone ) );
 			}
 		} );
@@ -1112,26 +996,17 @@ component singleton accessors="true" {
 	/**
 	 * returns the display name of the timezone requested in either long, short, or default style
 	 *
-	 * @thisTZ
+	 * @thisTZ 
 	 * @dspType
 	 */
-	string function getTZDisplayName(
-		thisTZ         = variables.timeZone.getDefault().getID(),
-		string dspType = ""
-	){
+	string function getTZDisplayName( thisTZ = variables.timeZone.getDefault().getID(), string dspType = "" ){
 		var tZ = variables.timeZone.getTimeZone( arguments.thisTZ );
 		switch ( arguments.dspType ) {
 			case "long":
-				return tZ.getDisplayName(
-					javacast( "boolean", false ),
-					javacast( "int", 1 )
-				);
+				return tZ.getDisplayName( javacast( "boolean", false ), javacast( "int", 1 ) );
 				// break;
 			case "short":
-				return tZ.getDisplayName(
-					javacast( "boolean", false ),
-					javacast( "int", 0 )
-				);
+				return tZ.getDisplayName( javacast( "boolean", false ), javacast( "int", 0 ) );
 				// break;
 			default:
 				return tZ.getDisplayName();
@@ -1147,7 +1022,8 @@ component singleton accessors="true" {
 	 *
 	 * @thisLocale
 	 *
-	 * @returns valid Java locale
+	 * @return valid Java locale
+	 *
 	 * @throws i18n.InvalidLocaleException if locale is not valid
 	 */
 	private function buildLocale( string thisLocale = "en_US" ){

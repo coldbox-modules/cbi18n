@@ -1,8 +1,8 @@
 /**
- *********************************************************************************
+ * ********************************************************************************
  * Copyright Since 2005 ColdBox Framework by Luis Majano and Ortus Solutions, Corp
  * www.ortussolutions.com
- ********************************************************************************
+ * *******************************************************************************
  */
 component {
 
@@ -55,10 +55,7 @@ component {
 		// Remap Resource Service if settings allow it
 		if ( variables.settings.customResourceService.len() ) {
 			binder
-				.map(
-					alias: "resourceService@cbi18n",
-					force: true
-				)
+				.map( alias: "resourceService@cbi18n", force: true )
 				.to( variables.settings.customResourceService );
 		}
 	}
@@ -110,10 +107,7 @@ component {
 				} );
 
 				if ( structCount( modules[ arguments.thisModule ].cbi18n.resourceBundles ) ) {
-					settings.resourceBundles.append(
-						modules[ arguments.thisModule ].cbi18n.resourceBundles,
-						true
-					);
+					settings.resourceBundles.append( modules[ arguments.thisModule ].cbi18n.resourceBundles, true );
 					flagi18n = true;
 				}
 				if ( flagi18n ) {

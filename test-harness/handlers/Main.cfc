@@ -1,10 +1,10 @@
 ﻿/**
-* My Event Handler Hint
-*/
-component{
+ * My Event Handler Hint
+ */
+component {
 
 	// Index
-	any function index( event,rc, prc ){
+	any function index( event, rc, prc ){
 		event.setView( "main/index" );
 	}
 
@@ -25,7 +25,7 @@ component{
 	}
 
 	any function testi18nPartialBundle( event, rc, prc ){
-		return getResource( resource = "helloworld", locale="nl_NL" );
+		return getResource( resource = "helloworld", locale = "nl_NL" );
 	}
 
 	any function testi18nExtraBundle( event, rc, prc ){
@@ -36,9 +36,16 @@ component{
 		return getResource( "welcome@crs" );
 	}
 	any function testi18nJsonResourceService( event, rc, prc ){
-		return getInstance('JsonResourceService').getResource( resource="sub.intromessage", bundle="jsonTest" );
+		return getInstance( "JsonResourceService" ).getResource(
+			resource = "sub.intromessage",
+			bundle   = "jsonTest"
+		);
 	}
 	any function testi18nNestedJsonResourceService( event, rc, prc ){
-		return getInstance('JsonResourceService').getResource( resource="sub.intromessage", bundle="nestedJsonTest" );
+		return getInstance( "JsonResourceService" ).getResource(
+			resource = "sub.intromessage",
+			bundle   = "nestedJsonTest"
+		);
 	}
+
 }

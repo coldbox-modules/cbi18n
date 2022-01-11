@@ -16,16 +16,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 		mockWireBox.$( "getInstance", mockCookieStorage );
 
 		i18n = createMock( "cbi18n.models.i18n" ).init();
-		i18n.$property(
-				"controller",
-				"variables",
-				mockController
-			)
-			.$property(
-				"resourceService",
-				"variables",
-				mockRB
-			)
+		i18n.$property( "controller", "variables", mockController )
+			.$property( "resourceService", "variables", mockRB )
 			.$property(
 				"storageService",
 				"variables",
@@ -63,10 +55,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 	function testLocaleMethods(){
 		assertEquals( "en_US", i18n.getFWLocale() );
-		assertEquals(
-			"English (United States)",
-			i18n.getFWLocaleDisplay()
-		);
+		assertEquals( "English (United States)", i18n.getFWLocaleDisplay() );
 		assertEquals( "united states", i18n.getFWCountry() );
 		assertEquals( "US", i18n.getFWCountryCode() );
 		assertEquals( "USA", i18n.getFWISO3CountryCode() );

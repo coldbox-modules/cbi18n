@@ -4,23 +4,17 @@ component extends="coldbox.system.testing.BaseTestCase" {
 		super.setup();
 
 		// Mocks
-		mockController         = prepareMock( getController() );
-		mockLogger             = prepareMock( mockController.getLogBox().getLogger( "ResourceService" ) ).$( "canDebug", false );
+		mockController = prepareMock( getController() );
+		mockLogger     = prepareMock( mockController.getLogBox().getLogger( "ResourceService" ) ).$(
+			"canDebug",
+			false
+		);
 		mockInterceptorService = prepareMock( getController().getInterceptorService() );
-		mockController
-			.$( "settingExists", true )
-			.$(
-				"getAppRootPath",
-				expandPath( "/root" )
-			);
+		mockController.$( "settingExists", true ).$( "getAppRootPath", expandPath( "/root" ) );
 		mocki18n        = createEmptyMock( "cbi18n.models.i18n" ).$( "getFwLocale", "en_US" );
 		resourceService = createMock( "cbi18n.models.ResourceService" ).init();
 		resourceService.$property( "log", "variables", mockLogger );
-		resourceService.$property(
-			"controller",
-			"variables",
-			mockController
-		);
+		resourceService.$property( "controller", "variables", mockController );
 		resourceService.$property(
 			"interceptorService",
 			"variables",
@@ -40,17 +34,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			}
 		);
 		resourceService.$( "getFWLocale", "en_US" );
-		resourceService.loadBundle(
-			rbFile  = expandPath( "/tests/resources/main" ),
-			rbAlias = "default"
-		);
+		resourceService.loadBundle( rbFile = expandPath( "/tests/resources/main" ), rbAlias = "default" );
 	}
 
 	function testLoadBundle(){
-		resourceService.loadBundle(
-			rbFile  = expandPath( "/tests/resources/main" ),
-			rbAlias = "testing"
-		);
+		resourceService.loadBundle( rbFile = expandPath( "/tests/resources/main" ), rbAlias = "testing" );
 		var bundles = resourceService.getBundles();
 		assertTrue( structKeyExists( bundles, "testing" ) );
 	}
@@ -80,57 +68,36 @@ component extends="coldbox.system.testing.BaseTestCase" {
 	}
 
 	function testResourceReplacements(){
-		r = resourceService.getResource(
-			resource = "testrep",
-			values   = [ "luis", "test" ]
-		);
+		r = resourceService.getResource( resource = "testrep", values = [ "luis", "test" ] );
 		debug( r );
 		assertEquals( "Hello my name is luis and test", r );
 
 		r = resourceService.getResource(
 			resource = "testrepByKey",
-			values   = {
-				name  : "luis majano",
-				quote : "I am amazing!"
-			}
+			values   = { name : "luis majano", quote : "I am amazing!" }
 		);
 		debug( r );
-		assertEquals(
-			"Hello my name is luis majano and I am amazing!",
-			r
-		);
+		assertEquals( "Hello my name is luis majano and I am amazing!", r );
 	}
 
 	function testGetResource(){
-		r = resourceService.getResource(
-			resource = "testrep",
-			values   = [ "luis", "test" ]
-		);
+		r = resourceService.getResource( resource = "testrep", values = [ "luis", "test" ] );
 		assertEquals( "Hello my name is luis and test", r );
 
 		r = resourceService.getResource( resource = "invalid" );
 		assertEquals( "**TEST** key: invalid", r );
 
-		r = resourceService.getResource(
-			resource = "invalid",
-			default  = "invalid"
-		);
+		r = resourceService.getResource( resource = "invalid", default = "invalid" );
 		assertEquals( "invalid", r );
 	}
 
 	function testInvalidGetRBString(){
 		expectedException();
-		r = resourceService.getRBString(
-			rbFile = expandPath( "/tests/resources/main" ),
-			rbKey  = ""
-		);
+		r = resourceService.getRBString( rbFile = expandPath( "/tests/resources/main" ), rbKey = "" );
 	}
 
 	function testGetRBString(){
-		r = resourceService.getRBString(
-			rbFile = expandPath( "/tests/resources/main" ),
-			rbKey  = "helloworld"
-		);
+		r = resourceService.getRBString( rbFile = expandPath( "/tests/resources/main" ), rbKey = "helloworld" );
 		assertTrue( len( r ) );
 
 		r = resourceService.getRBString(
