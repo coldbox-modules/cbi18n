@@ -86,13 +86,13 @@ component singleton accessors="true" {
 			);
 		}
 		// set locale setup on configuration file
-		setFWLocale( variables.defaultLocale );
+		setFWLocale( getFwLocale() );
 
 		// Verify if we have a default resource bundle, if we do, load it.
 		if ( variables.defaultResourceBundle.len() ) {
 			variables.resourceService.loadBundle(
 				rbFile  : variables.defaultResourceBundle,
-				rbLocale: variables.defaultLocale,
+				rbLocale: getFwLocale(),
 				rbAlias : "default"
 			);
 		}
@@ -101,7 +101,7 @@ component singleton accessors="true" {
 		variables.settings.resourceBundles.each( function( bundleKey, thisBundle ){
 			variables.resourceService.loadBundle(
 				rbFile  : thisBundle,
-				rbLocale: variables.defaultLocale,
+				rbLocale: getFwLocale(),
 				rbAlias : lCase( bundleKey )
 			);
 		} );
