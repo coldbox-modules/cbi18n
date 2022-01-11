@@ -40,10 +40,10 @@ component singleton accessors="true" {
 	/**
 	 * Tries to load a resource bundle into ColdBox memory if not loaded already
 	 *
-	 * @rbFile This must be the path + filename UP to but NOT including the locale. We auto-add .properties or .json to the end alongside the locale
+	 * @rbFile   This must be the path + filename UP to but NOT including the locale. We auto-add .properties or .json to the end alongside the locale
 	 * @rbLocale The locale of the bundle to load
-	 * @force Forces the loading of the bundle even if its in memory
-	 * @rbAlias The unique alias name used to store this resource bundle in memory. The default name is the name of the rbFile passed if not passed.
+	 * @force    Forces the loading of the bundle even if its in memory
+	 * @rbAlias  The unique alias name used to store this resource bundle in memory. The default name is the name of the rbFile passed if not passed.
 	 */
 	ResourceService function loadBundle(
 		required string rBFile,
@@ -73,22 +73,14 @@ component singleton accessors="true" {
 		}
 
 		// Verify bundle register locale exists or forced
-		if (
-			!structKeyExists(
-				variables.bundles[ arguments.rbAlias ],
-				arguments.rbLocale
-			) || arguments.force
-		) {
+		if ( !structKeyExists( variables.bundles[ arguments.rbAlias ], arguments.rbLocale ) || arguments.force ) {
 			lock
 				name          ="rbload.#hash( arguments.rbFile & arguments.rbLocale )#"
 				type          ="exclusive"
 				timeout       ="10"
 				throwontimeout="true" {
 				if (
-					!structKeyExists(
-						variables.bundles[ arguments.rbAlias ],
-						arguments.rbLocale
-					) || arguments.force
+					!structKeyExists( variables.bundles[ arguments.rbAlias ], arguments.rbLocale ) || arguments.force
 				) {
 					// load a bundle and store it.
 					variables.bundles[ arguments.rbAlias ][ arguments.rbLocale ] = getResourceBundle(
@@ -111,11 +103,11 @@ component singleton accessors="true" {
 	/**
 	 * Get a resource from a specific loaded bundle and locale
 	 *
-	 * @resource The resource (key) to retrieve from the main loaded bundle.
+	 * @resource     The resource (key) to retrieve from the main loaded bundle.
 	 * @defaultValue A default value to send back if the resource (key) not found
-	 * @locale Pass in which locale to take the resource from. By default it uses the user's current set locale
-	 * @values An array, struct or simple string of value replacements to use on the resource string
-	 * @bundle The bundle alias to use to get the resource from when using multiple resource bundles. By default the bundle name used is 'default'
+	 * @locale       Pass in which locale to take the resource from. By default it uses the user's current set locale
+	 * @values       An array, struct or simple string of value replacements to use on the resource string
+	 * @bundle       The bundle alias to use to get the resource from when using multiple resource bundles. By default the bundle name used is 'default'
 	 */
 	function getResource(
 		required resource,
@@ -147,12 +139,7 @@ component singleton accessors="true" {
 				// Try to load the language bundle either by default or config search
 				if ( arguments.bundle eq "default" ) {
 					rbFile = variables.settings.defaultResourceBundle;
-				} else if (
-					structKeyExists(
-						variables.settings.resourceBundles,
-						arguments.bundle
-					)
-				) {
+				} else if ( structKeyExists( variables.settings.resourceBundles, arguments.bundle ) ) {
 					rbFile = variables.settings.resourceBundles[ arguments.bundle ];
 				}
 				loadBundle(
@@ -209,10 +196,7 @@ component singleton accessors="true" {
 
 		// Return Resource with value replacements
 		if ( structKeyExists( arguments, "values" ) ) {
-			return formatRBString(
-				thisBundle[ arguments.resource ],
-				arguments.values
-			);
+			return formatRBString( thisBundle[ arguments.resource ], arguments.values );
 		}
 
 		// return from bundle
@@ -226,7 +210,7 @@ component singleton accessors="true" {
 	 * Reads,parses and returns a resource bundle in struct format. It also merges the hierarchical bundles
 	 * for country and variant if found.
 	 *
-	 * @rbFile This must be the path + filename UP to but NOT including the locale. We auto-add the local and .properties to the end.
+	 * @rbFile   This must be the path + filename UP to but NOT including the locale. We auto-add the local and .properties to the end.
 	 * @rbLocale The locale of the resource bundle
 	 *
 	 * @throws ResourceBundle.InvalidBundlePath if bundlePath is not found
@@ -254,10 +238,7 @@ component singleton accessors="true" {
 			var targetPath = discoverResourcePath( arguments.resourceFile );
 			// Do we load it up or ignore it
 			if ( targetPath.len() ) {
-				resourceBundle.append(
-					loadBundleFromDisk( targetPath ),
-					true
-				); // append and overwrite
+				resourceBundle.append( loadBundleFromDisk( targetPath ), true ); // append and overwrite
 			} else if ( variables.log.canDebug() ) {
 				variables.log.debug(
 					"Ignore loading variant: #arguments.resourceFile#.(json|properties) as it does not exist on disk (path:#targetPath#)"
@@ -282,12 +263,12 @@ component singleton accessors="true" {
 	/**
 	 * Returns a given key from a specific resource bundle file and locale. NOT FROM MEMORY
 	 *
-	 * @rbFile This must be the path + filename UP to but NOT including the locale. We auto-add the local and .properties to the end.
-	 * @rbKey The key to retrieve
-	 * @rbLocale The locale of the bundle. Default is en_US
+	 * @rbFile       This must be the path + filename UP to but NOT including the locale. We auto-add the local and .properties to the end.
+	 * @rbKey        The key to retrieve
+	 * @rbLocale     The locale of the bundle. Default is en_US
 	 * @defaultValue A default value to send back if resource not found
 	 *
-	 * @throws ResourceBundle.InvalidBundlePath if bundlePath is not found
+	 * @throws ResourceBundle.InvalidBundlePath      if bundlePath is not found
 	 * @throws ResourceBundle.RBKeyNotFoundException if rbKey is not found
 	 */
 	any function getRBString(
@@ -307,10 +288,7 @@ component singleton accessors="true" {
 		if ( listLast( targetPath, "." ) == "properties" ) {
 			// read file
 			var fis = getResourceFileInputStream( targetPath );
-			var rb  = createObject(
-				"java",
-				"java.util.PropertyResourceBundle"
-			).init( fis );
+			var rb  = createObject( "java", "java.util.PropertyResourceBundle" ).init( fis );
 			try {
 				// Retrieve string
 				var rbString = rb.handleGetObject( arguments.rbKey );
@@ -353,10 +331,11 @@ component singleton accessors="true" {
 	/**
 	 * Returns an array of keys from a specific resource bundle. NOT FROM MEMORY
 	 *
-	 * @rbFile This must be the path + filename UP to but NOT including the locale. We auto-add the local and .properties to the end.
+	 * @rbFile   This must be the path + filename UP to but NOT including the locale. We auto-add the local and .properties to the end.
 	 * @rbLocale The locale to use, if not passed, defaults to default locale.
 	 *
-	 * @returns array of keys from a specific resource bundle
+	 * @return array of keys from a specific resource bundle
+	 *
 	 * @throws ResourceBundle.InvalidBundlePath if bundlePath is not found
 	 */
 	array function getRBKeys( required rbFile, rbLocale = "" ){
@@ -373,10 +352,7 @@ component singleton accessors="true" {
 		if ( listLast( targetPath, "." ) == "properties" ) {
 			// read file
 			var fis = getResourceFileInputStream( targetPath );
-			var rb  = createObject(
-				"java",
-				"java.util.PropertyResourceBundle"
-			).init( fis );
+			var rb  = createObject( "java", "java.util.PropertyResourceBundle" ).init( fis );
 			try {
 				// Get Keys
 				var rbKeys = rb.getKeys();
@@ -399,9 +375,9 @@ component singleton accessors="true" {
 	 * Performs messageFormat like operation on compound rb string. So if you have a string with {1} it will replace it. You can also have multiple and send in an array to do replacements.
 	 *
 	 * @rbString A localized string with {bnamed|positional} replacements
-	 * @values Array, Struct or single value to format into the rbString
+	 * @values   Array, Struct or single value to format into the rbString
 	 *
-	 * @returns formatted string
+	 * @return formatted string
 	 */
 	string function formatRBString( required rbString, required values ){
 		var tmpStr = arguments.rbString;
@@ -411,11 +387,7 @@ component singleton accessors="true" {
 			var valLen = arrayLen( arguments.values );
 
 			for ( var x = 1; x lte valLen; x = x + 1 ) {
-				tmpStr = tmpStr.replace(
-					"{#x#}",
-					arguments.values[ x ],
-					"ALL"
-				);
+				tmpStr = tmpStr.replace( "{#x#}", arguments.values[ x ], "ALL" );
 			}
 
 			return tmpStr;
@@ -440,10 +412,10 @@ component singleton accessors="true" {
 	 * performs messageFormat on compound rb string
 	 *
 	 * @thisPattern pattern to use in formatting
-	 * @args substitution values, simple or array
-	 * @thisLocale locale to use in formatting, defaults to en_US
+	 * @args        substitution values, simple or array
+	 * @thisLocale  locale to use in formatting, defaults to en_US
 	 *
-	 * @returns a formatted string
+	 * @return a formatted string
 	 */
 	string function messageFormat(
 		required string thisPattern,
@@ -490,7 +462,7 @@ component singleton accessors="true" {
 	 *
 	 * @pattern format pattern to test
 	 *
-	 * @returns boolean
+	 * @return boolean
 	 */
 	boolean function verifyPattern( required string pattern ){
 		try {
@@ -524,6 +496,7 @@ component singleton accessors="true" {
 	 * @rbFilePath path + filename for resource, including locale + .properties
 	 *
 	 * @return java.io.FileInputStream
+	 *
 	 * @throws ResourceBundle.InvalidBundlePath
 	 */
 	private function getResourceFileInputStream( required string rbFilePath ){
@@ -549,15 +522,11 @@ component singleton accessors="true" {
 	 * @resourceBundleFullPath full path to a (partial) resourceFile
 	 *
 	 * @return struct resourcebundle
+	 *
 	 * @throws ResourceBundle.InvalidBundlePath
 	 */
 	private struct function loadBundleFromDisk( required string resourceBundleFullPath ){
-		if (
-			listLast(
-				arguments.resourceBundleFullPath,
-				"."
-			) == "properties"
-		) {
+		if ( listLast( arguments.resourceBundleFullPath, "." ) == "properties" ) {
 			return loadJavaResource( arguments.resourceBundleFullPath );
 		}
 		// Else JSON
@@ -570,6 +539,7 @@ component singleton accessors="true" {
 	 * @resourceBundleFullPath full path to a (partial) resourceFile
 	 *
 	 * @return struct resourcebundle
+	 *
 	 * @throws ResourceBundle.InvalidBundlePath
 	 */
 	private function loadJavaResource( required string resourceBundleFullPath ){
@@ -579,10 +549,7 @@ component singleton accessors="true" {
 		var fis            = getResourceFileInputStream( arguments.resourceBundleFullPath );
 		var fir            = createObject( "java", "java.io.InputStreamReader" ).init( fis, "UTF-8" );
 		// init rb with file stream
-		var rb             = createObject(
-			"java",
-			"java.util.PropertyResourceBundle"
-		).init( fir );
+		var rb             = createObject( "java", "java.util.PropertyResourceBundle" ).init( fir );
 		try {
 			// get keys
 			var keys = rb.getKeys();
@@ -603,6 +570,7 @@ component singleton accessors="true" {
 	 * @resourceBundleFullPath full path to a (partial) resourceFile
 	 *
 	 * @return struct resourcebundle
+	 *
 	 * @throws ResourceBundle.InvalidJSONBundlePath
 	 */
 	private function loadJsonResource( required string resourceBundleFullPath ){
@@ -619,12 +587,12 @@ component singleton accessors="true" {
 	/**
 	 * flatten a struct, so we can use keys in format 'main.sub1.sub2.resource'.
 	 *
-	 * @originalStruct
+	 * @originalStruct 
 	 * @flattenedStruct necessary for recursion
-	 * @prefix_string necessary for processing, so key kan be prepended with parent name
-	 *
+	 * @prefix_string   necessary for processing, so key kan be prepended with parent name
 	 *
 	 * @return struct resourcebundle
+	 *
 	 * @throws ResourceBundle.InvalidBundlePath
 	 */
 	private function flattenStruct(
@@ -634,11 +602,7 @@ component singleton accessors="true" {
 	){
 		arguments.originalStruct.each( function( key, value ){
 			if ( isStruct( value ) ) {
-				flattenedStruct = flattenStruct(
-					value,
-					flattenedStruct,
-					"#prefixString##key#."
-				);
+				flattenedStruct = flattenStruct( value, flattenedStruct, "#prefixString##key#." );
 			} else {
 				structInsert(
 					flattenedStruct,
