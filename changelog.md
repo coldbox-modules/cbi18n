@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ----
 
+## [2.2.0] => 2022-JAN-
+
+### Added
+
+* Migration to github actions
+* CFFormatting
+
+### Fixed
+
+* Currently each time ColdBox framework gets reinited (?fwreinit=1) or server restarted, user-selected locale gets reset to the default locale.
+
+----
+
 ## [2.1.0] => 2021-JAN-20
 
 ### Fixed
