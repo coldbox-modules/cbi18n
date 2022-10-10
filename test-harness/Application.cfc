@@ -8,6 +8,7 @@ component{
 
 	// UPDATE THE NAME OF THE MODULE IN TESTING BELOW
 	request.MODULE_NAME = "cbi18n";
+	request.MODULE_PATH = "cbi18n";
 
 	// Application properties
 	this.name              = hash( getCurrentTemplatePath() );
@@ -46,8 +47,6 @@ component{
 	// Module Root + Path Mappings
 	this.mappings[ "/moduleroot" ] = moduleRootPath;
 	this.mappings[ "/#request.MODULE_NAME#" ] = modulePath;
-
-	this.mappings[ "/cbi18n" ] = COLDBOX_APP_ROOT_PATH & "modules/cbi18n";
 
 	// application start
 	public boolean function onApplicationStart(){

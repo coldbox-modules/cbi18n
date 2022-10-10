@@ -1,8 +1,8 @@
-[![Build Status](https://travis-ci.com/coldbox-modules/cbi18n.svg?branch=development)](https://travis-ci.com/coldbox-modules/cbi18n)
+[![cbproxies CI](https://github.com/coldbox-modules/cbi18n/actions/workflows/ci.yml/badge.svg)](https://github.com/coldbox-modules/cbi18n/actions/workflows/ci.yml)
 
 # WELCOME TO THE COLDBOX I18N & LOCALIZATION MODULE
 
-This module will enhance your ColdBox applications with i18n capabilities, resource bundles and localization.  It supports traditional Java resource bundles and also modern JSON resource bundles.
+This module will enhance your ColdBox applications with i18n (internationalization) capabilities, resource bundles and localization.  It supports traditional Java resource bundles and also modern JSON resource bundles.
 
 ## LICENSE
 
@@ -18,7 +18,7 @@ Apache License, Version 2.0.
 ## SYSTEM REQUIREMENTS
 
 - Lucee 5+
-- Adobe ColdFusion 2016+
+- Adobe ColdFusion 2018+
 
 ## INSTRUCTIONS
 
@@ -37,7 +37,7 @@ You can add a `cbi18n` structure of settings to your `modulesettings` in  `ColdB
 
 ```js
 // config/ColdBox.cfc
-moduleSettings = 
+moduleSettings =
 	cbi18n = {
 		// The base path of the default resource bundle to load
 		// base path is path + resource name but excluding _lang_COUNTRY.properties
@@ -80,10 +80,10 @@ function configure(){
 This module announces an `onUnknownTranslation` interception. The `data` announced is a struct with the following format:
 
 ```js
-{ 
-	resource 	= ..., 
-	locale 		= ... , 
-	bundle  	= ... 
+{
+	resource 	= ...,
+	locale 		= ... ,
+	bundle  	= ...
 }
 ```
 
@@ -101,7 +101,7 @@ function getFWLocale()
 * Set the locale for a specific user
 * @locale The locale to set. Must be Java Style Standard: en_US, if empty it will default to the default locale
 * @dontLoadRBFlag Flag to load the resource bundle for the specified locale (If not already loaded)
-* 
+*
 * @return i18n Service
 */
 function setFWLocale( string locale="", boolean dontloadRBFlag=false )
@@ -143,7 +143,7 @@ Copyright Since 2005 ColdBox Framework by Luis Majano and Ortus Solutions, Corp
 www.coldbox.org | www.luismajano.com | www.ortussolutions.com
 ********************************************************************************
 
-#### HONOR GOES TO GOD ABOVE ALL
+### HONOR GOES TO GOD ABOVE ALL
 
 Because of His grace, this project exists. If you don't like this, then don't read it, its not for you.
 
@@ -151,7 +151,7 @@ Because of His grace, this project exists. If you don't like this, then don't re
 By whom also we have access by faith into this grace wherein we stand, and rejoice in hope of the glory of God.
 And not only so, but we glory in tribulations also: knowing that tribulation worketh patience;
 And patience, experience; and experience, hope:
-And hope maketh not ashamed; because the love of God is shed abroad in our hearts by the 
+And hope maketh not ashamed; because the love of God is shed abroad in our hearts by the
 Holy Ghost which is given unto us. ." Romans 5:5
 
 ### THE DAILY BREAD
