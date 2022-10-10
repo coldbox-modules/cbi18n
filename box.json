@@ -1,7 +1,7 @@
 {
     "name":"ColdBox i18n and Localization",
     "author":"Ortus Solutions <info@ortussolutions.com>",
-    "version":"2.2.0",
+    "version":"3.0.0",
     "location":"https://downloads.ortussolutions.com/ortussolutions/coldbox-modules/cbi18n/@build.version@/cbi18n-@build.version@.zip",
     "slug":"cbi18n",
     "type":"modules",
@@ -25,18 +25,32 @@
         "Jon Clausen <jon_clausen@silowebworks.com>",
         "Wil de Bruin <wil@site4u.nl>"
     ],
+	"devDependencies":{
+        "commandbox-cfformat":"*",
+        "commandbox-docbox":"*",
+        "commandbox-dotenv":"*",
+        "commandbox-cfconfig":"*"
+    },
     "dependencies":{
-        "cbstorages":"^2.4.0+64"
+        "cbstorages":"^3.0.0"
     },
     "ignore":[
         "**/.*",
-        "tests/*",
-        ".git*"
+        "test-harness",
+        "/server*.json"
     ],
+    "testbox":{
+        "runner":"http://localhost:60299/tests/runner.cfm"
+    },
     "scripts":{
+        "build:module":"task run taskFile=build/Build.cfc :projectName=`package show slug` :version=`package show version`",
+        "build:docs":"task run taskFile=build/Build.cfc target=docs :projectName=`package show slug` :version=`package show version`",
         "release":"recipe build/release.boxr",
-        "format":"cfformat run ModuleConfig.cfc,models/,test-harness/config,test-harness/handlers,test-harness/tests/specs ./.cfformat.json --overwrite",
-        "format:watch":"cfformat watch ModuleConfig.cfc,models/,test-harness/config,test-harness/handlers,test-harness/tests/specs ./.cfformat.json",
-        "format:check":"cfformat check ModuleConfig.cfc,models/,test-harness/config,test-harness/handlers,test-harness/tests/specs ./.cfformat.json"
+        "format":"cfformat run helpers,models,test-harness/tests/,ModuleConfig.cfc --overwrite",
+        "format:watch":"cfformat watch helpers,models,test-harness/tests/,ModuleConfig.cfc ./.cfformat.json",
+        "format:check":"cfformat check helpers,models,test-harness/tests/,ModuleConfig.cfc",
+        "cfpm":"echo '\".engine/adobe2021/WEB-INF/cfusion/bin/cfpm.sh\"' | run",
+        "cfpm:install":"echo '\".engine/adobe2021/WEB-INF/cfusion/bin/cfpm.sh\" install ${1}' | run",
+        "install:2021":"run-script cfpm:install zip,debugger"
     }
 }

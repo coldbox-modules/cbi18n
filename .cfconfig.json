@@ -1,4 +1,5 @@
 {
+	"adminPassword" : "coldbox",
     "debuggingEnabled":true,
     "debuggingReportExecutionTimes":false,
     "disableInternalCFJavaComponents":false,

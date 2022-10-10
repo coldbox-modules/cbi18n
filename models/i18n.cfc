@@ -1060,4 +1060,3 @@ component singleton accessors="true" {
 	}
 
 }
-
