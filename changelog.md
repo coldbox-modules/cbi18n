@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ----
 
+## [3.0.0] => 2022-NOV-15
+
+### Added
+
+* New ColdBox 7 delegate: `Resourceful@cbi18n`
+
+----
+
 ## [3.0.0] => 2022-OCT-10
 
 ### Added

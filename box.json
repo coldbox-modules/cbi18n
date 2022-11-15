@@ -1,7 +1,7 @@
 {
     "name":"ColdBox i18n and Localization",
     "author":"Ortus Solutions <info@ortussolutions.com>",
-    "version":"3.0.0",
+    "version":"3.1.0",
     "location":"https://downloads.ortussolutions.com/ortussolutions/coldbox-modules/cbi18n/@build.version@/cbi18n-@build.version@.zip",
     "slug":"cbi18n",
     "type":"modules",
@@ -25,7 +25,7 @@
         "Jon Clausen <jon_clausen@silowebworks.com>",
         "Wil de Bruin <wil@site4u.nl>"
     ],
-	"devDependencies":{
+    "devDependencies":{
         "commandbox-cfformat":"*",
         "commandbox-docbox":"*",
         "commandbox-dotenv":"*",
