@@ -161,7 +161,7 @@ component singleton accessors="true" {
 
 		// Check if resource does NOT exists?
 		if ( !structKeyExists( thisBundle, arguments.resource ) ) {
-			variables.interceptorService.processState(
+			variables.interceptorService.announce(
 				"onUnknownTranslation",
 				{
 					resource : arguments.resource,
@@ -587,7 +587,7 @@ component singleton accessors="true" {
 	/**
 	 * flatten a struct, so we can use keys in format 'main.sub1.sub2.resource'.
 	 *
-	 * @originalStruct 
+	 * @originalStruct
 	 * @flattenedStruct necessary for recursion
 	 * @prefix_string   necessary for processing, so key kan be prepended with parent name
 	 *

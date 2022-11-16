@@ -7,7 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ----
 
-## [3.0.0] => 2022-NOV-15
+## [3.2.0] => 2022-NOV-16
+
+### Added
+
+* Updated to use latest cb7 `announce()`
+
+----
+
+## [3.1.0] => 2022-NOV-15
 
 ### Added
 
