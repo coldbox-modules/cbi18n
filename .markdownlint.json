@@ -8,7 +8,11 @@
 	"no-multiple-blanks": {
 		"maximum": 2
 	},
-	"no-duplicate-header" : false,
-	"no-duplicate-heading" : false,
+	"no-duplicate-header" : {
+		"siblings_only" : true
+	},
+	"no-duplicate-heading" : {
+		"siblings_only" : true
+	},
 	"no-inline-html" : false
 }
