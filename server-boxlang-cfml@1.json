@@ -3,7 +3,7 @@
         "cfengine":"boxlang@be",
         "serverHomeDirectory":".engine/boxlang"
     },
-    "name":"cbi18n-boxlang@1",
+    "name":"cbstorages-boxlang@1",
     "force":true,
     "openBrowser":false,
     "web":{
@@ -16,12 +16,12 @@
         },
         "webroot":"test-harness",
         "aliases":{
-            "/moduleroot/cbi18n":"./"
+            "/moduleroot/cbstorages":"./"
         }
     },
     "JVM":{
         "heapSize":"1024",
-        "javaVersion":"openjdk21_jdk",
+        "javaVersion":"openjdk21_jre",
         "args":"-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=9999 -Dboxlang.debugMode=true"
     },
     "cfconfig":{
@@ -31,6 +31,6 @@
         "BOXLANG_DEBUG":true
     },
     "scripts":{
-        "onServerInitialInstall":"install bx-mail,bx-mysql,bx-derby,bx-compat-cfml@be,bx-unsafe-evaluate,bx-esapi --noSave"
+        "onServerInitialInstall":"install bx-compat-cfml --noSave"
     }
 }

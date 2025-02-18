@@ -18,35 +18,34 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        cfengine: [ "lucee@5", "adobe@2018", "adobe@2021" ]
-        coldboxVersion: [ "^6.0.0" ]
+        cfengine: [ "boxlang-cfml@1", "lucee@5", "lucee@6", "adobe@2021", "adobe@2023" ]
+        coldboxVersion: [ "^6.0.0", "^7.0.0" ]
         experimental: [ false ]
         include:
-          - cfengine: "adobe@2023"
-            coldboxVersion: "^6.0.0"
-            experimental: true
           - coldboxVersion: "be"
             cfengine: "lucee@5"
             experimental: true
           - coldboxVersion: "be"
-            cfengine: "adobe@2018"
+            cfengine: "lucee@6"
             experimental: true
           - coldboxVersion: "be"
             cfengine: "adobe@2021"
             experimental: true
           - coldboxVersion: "be"
-            cfengine: "boxlang@1"
+            cfengine: "adobe@2023"
+            experimental: true
+          - coldboxVersion: "be"
+            cfengine: "boxlang-cfml@1"
             experimental: true
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: "temurin"
-          java-version: "11"
+          java-version: "21"
 
       # - name: Setup Database and Fixtures
       #   run: |
@@ -71,11 +70,6 @@ jobs:
 
       - name: Setup CommandBox CLI
         uses: Ortus-Solutions/setup-commandbox@v2.0.1
-
-      - name: Update Commandbox Boxlang Module
-        if: ${{ matrix.cfengine == 'boxlang@1' }}
-        run:
-          box install --force commandbox-boxlang
 
       - name: Install Dependencies
         run: |
