@@ -3,7 +3,7 @@
         "cfengine":"boxlang@be",
         "serverHomeDirectory":".engine/boxlang"
     },
-    "name":"cbstorages-boxlang@1",
+    "name":"cbi18n-boxlang@1",
     "force":true,
     "openBrowser":false,
     "web":{
@@ -16,13 +16,13 @@
         },
         "webroot":"test-harness",
         "aliases":{
-            "/moduleroot/cbstorages":"./"
+            "/moduleroot/cbi18n":"./"
         }
     },
     "JVM":{
         "heapSize":"1024",
         "javaVersion":"openjdk21_jre",
-        "args":"-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=9999 -Dboxlang.debugMode=true"
+        "args":"-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8888 -Dboxlang.debugMode=true"
     },
     "cfconfig":{
         "file":".cfconfig.json"
