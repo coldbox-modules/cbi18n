@@ -587,7 +587,7 @@ component singleton accessors="true" {
 	/**
 	 * flatten a struct, so we can use keys in format 'main.sub1.sub2.resource'.
 	 *
-	 * @originalStruct
+	 * @originalStruct 
 	 * @flattenedStruct necessary for recursion
 	 * @prefix_string   necessary for processing, so key kan be prepended with parent name
 	 *
