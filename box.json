@@ -26,6 +26,7 @@
         "Wil de Bruin <wil@site4u.nl>"
     ],
     "devDependencies":{
+		"commandbox-boxlang":"*",
         "commandbox-cfformat":"*",
         "commandbox-docbox":"*",
         "commandbox-dotenv":"*",
