@@ -1,0 +1,45 @@
+name: Build Snapshot
+
+on:
+  push:
+    branches:
+      - 'development'
+  workflow_dispatch:
+
+jobs:
+  ##########################################################################################
+  # Module Tests
+  ##########################################################################################
+  tests:
+    secrets: inherit
+    uses: ./.github/workflows/tests.yml
+
+  ##########################################################################################
+  # Format Source Code
+  # TODO: Add this back once the code is in script
+  ##########################################################################################
+  # format:
+  #   name: Code Auto-Formatting
+  #   runs-on: ubuntu-24.04
+  #   steps:
+  #     - uses: actions/checkout@v4
+
+  #     - name: Auto-format
+  #       uses: Ortus-Solutions/commandbox-action@v1.0.2
+  #       with:
+  #         cmd: run-script format
+
+  #     - name: Commit Format Changes
+  #       uses: stefanzweifel/git-auto-commit-action@v4
+  #       with:
+  #         commit_message: Apply cfformat changes
+
+  ##########################################################################################
+  # Release it
+  ##########################################################################################
+  release:
+    uses: ./.github/workflows/release.yml
+    needs: [ tests ]
+    secrets: inherit
+    with:
+      snapshot: true

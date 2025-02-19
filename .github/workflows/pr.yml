@@ -6,28 +6,25 @@ on:
       - "main"
       - "master"
       - "development"
+      - "releases/v*"
   pull_request:
     branches:
+      - "releases/v*"
       - development
 
 jobs:
-  # UPDATE TO THE MODULE REPO SO PR'S CAN REUSE IT
   tests:
-    uses: coldbox-modules/cbi18n/.github/workflows/tests.yml@development
+    uses: ./.github/workflows/tests.yml
+    secrets: inherit
 
-  # Format PR
-  format:
-    name: Format
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+  # TODO: Add this back once the code is in script
+  # formatCheck:
+  #   name: Checks Source Code Formatting
+  #   runs-on: ubuntu-24.04
+  #   steps:
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v4
 
-      - uses: Ortus-Solutions/commandbox-action@v1.0.2
-        with:
-          cmd: run-script format
-
-      - name: Commit Format Changes
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: Apply cfformat changes
+  #     - uses: Ortus-Solutions/commandbox-action@v1.0.2
+  #       with:
+  #         cmd: run-script format:check

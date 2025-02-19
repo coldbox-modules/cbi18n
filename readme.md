@@ -1,30 +1,46 @@
-[![cbproxies CI](https://github.com/coldbox-modules/cbi18n/actions/workflows/ci.yml/badge.svg)](https://github.com/coldbox-modules/cbi18n/actions/workflows/ci.yml)
+<p align="center">
+	<img src="https://www.ortussolutions.com/__media/coldbox-185-logo.png">
+	<br>
+	<img src="https://www.ortussolutions.com/__media/wirebox-185.png" height="125">
+	<img src="https://www.ortussolutions.com/__media/cachebox-185.png" height="125" >
+	<img src="https://www.ortussolutions.com/__media/logbox-185.png"  height="125">
+</p>
 
-# WELCOME TO THE COLDBOX I18N & LOCALIZATION MODULE
+<p align="center">
+	Copyright Since 2005 ColdBox Platform by Luis Majano and Ortus Solutions, Corp
+	<br>
+	<a href="https://www.coldbox.org">www.coldbox.org</a> |
+	<a href="https://www.ortussolutions.com">www.ortussolutions.com</a>
+</p>
+
+# Welcome to the Localization & Internationalization Module for ColdBox
 
 This module will enhance your ColdBox applications with i18n (internationalization) capabilities, resource bundles and localization.  It supports traditional Java resource bundles and also modern JSON resource bundles.
 
-## LICENSE
+## License
 
 Apache License, Version 2.0.
 
-## IMPORTANT LINKS
+## Important Links
 
 - Documentation: https://coldbox-i18n.ortusbooks.com/
 - Source: https://github.com/coldbox-modules/cbi18n
 - ForgeBox: https://forgebox.io/view/cbi18n
 - [Changelog](changelog.md)
 
-## SYSTEM REQUIREMENTS
+## Requirements
 
+- BoxLang 1+
 - Lucee 5+
-- Adobe ColdFusion 2018+
+- Adobe ColdFusion 2021+
 
-## INSTRUCTIONS
+## Installation
 
-Leverage CommandBox and install it:
+Leverage CommandBox CLI and install it:
 
 `box install cbi18n`
+
+## Models Registration
 
 This module registers the following models in WireBox:
 
