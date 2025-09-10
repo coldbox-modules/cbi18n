@@ -127,6 +127,14 @@ component singleton accessors="true" {
 		if ( !arguments.locale.len() ) {
 			arguments.locale = variables.defaultLocale;
 		}
+		// Check locale
+		if ( !isValidLocale( arguments.locale ) ) {
+			throw(
+				message: "Specified locale must be of the form language_COUNTRY_VARIANT where language, country and variant are 2 characters each, ISO 3166 standard.",
+				detail : "The locale tested is: #arguments.locale#",
+				type   : "i18n.InvalidLocaleException"
+			);
+		}
 		variables.storageService.set( "currentLocale", arguments.locale );
 		return this;
 	}
