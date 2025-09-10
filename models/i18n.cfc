@@ -114,6 +114,10 @@ component singleton accessors="true" {
 	 * @return The users locale string if set, else, the default locale
 	 */
 	string function getFwLocale(){
+		var storedLocale = variables.storageService.get( "currentLocale", variables.settings.defaultLocale );
+		if ( !isValidLocale(storedLocale) ){
+			setFwLocale();
+		}
 		// return locale, default already set in onDIComplete
 		return variables.storageService.get( "currentLocale", variables.settings.defaultLocale );
 	}
