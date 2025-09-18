@@ -125,6 +125,7 @@ component singleton accessors="true" {
 			arguments.bundle   = listLast( arguments.resource, "@" );
 			arguments.resource = listFirst( arguments.resource, "@" );
 		}
+
 		try {
 			// Check if the locale has a language bundle loaded in memory
 			if (
@@ -160,7 +161,7 @@ component singleton accessors="true" {
 		}
 
 		// Check if resource does NOT exists?
-		if ( !structKeyExists( thisBundle, arguments.resource ) ) {
+		if ( !structKeyExists( thisBundle, arguments.resource ) || isNull( thisBundle[ arguments.resource ] ) ) {
 			variables.interceptorService.announce(
 				"onUnknownTranslation",
 				{
@@ -177,12 +178,8 @@ component singleton accessors="true" {
 
 			// argument defaultValue was 'default'. both NOT required in function definition so we can check both
 			// first check the new 'defaultValue' param
-			if ( structKeyExists( arguments, "defaultValue" ) ) {
+			if ( !isNull( arguments.defaultValue ) ) {
 				return arguments.defaultValue;
-			}
-			// if still using the old argument, return this. You will never arrive here when using 'defaultValue'
-			if ( structKeyExists( arguments, "default" ) ) {
-				return arguments.default;
 			}
 
 			// Check unknown translation setting
@@ -195,7 +192,7 @@ component singleton accessors="true" {
 		}
 
 		// Return Resource with value replacements
-		if ( structKeyExists( arguments, "values" ) ) {
+		if ( !isNull( arguments.values )) {
 			return formatRBString( thisBundle[ arguments.resource ], arguments.values );
 		}
 
@@ -587,7 +584,7 @@ component singleton accessors="true" {
 	/**
 	 * flatten a struct, so we can use keys in format 'main.sub1.sub2.resource'.
 	 *
-	 * @originalStruct 
+	 * @originalStruct
 	 * @flattenedStruct necessary for recursion
 	 * @prefix_string   necessary for processing, so key kan be prepended with parent name
 	 *

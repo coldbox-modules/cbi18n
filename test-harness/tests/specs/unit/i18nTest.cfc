@@ -8,9 +8,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 		mockRB.$( "loadBundle", mockRB );
 		mockCookieStorage = createEmptyMock( "cbstorages.models.CookieStorage" );
-		mockCookieStorage
-			.$( "set", mockCookieStorage )
-			.$( "get", "en_US" );
+		mockCookieStorage.$( "set", mockCookieStorage ).$( "get", "en_US" );
 		mockController = prepareMock( getController() );
 
 		// mock dynamic creation of cookiestorage
