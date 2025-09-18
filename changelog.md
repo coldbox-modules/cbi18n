@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `setFwLocale` should allow only valid values as well by @GunnarLieb
+- `getFwLocale` should check if the requested locale is valid, else, default to the default one, this protects against cookie corruption
 - BoxLang Prime Support
 - Updated Github actions
 - Adobe 2025 Support
