@@ -357,7 +357,7 @@ component singleton accessors="true" {
 	/**
 	 * locale version of dateFormat. Needs object instantiation. That is your job not mine.
 	 *
-	 * @date
+	 * @date 
 	 * @style FULL=0, LONG=1, MEDIUM=2, SHORT=3
 	 */
 	function dateLocaleFormat( required date date, string style = "LONG" ){
@@ -378,7 +378,7 @@ component singleton accessors="true" {
 	/**
 	 * locale version of timeFormat. Needs object instantiation. That is your job not mine.
 	 *
-	 * @date
+	 * @date 
 	 * @style FULL=0, LONG=1, MEDIUM=2, SHORT=3
 	 */
 	function timeLocaleFormat( required date date, string style = "SHORT" ){
@@ -399,7 +399,7 @@ component singleton accessors="true" {
 	/**
 	 * locale date/time format. Needs object instantiation. That is your job not mine.
 	 *
-	 * @date
+	 * @date     
 	 * @dateStyle FULL=0, LONG=1, MEDIUM=2, SHORT=3
 	 * @timeStyle FULL=0, LONG=1, MEDIUM=2, SHORT=3
 	 */
@@ -516,9 +516,9 @@ component singleton accessors="true" {
 	/**
 	 * formats a date/time to given pattern
 	 *
-	 * @thisOffset
+	 * @thisOffset 
 	 * @thisPattern
-	 * @tz
+	 * @tz         
 	 */
 	string function formatDateTime(
 		required numeric thisOffset,
@@ -609,7 +609,7 @@ component singleton accessors="true" {
 	 * returns year from epoch offset
 	 *
 	 * @thisOffset java epoch offset
-	 * @tz
+	 * @tz        
 	 */
 	numeric function getYear( required numeric thisOffset, tz = variables.timeZone.getDefault().getID() ){
 		var thisTZ    = variables.timeZone.getTimeZone( arguments.tZ );
@@ -623,7 +623,7 @@ component singleton accessors="true" {
 	 * returns month from epoch offset
 	 *
 	 * @thisOffset java epoch offset
-	 * @tz
+	 * @tz        
 	 */
 	numeric function getMonth( required numeric thisOffset, tz = variables.timeZone.getDefault().getID() ){
 		var thisTZ    = variables.timeZone.getTimeZone( arguments.tZ );
@@ -637,7 +637,7 @@ component singleton accessors="true" {
 	 * returns day from epoch offset
 	 *
 	 * @thisOffset java epoch offset
-	 * @tz
+	 * @tz        
 	 */
 	numeric function getDay( required numeric thisOffset, tz = variables.timeZone.getDefault().getID() ){
 		var thisTZ    = variables.timeZone.getTimeZone( arguments.tZ );
@@ -651,7 +651,7 @@ component singleton accessors="true" {
 	 * returns hour of day, 24 hr format, from epoch offset
 	 *
 	 * @thisOffset java epoch offset
-	 * @tz
+	 * @tz        
 	 */
 	numeric function getHour( required numeric thisOffset, tz = variables.timeZone.getDefault().getID() ){
 		var thisTZ    = variables.timeZone.getTimeZone( arguments.tZ );
@@ -665,7 +665,7 @@ component singleton accessors="true" {
 	 * returns minute from epoch offset
 	 *
 	 * @thisOffset java epoch offset
-	 * @tz
+	 * @tz        
 	 */
 	numeric function getMinute( required numeric thisOffset, tz = variables.timeZone.getDefault().getID() ){
 		var thisTZ    = variables.timeZone.getTimeZone( arguments.tZ );
@@ -679,7 +679,7 @@ component singleton accessors="true" {
 	 * returns second from epoch offset
 	 *
 	 * @thisOffset java epoch offset
-	 * @tz
+	 * @tz        
 	 */
 	numeric function getSecond( required numeric thisOffset, tz = variables.timeZone.getDefault().getID() ){
 		var thisTZ    = variables.timeZone.getTimeZone( arguments.tZ );
@@ -767,7 +767,7 @@ component singleton accessors="true" {
 	 * determines if a given date in a given timezone is in DST
 	 *
 	 * @thisOffset
-	 * @tzToTest
+	 * @tzToTest  
 	 */
 	boolean function inDST( requred numeric thisOffset, tzToTest = variables.timeZone.getDefault().getID() ){
 		var thisTZ    = variables.timeZone.getTimeZone( arguments.tzToTest );
@@ -781,7 +781,7 @@ component singleton accessors="true" {
 	 * returns the offset in hours for the given datetime in the specified timezone
 	 *
 	 * @thisDate
-	 * @thisTz
+	 * @thisTz  
 	 */
 	function getTZOffset( required date thisDate, thisTZ = variables.timeZone.getDefault().getID() ){
 		var tZ = variables.timeZone.getTimeZone( arguments.thisTZ );
@@ -791,10 +791,10 @@ component singleton accessors="true" {
 	/**
 	 * DateAdd
 	 *
-	 * @thisOffset
+	 * @thisOffset  
 	 * @thisDatePart
-	 * @dateUnits
-	 * @thisTZ
+	 * @dateUnits   
+	 * @thisTZ      
 	 */
 	numeric function dateAdd(
 		required numeric thisOffset,
@@ -847,10 +847,10 @@ component singleton accessors="true" {
 	/**
 	 * DateDiff
 	 *
-	 * @thisOffset
-	 * @thatOffset
+	 * @thisOffset  
+	 * @thatOffset  
 	 * @thisDatePart
-	 * @thisTZ
+	 * @thisTZ      
 	 */
 	numeric function dateDiff(
 		required numeric thisOffset,
@@ -1008,7 +1008,7 @@ component singleton accessors="true" {
 	/**
 	 * returns the display name of the timezone requested in either long, short, or default style
 	 *
-	 * @thisTZ
+	 * @thisTZ 
 	 * @dspType
 	 */
 	string function getTZDisplayName( thisTZ = variables.timeZone.getDefault().getID(), string dspType = "" ){
