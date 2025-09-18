@@ -4,7 +4,7 @@
  * ---
  * Internationalization and localization support for ColdBox
  */
-component singleton accessors="true" {
+component singleton threadsafe accessors="true" {
 
 	// DI
 	property name="resourceService" inject="resourceService@cbi18n";
@@ -82,6 +82,7 @@ component singleton accessors="true" {
 				extendedInfo: "Please check the cbstorages documentation, LocaleStorage should be in the format of a valid storage object 'someStorage@cbstorages', e.g cookieStorage@cbstorages, cacheStorage@cbstorages etcetera."
 			);
 		}
+
 		// set locale setup on configuration file
 		setFWLocale( getFwLocale() );
 
@@ -114,8 +115,15 @@ component singleton accessors="true" {
 	 * @return The users locale string if set, else, the default locale
 	 */
 	string function getFwLocale(){
-		// return locale, default already set in onDIComplete
-		return variables.storageService.get( "currentLocale", variables.settings.defaultLocale );
+		var storedLocale = variables.storageService.get( "currentLocale", variables.settings.defaultLocale );
+
+		// If not valid, clear it out to avoid corruptions
+		if ( storedLocale.isEmpty() || !isValidLocale( storedLocale ) ) {
+			variables.storageService.delete( "currentLocale" );
+			return variables.settings.defaultLocale;
+		}
+
+		return storedLocale;
 	}
 
 	/**
@@ -126,6 +134,14 @@ component singleton accessors="true" {
 	i18n function setFwLocale( string locale = "" ){
 		if ( !arguments.locale.len() ) {
 			arguments.locale = variables.defaultLocale;
+		}
+		// Check locale
+		if ( !isValidLocale( arguments.locale ) ) {
+			throw(
+				message: "Specified locale must be of the form language_COUNTRY_VARIANT where language, country and variant are 2 characters each, ISO 3166 standard.",
+				detail : "The locale tested is: #arguments.locale#",
+				type   : "i18n.InvalidLocaleException"
+			);
 		}
 		variables.storageService.set( "currentLocale", arguments.locale );
 		return this;
