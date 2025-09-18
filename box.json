@@ -26,7 +26,7 @@
         "Wil de Bruin <wil@site4u.nl>"
     ],
     "devDependencies":{
-		"commandbox-boxlang":"*",
+        "commandbox-boxlang":"*",
         "commandbox-cfformat":"*",
         "commandbox-docbox":"*"
     },
@@ -44,18 +44,21 @@
     "scripts":{
         "build:module":"task run taskFile=build/Build.cfc :projectName=`package show slug` :version=`package show version`",
         "build:docs":"task run taskFile=build/Build.cfc target=docs :projectName=`package show slug` :version=`package show version`",
-        "release":"recipe build/release.boxr",
+        "install:dependencies":"install && cd test-harness && install",
         "format":"cfformat run helpers,models,test-harness/tests/,ModuleConfig.cfc --overwrite",
         "format:watch":"cfformat watch helpers,models,test-harness/tests/,ModuleConfig.cfc ./.cfformat.json",
         "format:check":"cfformat check helpers,models,test-harness/tests/,ModuleConfig.cfc ./.cfformat.json",
-		"start:lucee" : "server start serverConfigFile=server-lucee@5.json",
-		"start:adobe" : "server start serverConfigFile=server-adobe@2025.json",
-		"start:boxlang" : "server start serverConfigFile=server-boxlang@1.json",
-		"stop:lucee" : "server stop serverConfigFile=server-lucee@5.json",
-		"stop:adobe" : "server stop serverConfigFile=server-adobe@2025.json",
-		"stop:boxlang" : "server stop serverConfigFile=server-boxlang@1.json",
-		"logs:lucee" : "server log serverConfigFile=server-lucee@5.json --follow",
-		"logs:adobe" : "server log serverConfigFile=server-adobe@2025.json --follow",
-		"logs:boxlang" : "server log serverConfigFile=server-boxlang@1.json --follow"
+        "start:lucee":"server start serverConfigFile=server-lucee@5.json",
+        "start:adobe":"server start serverConfigFile=server-adobe@2025.json",
+        "start:boxlang":"server start serverConfigFile=server-boxlang@1.json",
+        "stop:lucee":"server stop serverConfigFile=server-lucee@5.json",
+        "stop:adobe":"server stop serverConfigFile=server-adobe@2025.json",
+        "stop:boxlang":"server stop serverConfigFile=server-boxlang@1.json",
+        "logs:lucee":"server log serverConfigFile=server-lucee@5.json --follow",
+        "logs:adobe":"server log serverConfigFile=server-adobe@2025.json --follow",
+        "logs:boxlang":"server log serverConfigFile=server-boxlang@1.json --follow"
+    },
+    "installPaths":{
+        "cbstorages":"modules/cbstorages/"
     }
 }

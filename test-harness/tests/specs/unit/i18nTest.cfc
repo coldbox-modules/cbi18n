@@ -7,8 +7,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
 		mockRB = createEmptyMock( "cbi18n.models.ResourceService" );
 
 		mockRB.$( "loadBundle", mockRB );
-		mockCookieStorage = getMockBox().createEmptyMock( "cbstorages.models.CookieStorage" );
-		mockCookieStorage.$( "set", mockCookieStorage ).$( "get", "en_US" );
+		mockCookieStorage = createEmptyMock( "cbstorages.models.CookieStorage" );
+		mockCookieStorage
+			.$( "set", mockCookieStorage )
+			.$( "get", "en_US" );
 		mockController = prepareMock( getController() );
 
 		// mock dynamic creation of cookiestorage
@@ -42,8 +44,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
 	}
 
 	function testgetSetfwLocale(){
-		mockCookieStorage.$( "get" ).$results( "en_US", "es_SV" );
+		mockCookieStorage.$( "get" ).$results( "en_US" );
 		assertEquals( "en_US", i18n.getFWLocale() );
+
+		mockCookieStorage.$( "get" ).$results( "es_SV" );
 		i18n.setFWLocale( "es_SV" );
 		assertEquals( "es_SV", i18n.getFWLocale() );
 	}

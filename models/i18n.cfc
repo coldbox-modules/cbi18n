@@ -4,7 +4,7 @@
  * ---
  * Internationalization and localization support for ColdBox
  */
-component singleton accessors="true" {
+component singleton threadsafe accessors="true" {
 
 	// DI
 	property name="resourceService" inject="resourceService@cbi18n";
@@ -82,6 +82,7 @@ component singleton accessors="true" {
 				extendedInfo: "Please check the cbstorages documentation, LocaleStorage should be in the format of a valid storage object 'someStorage@cbstorages', e.g cookieStorage@cbstorages, cacheStorage@cbstorages etcetera."
 			);
 		}
+
 		// set locale setup on configuration file
 		setFWLocale( getFwLocale() );
 
@@ -115,11 +116,14 @@ component singleton accessors="true" {
 	 */
 	string function getFwLocale(){
 		var storedLocale = variables.storageService.get( "currentLocale", variables.settings.defaultLocale );
-		if ( !isValidLocale( storedLocale ) ) {
-			setFwLocale();
+
+		// If not valid, clear it out to avoid corruptions
+		if ( storedLocale.isEmpty() || !isValidLocale( storedLocale ) ) {
+			variables.storageService.delete( "currentLocale" );
+			return variables.settings.defaultLocale;
 		}
-		// return locale, default already set in onDIComplete
-		return variables.storageService.get( "currentLocale", variables.settings.defaultLocale );
+
+		return storedLocale;
 	}
 
 	/**
