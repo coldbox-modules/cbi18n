@@ -87,7 +87,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 		r = resourceService.getResource( resource = "invalid" );
 		assertEquals( "**TEST** key: invalid", r );
 
-		r = resourceService.getResource( resource = "invalid", default = "invalid" );
+		r = resourceService.getResource( resource = "invalid", defaultValue = "invalid" );
 		assertEquals( "invalid", r );
 	}
 
