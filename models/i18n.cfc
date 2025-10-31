@@ -985,11 +985,12 @@ component singleton threadsafe accessors="true" {
 		var aTZID         = getAvailableTZ();
 		var stNames       = {};
 		var qryTZ         = queryNew( "id,offset,dspName,longname,shortname,usesDST" );
-		var fReturnUnique = arguments.returUnique; // not necessary but no arguments issues in each()
+		var fReturnUnique = arguments.returnUnique; // not necessary but no arguments issues in each()
 		var tmpName       = "";
-		aTZID.each( function( timeZone ){
+		var timeZone      = "";
+		for (timeZone in aTZID) {
 			tmpName = getTZDisplayName( timeZone );
-			if ( !fReturnUnique || ( fReturnUnique && !structKeyExists( stNames, tmpname ) ) ) {
+			if ( !fReturnUnique || ( fReturnUnique && !structKeyExists( stNames, tmpName ) ) ) {
 				qryTZ.addRow( 1 );
 				qryTZ.setCell( "id", timeZone );
 				qryTZ.setCell( "offset", getRawOffset( timeZone ) );
@@ -998,13 +999,14 @@ component singleton threadsafe accessors="true" {
 				qryTZ.setCell( "shortname", getTZDisplayName( timeZone, "short" ) );
 				qryTZ.setCell( "usesDST", usesDST( timeZone ) );
 			}
-		} );
+		}
 		return qryTZ.sort( function( rowA, rowB ){
-			if ( compare( rowA.offset, rowB.offset ) == 0 ) {
-				// if locale=equal, further sort on langugage
-				return compare( rowA.dspname, rowB.dspname );
+			if (rowA.offset gt rowB.offset) {
+				return 1;
+			} else if (rowA.offset lt rowB.offset) {
+				return -1;
 			} else {
-				return compare( rowA.offset, rowB.offset );
+				return compare( rowA.dspName, rowB.dspName );
 			}
 		} );
 	}
