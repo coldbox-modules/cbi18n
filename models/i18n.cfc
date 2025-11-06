@@ -988,7 +988,7 @@ component singleton threadsafe accessors="true" {
 		var fReturnUnique = arguments.returnUnique; // not necessary but no arguments issues in each()
 		var tmpName       = "";
 		var timeZone      = "";
-		for (timeZone in aTZID) {
+		for ( timeZone in aTZID ) {
 			tmpName = getTZDisplayName( timeZone );
 			if ( !fReturnUnique || ( fReturnUnique && !structKeyExists( stNames, tmpName ) ) ) {
 				qryTZ.addRow( 1 );
@@ -1001,9 +1001,9 @@ component singleton threadsafe accessors="true" {
 			}
 		}
 		return qryTZ.sort( function( rowA, rowB ){
-			if (rowA.offset gt rowB.offset) {
+			if ( rowA.offset gt rowB.offset ) {
 				return 1;
-			} else if (rowA.offset lt rowB.offset) {
+			} else if ( rowA.offset lt rowB.offset ) {
 				return -1;
 			} else {
 				return compare( rowA.dspName, rowB.dspName );
