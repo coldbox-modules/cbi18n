@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.5.0] - 2025-11-10
+
 ### Fixed
 
 - Fixed typo in `returnUnique` parameter name in `getTZQuery` method by @sjdaniels
@@ -164,6 +166,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Create first module version
 
-[unreleased]: https://github.com/coldbox-modules/cbi18n/compare/v3.4.0...HEAD
+[unreleased]: https://github.com/coldbox-modules/cbi18n/compare/v3.5.0...HEAD
+[3.5.0]: https://github.com/coldbox-modules/cbi18n/compare/v3.4.0...v3.5.0
 [3.4.0]: https://github.com/coldbox-modules/cbi18n/compare/v3.3.0...v3.4.0
 [3.3.0]: https://github.com/coldbox-modules/cbi18n/compare/66cb83a4dbf1c67aba786dcf59236ba73ac29f51...v3.3.0
