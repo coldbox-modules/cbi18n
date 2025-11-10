@@ -18,7 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        cfengine: [ "boxlang@1", "boxlang-cfml@1", "lucee@5", "lucee@6", "adobe@2023", "adobe@2025" ]
+        cfengine: [ "boxlang-cfml@1", "lucee@5", "lucee@6", "adobe@2023", "adobe@2025" ]
         coldboxVersion: [ "^7.0.0", "^8.0.0" ]
         experimental: [ false ]
         # Experimental: ColdBox BE vs All Engines
@@ -35,9 +35,10 @@ jobs:
           - coldboxVersion: "be"
             cfengine: "boxlang-cfml@1"
             experimental: true
-          - coldboxVersion: "be"
+         # Boxlang PRIME
+          - coldboxVersion: "^8.0.0"
             cfengine: "boxlang@1"
-            experimental: true
+            experimental: false
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
