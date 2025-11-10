@@ -19,7 +19,7 @@ jobs:
       fail-fast: false
       matrix:
         cfengine: [ "boxlang-cfml@1", "lucee@5", "lucee@6", "adobe@2023", "adobe@2025" ]
-        coldboxVersion: [ "^7.0.0" ]
+        coldboxVersion: [ "^7.0.0", "^8.0.0" ]
         experimental: [ false ]
         # Experimental: ColdBox BE vs All Engines
         include:
@@ -35,9 +35,10 @@ jobs:
           - coldboxVersion: "be"
             cfengine: "boxlang-cfml@1"
             experimental: true
-          - coldboxVersion: "be"
+         # Boxlang PRIME
+          - coldboxVersion: "^8.0.0"
             cfengine: "boxlang@1"
-            experimental: true
+            experimental: false
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
@@ -89,7 +90,7 @@ jobs:
           box testbox run --verbose outputFile=test-harness/tests/results/test-results outputFormats=json,antjunit
 
       - name: Publish Test Reports
-        uses: mikepenz/action-junit-report@v5.6.2
+        uses: mikepenz/action-junit-report@v6.0.1
         if: always()
         with:
           report_paths: |
@@ -101,7 +102,7 @@ jobs:
 
       - name: Upload Test Results to Artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: test-results-${{ matrix.cfengine }}-${{ matrix.coldboxVersion }}
           path: |
@@ -114,7 +115,7 @@ jobs:
 
       - name: Upload Debug Logs To Artifacts
         if: ${{ failure() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: Failure Debugging Info - ${{ matrix.cfengine }} - ${{ matrix.coldboxVersion }}
           path: |

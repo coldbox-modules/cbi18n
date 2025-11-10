@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed typo in `returnUnique` parameter name in `getTZQuery` method by @sjdaniels
+- Fixed `getTZQuery` to use for loop instead of `each()` for Java String arrays by @sjdaniels
+- Fixed `getTZQuery` sort to correctly sort by numeric offset values instead of strings by @sjdaniels
+
+### Added
+
+- BoxLang PRIME testing certification
+- Updated GitHub Actions dependencies
+
 ## [3.4.0] - 2025-09-18
 
 ### Added
